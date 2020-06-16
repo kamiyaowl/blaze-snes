@@ -1,7 +1,7 @@
 
 version: "3"
 services:
-    run-debug:
+    run:
       build:
         context: .
         dockerfile: ./.devcontainer/Dockerfile
@@ -12,7 +12,7 @@ services:
         - "5000:5000"
         - "5001:5001"
       command: dotnet run
-    build:
+    publish:
       build:
         context: .
         dockerfile: ./.devcontainer/Dockerfile
@@ -20,3 +20,11 @@ services:
         - ./:/work
       working_dir: /work
       command: dotnet publish -c Release
+    test:
+      build:
+        context: .
+        dockerfile: ./.devcontainer/Dockerfile
+      volumes:
+        - ./:/work
+      working_dir: /work
+      command: dotnet test

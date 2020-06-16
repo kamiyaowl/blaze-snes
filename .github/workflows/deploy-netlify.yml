@@ -13,16 +13,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.301
+    - name: Build
+      run: docker-compose run publish
     - uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - name: Build
-      run: dotnet publish -c Release
     - run: npx netlify-cli deploy --prod --dir=./bin/Release/netstandard2.1/publish/wwwroot/
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: blaze-snes-wwwroot.zip
+        path: bin/Release/netstandard2.1/publish/wwwroot/
