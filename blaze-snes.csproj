@@ -6,9 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="blaze-snes.Core.Test\**" />
+    <Compile Remove="blaze-snes.Core\**" />
     <Compile Remove="blaze-snes.Test\**" />
+    <Content Remove="blaze-snes.Core.Test\**" />
+    <Content Remove="blaze-snes.Core\**" />
     <Content Remove="blaze-snes.Test\**" />
+    <EmbeddedResource Remove="blaze-snes.Core.Test\**" />
+    <EmbeddedResource Remove="blaze-snes.Core\**" />
     <EmbeddedResource Remove="blaze-snes.Test\**" />
+    <None Remove="blaze-snes.Core.Test\**" />
+    <None Remove="blaze-snes.Core\**" />
     <None Remove="blaze-snes.Test\**" />
   </ItemGroup>
 
@@ -17,6 +25,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="blaze-snes.Core\blaze-snes.Core.csproj" />
   </ItemGroup>
 
 </Project>
