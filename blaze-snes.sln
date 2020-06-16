@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blaze-snes", "blaze-snes.csproj", "{0C62E6C8-9667-404B-95C6-DB64002128AB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blaze-snes.Test", "blaze-snes.Test\blaze-snes.Test.csproj", "{BFC081F4-2395-4385-86C4-3520E9E2AE2F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|x64.Build.0 = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Debug|x86.Build.0 = Debug|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|x64.ActiveCfg = Release|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|x64.Build.0 = Release|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{0C62E6C8-9667-404B-95C6-DB64002128AB}.Release|x86.Build.0 = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|x64.Build.0 = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Debug|x86.Build.0 = Debug|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|x64.ActiveCfg = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|x64.Build.0 = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|x86.ActiveCfg = Release|Any CPU
+		{BFC081F4-2395-4385-86C4-3520E9E2AE2F}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {54D4A028-45EE-440D-B1FB-A9C605038DCC}
+	EndGlobalSection
+EndGlobal
