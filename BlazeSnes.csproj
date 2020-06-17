@@ -6,18 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="blaze-snes.Core.Test\**" />
-    <Compile Remove="blaze-snes.Core\**" />
-    <Compile Remove="blaze-snes.Test\**" />
-    <Content Remove="blaze-snes.Core.Test\**" />
-    <Content Remove="blaze-snes.Core\**" />
-    <Content Remove="blaze-snes.Test\**" />
-    <EmbeddedResource Remove="blaze-snes.Core.Test\**" />
-    <EmbeddedResource Remove="blaze-snes.Core\**" />
-    <EmbeddedResource Remove="blaze-snes.Test\**" />
-    <None Remove="blaze-snes.Core.Test\**" />
-    <None Remove="blaze-snes.Core\**" />
-    <None Remove="blaze-snes.Test\**" />
+    <Compile Remove="BlazeSnes.Core.Test\**" />
+    <Compile Remove="BlazeSnes.Core\**" />
+    <Compile Remove="BlazeSnes.Test\**" />
+    <Content Remove="BlazeSnes.Core.Test\**" />
+    <Content Remove="BlazeSnes.Core\**" />
+    <Content Remove="BlazeSnes.Test\**" />
+    <EmbeddedResource Remove="BlazeSnes.Core.Test\**" />
+    <EmbeddedResource Remove="BlazeSnes.Core\**" />
+    <EmbeddedResource Remove="BlazeSnes.Test\**" />
+    <None Remove="BlazeSnes.Core.Test\**" />
+    <None Remove="BlazeSnes.Core\**" />
+    <None Remove="BlazeSnes.Test\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="blaze-snes.Core\blaze-snes.Core.csproj" />
+    <ProjectReference Include="BlazeSnes.Core\BlazeSnes.Core.csproj" />
   </ItemGroup>
 
 </Project>

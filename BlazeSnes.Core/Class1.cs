@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace blaze_snes.Core
+namespace BlazeSnes.Core
 {
     public class Class1
     {

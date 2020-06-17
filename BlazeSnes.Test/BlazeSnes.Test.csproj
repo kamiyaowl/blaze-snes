@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\blaze-snes.csproj" />
+    <ProjectReference Include="..\BlazeSnes.csproj" />
   </ItemGroup>
 
 </Project>

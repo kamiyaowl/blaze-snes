@@ -3,18 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blaze-snes", "blaze-snes.csproj", "{0C62E6C8-9667-404B-95C6-DB64002128AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazeSnes", "BlazeSnes.csproj", "{0C62E6C8-9667-404B-95C6-DB64002128AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blaze-snes.Test", "blaze-snes.Test\blaze-snes.Test.csproj", "{BFC081F4-2395-4385-86C4-3520E9E2AE2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazeSnes.Test", "BlazeSnes.Test\BlazeSnes.Test.csproj", "{BFC081F4-2395-4385-86C4-3520E9E2AE2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blaze-snes.Core", "blaze-snes.Core\blaze-snes.Core.csproj", "{F9F47C59-FFE0-4793-9F24-E529745DC824}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazeSnes.Core", "BlazeSnes.Core\BlazeSnes.Core.csproj", "{F9F47C59-FFE0-4793-9F24-E529745DC824}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{74255A0A-6968-43D1-AB9B-6FFBBA7866F8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blaze-snes.Core.Test", "blaze-snes.Core.Test\blaze-snes.Core.Test.csproj", "{9F638AF3-57C5-4580-8B74-876406FC381B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazeSnes.Core.Test", "BlazeSnes.Core.Test\BlazeSnes.Core.Test.csproj", "{9F638AF3-57C5-4580-8B74-876406FC381B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

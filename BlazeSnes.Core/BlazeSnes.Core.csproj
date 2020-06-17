@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>blaze_snes.Core</RootNamespace>
+    <RootNamespace>BlazeSnes.Core</RootNamespace>
   </PropertyGroup>
 
 </Project>

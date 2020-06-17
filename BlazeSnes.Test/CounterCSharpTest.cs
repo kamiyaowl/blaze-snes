@@ -3,9 +3,9 @@ using Xunit;
 using Bunit;
 using Bunit.Mocking.JSInterop;
 using static Bunit.ComponentParameterFactory;
-using blaze_snes.Pages;
+using BlazeSnes.Pages;
 
-namespace blaze_snes.Test
+namespace BlazeSnes.Test
 {
     /// <summary>
     /// These tests are written entirely in C#.

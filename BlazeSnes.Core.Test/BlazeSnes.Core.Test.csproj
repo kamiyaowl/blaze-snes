@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>blaze_snes.Core.Test</RootNamespace>
+    <RootNamespace>BlazeSnes.Core.Test</RootNamespace>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\blaze-snes.Core\blaze-snes.Core.csproj" />
+    <ProjectReference Include="..\BlazeSnes.Core\BlazeSnes.Core.csproj" />
   </ItemGroup>
 
 </Project>
