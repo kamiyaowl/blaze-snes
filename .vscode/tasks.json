@@ -9,6 +9,8 @@
             "type": "shell",
             "args": [
                 "run",
+                "--project",
+                "BlazeSnes"
             ],
             "group": "none",
             "problemMatcher": "$msCompile"

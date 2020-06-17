@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="BlazeSnes.Core\BlazeSnes.Core.csproj" />
+    <ProjectReference Include="..\BlazeSnes.Core\BlazeSnes.Core.csproj" />
   </ItemGroup>
 
 </Project>
