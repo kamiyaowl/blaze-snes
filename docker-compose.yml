@@ -27,4 +27,4 @@ services:
       volumes:
         - ./:/work
       working_dir: /work
-      command: dotnet test
+      command: dotnet test --logger:"console;verbosity=detailed"
