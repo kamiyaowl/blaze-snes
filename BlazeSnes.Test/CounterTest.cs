@@ -10,7 +10,7 @@ namespace BlazeSnes.Test {
     /// These tests are written entirely in C#.
     /// Learn more at https://bunit.egilhansen.com/docs/
     /// </summary>
-    public class CounterCSharpTests : TestContext {
+    public class CounterTest : TestContext {
         [Fact]
         public void CounterStartsAtZero() {
             // Arrange
