@@ -1,0 +1,24 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: docker-compose run publish
+    - name: Replace BasePath
+      run: sudo sed -i -e "s/base href=\"\/\"/base href=\"\/blaze-snes\/\"/g" ./BlazeSnes/bin/Release/netstandard2.1/publish/wwwroot/index.html
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./BlazeSnes/bin/Release/netstandard2.1/publish/wwwroot/
