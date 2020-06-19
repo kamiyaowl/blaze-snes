@@ -62,7 +62,7 @@ namespace BlazeSnes.Core {
         /// readerに指定されたファイルを読み込み、Cartridgeの情報として展開します
         /// </summary>
         /// <param name="fs">対象ファイルのストリーム</param>
-        public Cartridge(FileStream fs) {
+        public Cartridge(Stream fs) {
             using (var br = new BinaryReader(fs)) {
                 // 後で使う情報
                 var isSuccess = parseRomRegistrationHeader(br, out var isLoRom, out var hasHeaderOffset);
