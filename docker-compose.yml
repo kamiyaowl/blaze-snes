@@ -12,6 +12,17 @@ services:
         - "5000:5000"
         - "5001:5001"
       command: dotnet run --project BlazeSnes
+    watch-run:
+      build:
+        context: .
+        dockerfile: ./.devcontainer/Dockerfile
+      volumes:
+        - ./:/work
+      working_dir: /work
+      ports: 
+        - "5000:5000"
+        - "5001:5001"
+      command: dotnet watch --project BlazeSnes run
     publish:
       build:
         context: .

@@ -16,6 +16,19 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "watch run",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "watch",
+                "--project",
+                "BlazeSnes",
+                "run",
+            ],
+            "group": "none",
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "publish",
             "command": "dotnet",
             "type": "shell",
@@ -54,6 +67,17 @@
             "args": [
                 "run",
                 "run"
+            ],
+            "group": "none",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch run - docker",
+            "command": "docker-compose",
+            "type": "shell",
+            "args": [
+                "run",
+                "watch-run"
             ],
             "group": "none",
             "problemMatcher": "$msCompile"
