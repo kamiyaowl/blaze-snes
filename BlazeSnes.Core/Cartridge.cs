@@ -16,32 +16,32 @@ namespace BlazeSnes.Core {
         /// </summary>
         protected byte[] romRegistrationData;
 
-        public ushort MakerCode => (ushort) (romRegistrationData[0x0] | (romRegistrationData[0x0 + 1] << 8));
-        public UInt32 GameCode => (UInt32) (romRegistrationData[0x2] | (romRegistrationData[0x2 + 1] << 8) | (romRegistrationData[0x2 + 2] << 16) | (romRegistrationData[0x2 + 3] << 24));
+        public ushort MakerCode => (ushort)(romRegistrationData[0x0] | (romRegistrationData[0x0 + 1] << 8));
+        public UInt32 GameCode => (UInt32)(romRegistrationData[0x2] | (romRegistrationData[0x2 + 1] << 8) | (romRegistrationData[0x2 + 2] << 16) | (romRegistrationData[0x2 + 3] << 24));
         public byte ExpansionRamSize => romRegistrationData[0xd];
         public byte SpecialVersion => romRegistrationData[0xe];
         public byte CartridgeTypeSub => romRegistrationData[0xf];
-        public string GameTitle => System.Text.Encoding.ASCII.GetString (romRegistrationData[0x10..(0x10 + 21)]);
+        public string GameTitle => System.Text.Encoding.ASCII.GetString(romRegistrationData[0x10..(0x10 + 21)]);
         public byte MapMode => romRegistrationData[0x25];
         public byte CartridgeType => romRegistrationData[0x26];
         public byte RomSize => romRegistrationData[0x27];
         public byte RamSize => romRegistrationData[0x28];
         public byte DestinationCode => romRegistrationData[0x29];
         public byte MaskRomVersion => romRegistrationData[0x2b];
-        public ushort CheckSumComplement => (ushort) ((romRegistrationData[0x2c]) | (romRegistrationData[0x2d] << 8));
-        public ushort CheckSum => (ushort) ((romRegistrationData[0x2e]) | (romRegistrationData[0x2f] << 8));
+        public ushort CheckSumComplement => (ushort)((romRegistrationData[0x2c]) | (romRegistrationData[0x2d] << 8));
+        public ushort CheckSum => (ushort)((romRegistrationData[0x2e]) | (romRegistrationData[0x2f] << 8));
 
         /// <summary>
         /// $00:xFE0 ~ $00:xFFF までの情報を格納します
         /// </summary>
         protected byte[] interruptVectorData;
 
-        public ushort CopAddrInNative => (ushort) ((interruptVectorData[0x4]) | (interruptVectorData[0x5] << 8));
-        public ushort BreakAddrInNative => (ushort) ((interruptVectorData[0x6]) | (interruptVectorData[0x7] << 8));
-        public ushort AbortAddrInNative => (ushort) ((interruptVectorData[0x8]) | (interruptVectorData[0x9] << 8));
-        public ushort NmiAddrInNative => (ushort) ((interruptVectorData[0xa]) | (interruptVectorData[0xb] << 8));
-        public ushort ResetAddrInNative => (ushort) ((interruptVectorData[0xc]) | (interruptVectorData[0xd] << 8));
-        public ushort IrqAddrInNative => (ushort) ((interruptVectorData[0xe]) | (interruptVectorData[0xf] << 8));
+        public ushort CopAddrInNative => (ushort)((interruptVectorData[0x4]) | (interruptVectorData[0x5] << 8));
+        public ushort BreakAddrInNative => (ushort)((interruptVectorData[0x6]) | (interruptVectorData[0x7] << 8));
+        public ushort AbortAddrInNative => (ushort)((interruptVectorData[0x8]) | (interruptVectorData[0x9] << 8));
+        public ushort NmiAddrInNative => (ushort)((interruptVectorData[0xa]) | (interruptVectorData[0xb] << 8));
+        public ushort ResetAddrInNative => (ushort)((interruptVectorData[0xc]) | (interruptVectorData[0xd] << 8));
+        public ushort IrqAddrInNative => (ushort)((interruptVectorData[0xe]) | (interruptVectorData[0xf] << 8));
         public ushort CopAddrInEmulation => (ushort)((interruptVectorData[0x14]) | (interruptVectorData[0x15] << 8));
         public ushort BreakAddrInEmulation => (ushort)((interruptVectorData[0x16]) | (interruptVectorData[0x17] << 8));
         public ushort AbortAddrInEmulation => (ushort)((interruptVectorData[0x18]) | (interruptVectorData[0x19] << 8));
@@ -62,8 +62,8 @@ namespace BlazeSnes.Core {
         /// readerに指定されたファイルを読み込み、Cartridgeの情報として展開します
         /// </summary>
         /// <param name="fs">対象ファイルのストリーム</param>
-        public Cartridge (FileStream fs) {
-            using (var br = new BinaryReader (fs)) {
+        public Cartridge(FileStream fs) {
+            using (var br = new BinaryReader(fs)) {
                 // 後で使う情報
                 var isSuccess = parseRomRegistrationHeader(br, out var isLoRom, out var hasHeaderOffset);
                 // 全パターンでだめだったらしい
