@@ -5,12 +5,9 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
-{
+@if (forecasts == null) {
     <p><em>Loading...</em></p>
-}
-else
-{
+} else {
     <table class="table">
         <thead>
             <tr>
@@ -21,8 +18,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
-            {
+            @foreach (var forecast in forecasts) {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
                     <td>@forecast.TemperatureC</td>
@@ -37,13 +33,11 @@ else
 @code {
     private WeatherForecast[] forecasts;
 
-    protected override async Task OnInitializedAsync()
-    {
+    protected override async Task OnInitializedAsync() {
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
     }
 
-    public class WeatherForecast
-    {
+    public class WeatherForecast {
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }

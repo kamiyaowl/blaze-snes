@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Blazor.FileReader;
 
 namespace BlazeSnes {
     public class Program {
@@ -15,6 +16,7 @@ namespace BlazeSnes {
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddFileReaderService(options => options.UseWasmSharedBuffer = true);
 
             await builder.Build().RunAsync();
         }
