@@ -9,12 +9,11 @@ namespace BlazeSnes.Core.Test {
         [Fact]
         public void ReadRom() {
             const string path = @"../../../../assets/roms/helloworld/sample1.smc"; // TODO: もう少し賢くなるでしょ...
-            using(var reader = new StreamReader(path)) {
-                if (Cartridge.TryParse(reader, out var dst)) {
-                    // TODO: 期待値確認
-                } else {
-                    throw new XunitException($"Cartridge.TryParse failed. path={path}");
-                }
+            using(var fs = new FileStream(path, FileMode.Open)) {
+                var c = new Cartridge(fs);
+                Assert.Equal(c.GameTitle, "SAMPLE1");
+                Assert.Equal(c.CheckSum, 0x459d);
+                Assert.Equal(c.CheckSumComplement, 0x8c80);
             }
         }
     }

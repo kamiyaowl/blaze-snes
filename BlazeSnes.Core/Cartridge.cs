@@ -27,13 +27,11 @@ namespace BlazeSnes.Core {
         /// <summary>
         /// readerに指定されたファイルを読み込み、Cartridgeの情報として展開します
         /// </summary>
-        /// <param name="reader">対象ファイルのストリーム</param>
-        /// <param name="dst">読み出せた場合は、読みだしたカートリッジのインスタンス</param>
-        /// <returns>正常に読み出せた場合はtrue</returns>
-        public static bool TryParse(StreamReader reader, out Cartridge dst) {
-            dst = null;
-            // TODO: implement here
-            return false;
+        /// <param name="fs">対象ファイルのストリーム</param>
+        public Cartridge(FileStream fs) {
+            using(var br = new BinaryReader(fs)) {
+
+            }
         }
     }
 }
