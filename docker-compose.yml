@@ -38,4 +38,20 @@ services:
       volumes:
         - ./:/work
       working_dir: /work
-      command: dotnet test --logger:"console;verbosity=detailed"
+      command: dotnet test --logger:"console;verbosity=detailed" --collect:"XPlat Code Coverage"
+    format:
+      build:
+        context: .
+        dockerfile: ./.devcontainer/Dockerfile
+      volumes:
+        - ./:/work
+      working_dir: /work
+      command: dotnet format
+    coverage:
+      build:
+        context: .
+        dockerfile: ./.devcontainer/Dockerfile
+      volumes:
+        - ./:/work
+      working_dir: /work
+      command: bash -c "chmod +x ./test-coverage.sh && ./test-coverage.sh"

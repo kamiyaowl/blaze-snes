@@ -74,3 +74,6 @@ RUN apt-get update \
 
 # install other tools
 RUN dotnet tool install -g dotnet-format
+RUN dotnet tool install -g dotnet-reportgenerator-globaltool
+# add dotnet tools to PATH
+ENV PATH="${PATH}:/root/.dotnet/tools"

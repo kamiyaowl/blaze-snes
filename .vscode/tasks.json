@@ -46,7 +46,7 @@
             "type": "shell",
             "args": [
                 "test",
-                "--logger:\"console;verbosity=detailed\""
+                "--logger:\"console;verbosity=detailed\"",
             ],
             "group": "test",
             "problemMatcher": "$msCompile"
