@@ -13,16 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: docker-compose run publish
+    - name: Build and Create Coverage
+      run: docker-compose run deploy
+      continue-on-error: true
     - name: Replace BasePath
       run: sudo sed -i -e "s/base href=\"\/\"/base href=\"\/blaze-snes\/\"/g" ./BlazeSnes/bin/Release/netstandard2.1/publish/wwwroot/index.html
-    - name: Create test toverage
-      run: docker-compose run coverage
-      continue-on-error: true
-    - name: Copy coverage result to publish directory
-      run: sudo cp -r ./coverage ./BlazeSnes/bin/Release/netstandard2.1/publish/wwwroot/
-      continue-on-error: true
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:

@@ -47,11 +47,11 @@ services:
         - ./:/work
       working_dir: /work
       command: dotnet format
-    coverage:
+    deploy:
       build:
         context: .
         dockerfile: ./.devcontainer/Dockerfile
       volumes:
         - ./:/work
       working_dir: /work
-      command: bash -c "chmod +x ./test-coverage.sh && ./test-coverage.sh"
+      command: bash -c "chmod +x deploy.sh && ./deploy.sh"

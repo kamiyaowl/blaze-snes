@@ -262,3 +262,5 @@ __pycache__/
 
 
 assets/roms/my/*
+coverage/*
+coverage.cobertura.xml
