@@ -39,6 +39,15 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "format",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "format",
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "run - docker",
             "command": "docker-compose",
             "type": "shell",
@@ -71,6 +80,15 @@
             ],
             "group": "test",
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "format - docker",
+            "command": "docker-compose",
+            "type": "shell",
+            "args": [
+                "run",
+                "format",
+            ],
         },
     ]
 }

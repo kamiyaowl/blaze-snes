@@ -71,3 +71,6 @@ RUN apt-get update \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+# install other tools
+RUN dotnet tool install -g dotnet-format
