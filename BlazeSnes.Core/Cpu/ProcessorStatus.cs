@@ -9,7 +9,7 @@ namespace BlazeSnes.Core.Cpu {
     /// P Registerの内訳です
     /// </summary>
     [Flags]
-    public enum ProcessorStatusFlags {
+    public enum ProcessorStatusFlag {
         E = 0x8000, // 0:Native mode, 1:Emulation mode(本来は独立したレジスタだが、一緒に格納しておく)
         N = 0x0080, // Negative
         V = 0x0040, // Overflow
@@ -24,19 +24,19 @@ namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// 65816 P Register
     /// </summary>
-    public class ProcessorStatus : Register<ProcessorStatusFlags> {
+    public class ProcessorStatus : Register<ProcessorStatusFlag> {
 
         public override string ToString() {
             var sb = new StringBuilder();
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.E) ? "E" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.N) ? "N" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.V) ? "V" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.M) ? "M" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.X) ? "X" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.D) ? "D" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.I) ? "I" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.Z) ? "Z" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlags.C) ? "C" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.E) ? "E" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.N) ? "N" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.V) ? "V" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.M) ? "M" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.X) ? "X" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.D) ? "D" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.I) ? "I" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.Z) ? "Z" : "-");
+            sb.Append(Value.HasFlag(ProcessorStatusFlag.C) ? "C" : "-");
             return sb.ToString();
         }
     }
