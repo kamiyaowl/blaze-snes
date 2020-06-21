@@ -72,8 +72,11 @@ RUN apt-get update \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# install other tools
+# install other dotnet tools
 RUN dotnet tool install -g dotnet-format
 RUN dotnet tool install -g dotnet-reportgenerator-globaltool
 # add dotnet tools to PATH
-ENV PATH="${PATH}:/root/.dotnet/tools"
+ENV PATH="${PATH}:/root/.dotnet/tools" 
+
+# install python package
+RUN sudo pip3 install junit2html
