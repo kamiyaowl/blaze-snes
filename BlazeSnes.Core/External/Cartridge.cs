@@ -1,7 +1,8 @@
+using BlazeSnes.Core.Cpu;
 using System;
 using System.IO;
 
-namespace BlazeSnes.Core {
+namespace BlazeSnes.Core.External {
     /// <summary>
     /// .smcファイルフォーマットを解釈した内容です
     /// </summary>
@@ -87,6 +88,21 @@ namespace BlazeSnes.Core {
                 // TODO: 残りのデータ
             }
         }
+
+        public InterruptVector CreateInterruptVector() => new InterruptVector() {
+            CopAddrInNative = this.CopAddrInNative,
+            BreakAddrInNative = this.BreakAddrInNative,
+            AbortAddrInNative = this.AbortAddrInNative,
+            NmiAddrInNative = this.NmiAddrInNative,
+            ResetAddrInNative = this.ResetAddrInNative,
+            IrqAddrInNative = this.IrqAddrInNative,
+            CopAddrInEmulation = this.CopAddrInEmulation,
+            BreakAddrInEmulation = this.BreakAddrInEmulation,
+            AbortAddrInEmulation = this.AbortAddrInEmulation,
+            NmiAddrInEmulation = this.NmiAddrInEmulation,
+            ResetAddrInEmulation = this.ResetAddrInEmulation,
+            IrqAddrInEmulation = this.IrqAddrInEmulation,
+        };
 
         /// <summary>
         /// ROM情報を読み取って展開します
