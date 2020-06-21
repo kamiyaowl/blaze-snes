@@ -16,19 +16,22 @@ namespace BlazeSnes.Core.Cpu {
             E = 0x8000, // 0:Native mode, 1:Emulation mode(本来は独立したレジスタだが、一緒に格納しておく)
             N = 0x0080, // Negative
             V = 0x0040, // Overflow
-            M = 0x0020, // A reg size(0:16bit, 1:8bit) native mode only
-            X = 0x0010, // X/Y reg size(0:16bit, 1:8bit) native mode only
-            B = 0x0010, // Break emulation mode only
+            M = 0x0020, // memory mode(0:16bit, 1:8bit) native mode only
+            X = 0x0010, // index mode(0:16bit, 1:8bit) native mode only
+            D = 0x0008, // 0: default, 1:bcd mode
             I = 0x0004, // IRQ disable
             Z = 0x0002, // Zero
             C = 0x0001, // Carry
         }
 
         /// <summary>
-        /// Enumに変換した値を取得する
+        /// Enumで値を取り扱いたい場合
         /// </summary>
-        /// <returns></returns>
-        public Flags Flag => (Flags)this.value;
+        /// <value></value>
+        public Flags Flag {
+            get => (Flags)this.value;
+            set => this.value = (ushort)value;
+        }
 
         public override string ToString() {
             var sb = new StringBuilder();
@@ -37,7 +40,7 @@ namespace BlazeSnes.Core.Cpu {
             sb.Append(Flag.HasFlag(Flags.V) ? "V" : "-");
             sb.Append(Flag.HasFlag(Flags.M) ? "M" : "-");
             sb.Append(Flag.HasFlag(Flags.X) ? "X" : "-");
-            sb.Append(Flag.HasFlag(Flags.B) ? "B" : "-");
+            sb.Append(Flag.HasFlag(Flags.D) ? "D" : "-");
             sb.Append(Flag.HasFlag(Flags.I) ? "I" : "-");
             sb.Append(Flag.HasFlag(Flags.Z) ? "Z" : "-");
             sb.Append(Flag.HasFlag(Flags.C) ? "C" : "-");

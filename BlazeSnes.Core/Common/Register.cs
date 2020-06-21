@@ -15,7 +15,10 @@ namespace BlazeSnes.Core.Common {
         /// accessorは上書き可
         /// </summary>
         /// <value></value>
-        public virtual int Value { get; set; }
+        public virtual T Value { 
+            get => this.value;
+            set => this.value = value;
+        }
 
         public override string ToString() => $"Reg(${value:04x})";
     }

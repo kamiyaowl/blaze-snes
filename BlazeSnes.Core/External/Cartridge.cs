@@ -153,5 +153,7 @@ namespace BlazeSnes.Core.External {
             hasHeaderOffset = false;
             return false;
         }
+
+        public override string ToString() => GameTitle;
     }
 }

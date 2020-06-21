@@ -5,7 +5,7 @@ using BlazeSnes.Core.Cpu;
 using Xunit;
 using Xunit.Sdk;
 
-namespace BlazeSnes.Core.Test {
+namespace BlazeSnes.Core.Test.External {
     public class CartridgeTest {
         static readonly string SAMPLE_PATH = @"../../../../assets/roms/helloworld/sample1.smc"; // TODO: もう少し賢くなるでしょ...
 
