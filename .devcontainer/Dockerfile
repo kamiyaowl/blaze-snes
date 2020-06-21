@@ -67,6 +67,9 @@ RUN apt-get update \
         && apt-get install -y azure-cli; \
     fi \
     #
+    # install Python3
+    && apt-get -y install --no-install-recommends python3 python3-pip \
+    #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
@@ -79,4 +82,5 @@ RUN dotnet tool install -g dotnet-reportgenerator-globaltool
 ENV PATH="${PATH}:/root/.dotnet/tools" 
 
 # install python package
-RUN sudo pip3 install junit2html
+RUN pip3 install setuptools wheel
+RUN pip3 install junit2html
