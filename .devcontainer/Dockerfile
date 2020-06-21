@@ -67,13 +67,20 @@ RUN apt-get update \
         && apt-get install -y azure-cli; \
     fi \
     #
+    # install Python3
+    && apt-get -y install --no-install-recommends python3 python3-pip \
+    #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# install other tools
+# install other dotnet tools
 RUN dotnet tool install -g dotnet-format
 RUN dotnet tool install -g dotnet-reportgenerator-globaltool
 # add dotnet tools to PATH
-ENV PATH="${PATH}:/root/.dotnet/tools"
+ENV PATH="${PATH}:/root/.dotnet/tools" 
+
+# install python package
+RUN pip3 install setuptools wheel
+RUN pip3 install junit2html
