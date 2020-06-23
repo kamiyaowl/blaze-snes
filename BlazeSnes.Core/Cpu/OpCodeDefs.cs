@@ -105,19 +105,31 @@ namespace BlazeSnes.Core.Cpu {
             // BIT addr,X		Test Bits	3C	Absolute Indexed,X	NV----Z-	3	4[^1][^3]
             { 0x3c, new OpCode (0x3c, Instruction.BIT, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // BIT #const		Test Bits	89	Immediate	------Z-	2[^12]	2[^1]
-            { 0x89, new OpCode (0x89, Instruction.BIT, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
+            { 0x89, new OpCode (0x89, Instruction.BIT, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // BMI nearlabel		Branch if Minus	30	Program Counter Relative		2	2[^5][^6]
+            { 0x30, new OpCode (0x30, Instruction.BMI, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BNE nearlabel		Branch if Not Equal	D0	Program Counter Relative		2	2[^5][^6]
+            { 0xd0, new OpCode (0xd0, Instruction.BNE, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BPL nearlabel		Branch if Plus	10	Program Counter Relative		2	2[^5][^6]
+            { 0x10, new OpCode (0x10, Instruction.BPL, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BRA nearlabel		Branch Always	80	Program Counter Relative		2	3[^6]
+            { 0x80, new OpCode (0x80, Instruction.BRA, Addressing.ProgramCounterRelative, new FetchByte (2), 3, CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BRK		Break	00	Stack/Interrupt	----DI--	2[^13]	7[^7]
+            { 0x00, new OpCode (0x00, Instruction.BRK, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) }, // TODO: Stack/Interruptなので見直しが必要かも
             // BRL label		Branch Long Always	82	Program Counter Relative Long		3	4
+            { 0x82, new OpCode (0x82, Instruction.BRL, Addressing.ProgramCounterRelativeLong, new FetchByte (3), 4, CycleOption.None) },
             // BVC nearlabel		Branch if Overflow Clear	50	Program Counter Relative		2	2[^5][^6]
+            { 0x50, new OpCode (0x50, Instruction.BVC, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BVS nearlabel		Branch if Overflow Set	70	Program Counter Relative		2	2[^5][^6]
+            { 0x70, new OpCode (0x70, Instruction.BVS, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // CLC		Clear Carry	18	Implied	-------C	1	2
+            { 0x18, new OpCode (0x18, Instruction.CLC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // CLD		Clear Decimal Mode Flag	D8	Implied	----D---	1	2
+            { 0xd8, new OpCode (0xd8, Instruction.CLD, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // CLI		Clear Interrupt Disable Flag	58	Implied	-----I--	1	2
+            { 0x58, new OpCode (0x58, Instruction.CLI, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // CLV		Clear Overflow Flag	B8	Implied	-V------	1	2
+            { 0xb8, new OpCode (0xb8, Instruction.CLV, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // CMP (_dp,_X)		Compare Accumulator with Memory	C1	DP Indexed Indirect,X	N-----ZC	2	6[^1][^2]
             // CMP sr,S		Compare Accumulator with Memory	C3	Stack Relative	N-----ZC	2	4[^1]
             // CMP dp		Compare Accumulator with Memory	C5	Direct Page	N-----ZC	2	3[^1][^2]

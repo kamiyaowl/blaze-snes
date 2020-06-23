@@ -14,8 +14,8 @@ namespace BlazeSnes.Core.Cpu {
         public enum AddMode {
             Fixed, // 固定値、デフォルト
             Add1ByteIfMRegZero, // 12.M reg=0の場合、16bit accessなので1byte増える
-            Add1ByteIfXRegZero, // 13.X reg=0の場合、16bit accessなので1byte増える
-            Add1ByteForSignatureByte, // 14.命令は1byteだが、2bytePCが進む。BRK, COP(Co Processor Enable)でのシグネチャ用
+            Add1ByteForSignatureByte, // 13.命令は1byteだが、2bytePCが進む。BRK, COP(Co Processor Enable)でのシグネチャ用
+            Add1ByteIfXRegZero, // 14.X reg=0の場合、16bit accessなので1byte増える
         }
         /// <summary>
         /// Fetch Byte数が可変する条件
