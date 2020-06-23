@@ -30,6 +30,7 @@ namespace BlazeSnes.Core.Cpu {
         // ProgramCounterRelativeLong, // *(PC+IM24)の値
         StackRelative, // 0: 最後にpushされた値, 1: 最後にpopされた値 $00,s or $01,s
         StackRelativeIndirectIndexedY, // *(*(s) + Y) の値、StackRelativeから相対間接参照を実装したもの
+        ProgramCounterRelative, // PCからの相対距離
         BlockMove, // for MVN/MVP
     }
 }

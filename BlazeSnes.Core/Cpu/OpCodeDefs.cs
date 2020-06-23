@@ -91,8 +91,11 @@ namespace BlazeSnes.Core.Cpu {
             // ASL addr,X		Arithmetic Shift Left	1E	Absolute Indexed,X	N-----ZC	3	7[^4]
             { 0x1e, new OpCode (0x1e, Instruction.ASL, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // BCC nearlabel	BLT	Branch if Carry Clear	90	Program Counter Relative		2	2[^5][^6]
+            { 0x90, new OpCode (0x90, Instruction.BCC, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BCS nearlabel	BGE	Branch if Carry Set	B0	Program Counter Relative		2	2[^5][^6]
+            { 0x80, new OpCode (0x80, Instruction.BCS, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BEQ nearlabel		Branch if Equal	F0	Program Counter Relative		2	2[^5][^6]
+            { 0xf0, new OpCode (0xf0, Instruction.BEQ, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BIT dp		Test Bits	24	Direct Page	NV----Z-	2	3[^1][^2]
             // BIT addr		Test Bits	2C	Absolute	NV----Z-	3	4[^1]
             // BIT dp,X		Test Bits	34	DP Indexed,X	NV----Z-	2	4[^1][^2]
