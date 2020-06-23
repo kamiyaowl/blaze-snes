@@ -51,20 +51,35 @@ namespace BlazeSnes.Core.Cpu {
             // ADC long,X		Add With Carry	7F	Absolute Long Indexed,X	NV----ZC	4	5[^1]
             { 0x7f, new OpCode (0x7f, Instruction.ADC, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // AND (_dp,_X)		AND Accumulator with Memory	21	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
+            { 0x21, new OpCode (0x21, Instruction.AND, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND sr,S		AND Accumulator with Memory	23	Stack Relative	N-----Z-	2	4[^1]
+            { 0x23, new OpCode (0x23, Instruction.AND, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // AND dp		AND Accumulator with Memory	25	Direct Page	N-----Z-	2	3[^1][^2]
+            { 0x25, new OpCode (0x25, Instruction.AND, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND [dp]		AND Accumulator with Memory	27	DP Indirect Long	N-----Z-	2	6[^1][^2]
+            { 0x27, new OpCode (0x27, Instruction.AND, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND #const		AND Accumulator with Memory	29	Immediate	N-----Z-	2[^12]	2[^1]
+            { 0x29, new OpCode (0x29, Instruction.AND, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // AND addr		AND Accumulator with Memory	2D	Absolute	N-----Z-	3	4[^1]
+            { 0x2d, new OpCode (0x2d, Instruction.AND, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // AND long		AND Accumulator with Memory	2F	Absolute Long	N-----Z-	4	5[^1]
+            { 0x2f, new OpCode (0x2f, Instruction.AND, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // AND (dp),Y		AND Accumulator with Memory	31	DP Indirect Indexed, Y	N-----Z-	2	5[^1][^2][^3]
+            { 0x31, new OpCode (0x31, Instruction.AND, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // AND (dp)		AND Accumulator with Memory	32	DP Indirect	N-----Z-	2	5[^1][^2]
+            { 0x32, new OpCode (0x32, Instruction.AND, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND (sr,S),Y		AND Accumulator with Memory	33	SR Indirect Indexed,Y	N-----Z-	2	7[^1]
+            { 0x33, new OpCode (0x33, Instruction.AND, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // AND dp,X		AND Accumulator with Memory	35	DP Indexed,X	N-----Z-	2	4[^1][^2]
+            { 0x35, new OpCode (0x35, Instruction.AND, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND [dp],Y		AND Accumulator with Memory	37	DP Indirect Long Indexed, Y	N-----Z-	2	6[^1][^2]
+            { 0x37, new OpCode (0x37, Instruction.AND, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND addr,Y		AND Accumulator with Memory	39	Absolute Indexed,Y	N-----Z-	3	4[^1][^3]
+            { 0x39, new OpCode (0x39, Instruction.AND, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // AND addr,X		AND Accumulator with Memory	3D	Absolute Indexed,X	N-----Z-	3	4[^1][^3]
+            { 0x3d, new OpCode (0x3d, Instruction.AND, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // AND long,X		AND Accumulator with Memory	3F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
+            { 0x3f, new OpCode (0x3f, Instruction.AND, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // ASL dp		Arithmetic Shift Left	06	Direct Page	N-----ZC	2	5[^2][^4]
             // ASL A		Arithmetic Shift Left	0A	Accumulator	N-----ZC	1	2
             // ASL addr		Arithmetic Shift Left	0E	Absolute	N-----ZC	3	6[^4]
