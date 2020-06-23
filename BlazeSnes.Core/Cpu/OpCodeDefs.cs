@@ -97,10 +97,15 @@ namespace BlazeSnes.Core.Cpu {
             // BEQ nearlabel		Branch if Equal	F0	Program Counter Relative		2	2[^5][^6]
             { 0xf0, new OpCode (0xf0, Instruction.BEQ, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BIT dp		Test Bits	24	Direct Page	NV----Z-	2	3[^1][^2]
+            { 0x24, new OpCode (0x24, Instruction.BIT, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // BIT addr		Test Bits	2C	Absolute	NV----Z-	3	4[^1]
+            { 0x2c, new OpCode (0x2c, Instruction.BIT, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // BIT dp,X		Test Bits	34	DP Indexed,X	NV----Z-	2	4[^1][^2]
+            { 0x34, new OpCode (0x34, Instruction.BIT, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // BIT addr,X		Test Bits	3C	Absolute Indexed,X	NV----Z-	3	4[^1][^3]
+            { 0x3c, new OpCode (0x3c, Instruction.BIT, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // BIT #const		Test Bits	89	Immediate	------Z-	2[^12]	2[^1]
+            { 0x89, new OpCode (0x89, Instruction.BIT, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // BMI nearlabel		Branch if Minus	30	Program Counter Relative		2	2[^5][^6]
             // BNE nearlabel		Branch if Not Equal	D0	Program Counter Relative		2	2[^5][^6]
             // BPL nearlabel		Branch if Plus	10	Program Counter Relative		2	2[^5][^6]
