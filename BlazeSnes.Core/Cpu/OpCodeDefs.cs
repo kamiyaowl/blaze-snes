@@ -81,10 +81,15 @@ namespace BlazeSnes.Core.Cpu {
             // AND long,X		AND Accumulator with Memory	3F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
             { 0x3f, new OpCode (0x3f, Instruction.AND, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // ASL dp		Arithmetic Shift Left	06	Direct Page	N-----ZC	2	5[^2][^4]
+            { 0x06, new OpCode (0x06, Instruction.ASL, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ASL A		Arithmetic Shift Left	0A	Accumulator	N-----ZC	1	2
+            { 0x0a, new OpCode (0x0a, Instruction.ASL, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ASL addr		Arithmetic Shift Left	0E	Absolute	N-----ZC	3	6[^4]
+            { 0x0e, new OpCode (0x0e, Instruction.ASL, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // ASL dp,X		Arithmetic Shift Left	16	DP Indexed,X	N-----ZC	2	6[^2][^4]
+            { 0x16, new OpCode (0x16, Instruction.ASL, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ASL addr,X		Arithmetic Shift Left	1E	Absolute Indexed,X	N-----ZC	3	7[^4]
+            { 0x1e, new OpCode (0x1e, Instruction.ASL, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // BCC nearlabel	BLT	Branch if Carry Clear	90	Program Counter Relative		2	2[^5][^6]
             // BCS nearlabel	BGE	Branch if Carry Set	B0	Program Counter Relative		2	2[^5][^6]
             // BEQ nearlabel		Branch if Equal	F0	Program Counter Relative		2	2[^5][^6]

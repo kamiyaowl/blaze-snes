@@ -57,16 +57,17 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         [Flags]
         public enum CycleOption {
-            Add1CycleIf16bitAcccess, // 16bit Access時に1cycle追加
-            Add1CycleIfDPRegNonZero, // Direct Page Registerが非Zeroなら1cycle追加
-            Add1CycleIfPageBoundaryOrXRegZero, // page境界を跨ぐ、x=0で1cycle追加
-            Add2CycleIf16bitaccess, // 16bit Access時に2cycle追加
-            Add1CycleIfBranchIsTaken, // 分岐した場合に1cycle追加
-            Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode, // EmulationModeでページ跨ぎの分岐が発生した場合に1cycle追加
-            Add1CycleIfNativeMode, // NativeModeで1cycle追加
-            Add1CycleIfXZero, // X=0で1cycle追加
-            Add3CycleToShutdownByReset, // Processor停止に3cycle
-            Add3CycleToShutdownByInterrupt, // Processor停止に3cycle
+            None, // 0.追加はない
+            Add1CycleIf16bitAcccess, // 1.16bit Access時に1cycle追加
+            Add1CycleIfDPRegNonZero, // 2.Direct Page Registerが非Zeroなら1cycle追加
+            Add1CycleIfPageBoundaryOrXRegZero, // 3.page境界を跨ぐ、x=0で1cycle追加
+            Add2CycleIf16bitaccess, // 4.16bit Access時に2cycle追加
+            Add1CycleIfBranchIsTaken, // 5.分岐した場合に1cycle追加
+            Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode, // 6.EmulationModeでページ跨ぎの分岐が発生した場合に1cycle追加
+            Add1CycleIfNativeMode, // 7.NativeModeで1cycle追加
+            Add1CycleIfXZero, // 8.X=0で1cycle追加
+            Add3CycleToShutdownByReset, // 9.Processor停止に3cycle
+            Add3CycleToShutdownByInterrupt, // 10.Processor停止に3cycle
         }
         /// <summary>
         /// HEX
