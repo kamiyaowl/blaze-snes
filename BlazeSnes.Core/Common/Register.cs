@@ -15,7 +15,7 @@ namespace BlazeSnes.Core.Common {
         /// accessorは上書き可
         /// </summary>
         /// <value></value>
-        public virtual T Value { 
+        public virtual T Value {
             get => this.value;
             set => this.value = value;
         }

@@ -1,6 +1,6 @@
+using BlazeSnes.Core.Cpu;
 using System;
 using System.IO;
-using BlazeSnes.Core.Cpu;
 using Xunit;
 using Xunit.Sdk;
 
@@ -11,7 +11,7 @@ namespace BlazeSnes.Core.Test.Cpu {
         /// 初期状態がすべてfalseになっている確認
         /// </summary>
         [Fact]
-        public void Initial () {
+        public void Initial() {
             var p = new ProcessorStatus();
             Assert.False(p.Value.HasFlag(ProcessorStatusFlag.E));
             Assert.False(p.Value.HasFlag(ProcessorStatusFlag.N));
@@ -28,7 +28,7 @@ namespace BlazeSnes.Core.Test.Cpu {
         /// Flag変数経由で値の設定が可能か確認
         /// </summary>
         [Fact]
-        public void SetFromFlag () {
+        public void SetFromFlag() {
             var p = new ProcessorStatus();
             p.Value |= ProcessorStatusFlag.E;
             p.Value |= ProcessorStatusFlag.V;
@@ -50,7 +50,7 @@ namespace BlazeSnes.Core.Test.Cpu {
         /// 値経由で値の設定が可能か確認
         /// </summary>
         [Fact]
-        public void SetFromValue () {
+        public void SetFromValue() {
             var p = new ProcessorStatus();
             p.Value |= (ProcessorStatusFlag)0x8055;
 
@@ -68,7 +68,7 @@ namespace BlazeSnes.Core.Test.Cpu {
         /// Enum/Literal両方使って交互に上げ下げしてみる
         /// </summary>
         [Fact]
-        public void Mixed () {
+        public void Mixed() {
             var p = new ProcessorStatus();
             // All set
             p.Value |= (ProcessorStatusFlag)0x00aa;

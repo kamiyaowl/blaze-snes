@@ -5,7 +5,7 @@ namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// アドレッシングモード一覧
     /// </summary>
-    public enum Addressing {       
+    public enum Addressing {
         Implied, // 指定なし
         Accumulator, // (A)の値
         Immediate, // (IM8)の値 IM8
@@ -20,8 +20,9 @@ namespace BlazeSnes.Core.Cpu {
         AbsoluteLongIndexedX, // *(IM24+X)の値 IM24, X
         DirectIndexedIndirectX, // *(DB * $1_0000 + *(IM8+X))の値 IM8, X
         DirectIndirectIndexedY, // *(DB * $1_0000 + *IM8 + Y)の値 (IM8), Y
-        DirectIndirectLong, // *(*(IM8))の値 [IM8]
-        DirectIndirectLongIndexed, // *(*(IM8) + Y)の値 [IM8]
+        DirectIndirect, // *(*(IM8))の値 (IM8)
+        DirectIndirectLong, // *(*(IM16))の値 [IM16]
+        DirectIndirectLongIndexedY, // *(*(IM8) + Y)の値 [IM8]
         AbsoluteIndirect, // *(IM16)の値 (IM16)
         AbsoluteIndexedIndirectX, // *(IM16 + X)の値 (IM16, X)
         AbsoluteIndirectLong, // *(IM24)の値 [IM24]

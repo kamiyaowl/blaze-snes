@@ -6,12 +6,12 @@ namespace BlazeSnes.Core.Cpu {
     /// 割り込みベクタを示します
     /// </summary>
     public class InterruptVector {
-        public ushort CopAddr (bool isEmulate) => isEmulate ? CopAddrInEmulation : CopAddrInNative;
-        public ushort BreakAddr (bool isEmulate) => isEmulate ? BreakAddrInEmulation : BreakAddrInNative;
-        public ushort AbortAddr (bool isEmulate) => isEmulate ? AbortAddrInEmulation : AbortAddrInNative;
-        public ushort NmiAddr (bool isEmulate) => isEmulate ? NmiAddrInEmulation : NmiAddrInNative;
-        public ushort ResetAddr (bool isEmulate) => isEmulate ? ResetAddrInEmulation : ResetAddrInNative;
-        public ushort IrqAddr (bool isEmulate) => isEmulate ? IrqAddrInEmulation : IrqAddrInNative;
+        public ushort CopAddr(bool isEmulate) => isEmulate ? CopAddrInEmulation : CopAddrInNative;
+        public ushort BreakAddr(bool isEmulate) => isEmulate ? BreakAddrInEmulation : BreakAddrInNative;
+        public ushort AbortAddr(bool isEmulate) => isEmulate ? AbortAddrInEmulation : AbortAddrInNative;
+        public ushort NmiAddr(bool isEmulate) => isEmulate ? NmiAddrInEmulation : NmiAddrInNative;
+        public ushort ResetAddr(bool isEmulate) => isEmulate ? ResetAddrInEmulation : ResetAddrInNative;
+        public ushort IrqAddr(bool isEmulate) => isEmulate ? IrqAddrInEmulation : IrqAddrInNative;
 
         public ushort CopAddrInNative { get; set; }
         /// <summary>
