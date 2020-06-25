@@ -115,7 +115,7 @@ namespace BlazeSnes.Core.Cpu {
             // BRA nearlabel		Branch Always	80	Program Counter Relative		2	3[^6]
             { 0x80, new OpCode (0x80, Instruction.BRA, Addressing.ProgramCounterRelative, new FetchByte (2), 3, CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BRK		Break	00	Stack/Interrupt	----DI--	2[^13]	7[^7]
-            { 0x00, new OpCode (0x00, Instruction.BRK, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) }, // TODO: Stack/Interruptなので見直しが必要かも
+            { 0x00, new OpCode (0x00, Instruction.BRK, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
             // BRL label		Branch Long Always	82	Program Counter Relative Long		3	4
             { 0x82, new OpCode (0x82, Instruction.BRL, Addressing.ProgramCounterRelativeLong, new FetchByte (3), 4, CycleOption.None) },
             // BVC nearlabel		Branch if Overflow Clear	50	Program Counter Relative		2	2[^5][^6]
@@ -161,19 +161,33 @@ namespace BlazeSnes.Core.Cpu {
             // CMP long,X		Compare Accumulator with Memory	DF	Absolute Long Indexed,X	N-----ZC	4	5[^1]
             { 0xdf, new OpCode (0xdf, Instruction.CMP, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // COP const		Co-Processor Enable	02	Stack/Interrupt	----DI--	2[^13]	7[^7]
+            { 0x02, new OpCode (0x02, Instruction.COP, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
             // CPX #const		Compare Index Register X with Memory	E0	Immediate	N-----ZC	2[^14]	2[^8]
+            { 0xe0, new OpCode (0xe0, Instruction.CPX, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // CPX dp		Compare Index Register X with Memory	E4	Direct Page	N-----ZC	2	3[^2][^8]
+            { 0xe4, new OpCode (0xe4, Instruction.CPX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // CPX addr		Compare Index Register X with Memory	EC	Absolute	N-----ZC	3	4[^8]
+            { 0xec, new OpCode (0xec, Instruction.CPX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // CPY #const		Compare Index Register Y with Memory	C0	Immediate	N-----ZC	2[^14]	2[^8]
+            { 0xc0, new OpCode (0xc0, Instruction.CPY, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // CPY dp		Compare Index Register Y with Memory	C4	Direct Page	N-----ZC	2	3[^2][^8]
+            { 0xc4, new OpCode (0xc4, Instruction.CPY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // CPY addr		Compare Index Register Y with Memory	CC	Absolute	N-----ZC	3	4[^8]
+            { 0xcc, new OpCode (0xcc, Instruction.CPY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // DEC A	DEA	Decrement	3A	Accumulator	N-----Z-	1	2
+            { 0x3a, new OpCode (0x3a, Instruction.DEC, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // DEC dp		Decrement	C6	Direct Page	N-----Z-	2	5[^2][^4]
+            { 0xc6, new OpCode (0xc6, Instruction.DEC, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // DEC addr		Decrement	CE	Absolute	N-----Z-	3	6[^4]
+            { 0xce, new OpCode (0xce, Instruction.DEC, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // DEC dp,X		Decrement	D6	DP Indexed,X	N-----Z-	2	6[^2][^4]
+            { 0xd6, new OpCode (0xd6, Instruction.DEC, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // DEC addr,X		Decrement	DE	Absolute Indexed,X	N-----Z-	3	7[^4]
+            { 0xde, new OpCode (0xde, Instruction.DEC, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // DEX		Decrement Index Register X	CA	Implied	N-----Z-	1	2
+            { 0xca, new OpCode (0xca, Instruction.DEX, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // DEY		Decrement Index Register Y	88	Implied	N-----Z-	1	2
+            { 0x88, new OpCode (0x88, Instruction.DEY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // EOR (_dp,_X)		Exclusive-OR Accumulator with Memory	41	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
             // EOR sr,S		Exclusive-OR Accumulator with Memory	43	Stack Relative	N-----Z-	2	4[^1]
             // EOR dp		Exclusive-OR Accumulator with Memory	45	Direct Page	N-----Z-	2	3[^1][^2]
