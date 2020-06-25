@@ -131,20 +131,35 @@ namespace BlazeSnes.Core.Cpu {
             // CLV		Clear Overflow Flag	B8	Implied	-V------	1	2
             { 0xb8, new OpCode (0xb8, Instruction.CLV, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // CMP (_dp,_X)		Compare Accumulator with Memory	C1	DP Indexed Indirect,X	N-----ZC	2	6[^1][^2]
+            { 0xc1, new OpCode (0xc1, Instruction.CMP, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP sr,S		Compare Accumulator with Memory	C3	Stack Relative	N-----ZC	2	4[^1]
+            { 0xc3, new OpCode (0xc3, Instruction.CMP, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP dp		Compare Accumulator with Memory	C5	Direct Page	N-----ZC	2	3[^1][^2]
+            { 0xc5, new OpCode (0x65, Instruction.CMP, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP [dp]		Compare Accumulator with Memory	C7	DP Indirect Long	N-----ZC	2	6[^1][^2]
+            { 0xc7, new OpCode (0xc7, Instruction.CMP, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP #const		Compare Accumulator with Memory	C9	Immediate	N-----ZC	2[^12]	2[^1]
+            { 0xc9, new OpCode (0xc9, Instruction.CMP, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP addr		Compare Accumulator with Memory	CD	Absolute	N-----ZC	3	4[^1]
+            { 0xcd, new OpCode (0xcd, Instruction.CMP, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP long		Compare Accumulator with Memory	CF	Absolute Long	N-----ZC	4	5[^1]
+            { 0xcf, new OpCode (0xcf, Instruction.CMP, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP (dp),Y		Compare Accumulator with Memory	D1	DP Indirect Indexed, Y	N-----ZC	2	5[^1][^2][^3]
+            { 0xd1, new OpCode (0xd1, Instruction.CMP, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // CMP (dp)		Compare Accumulator with Memory	D2	DP Indirect	N-----ZC	2	5[^1][^2]
+            { 0xd2, new OpCode (0xd2, Instruction.CMP, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP (sr,S),Y		Compare Accumulator with Memory	D3	SR Indirect Indexed,Y	N-----ZC	2	7[^1]
+            { 0xd3, new OpCode (0xd3, Instruction.CMP, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP dp,X		Compare Accumulator with Memory	D5	DP Indexed,X	N-----ZC	2	4[^1][^2]
+            { 0xd5, new OpCode (0xd5, Instruction.CMP, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP [dp],Y		Compare Accumulator with Memory	D7	DP Indirect Long Indexed, Y	N-----ZC	2	6[^1][^2]
+            { 0xd7, new OpCode (0xd7, Instruction.CMP, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP addr,Y		Compare Accumulator with Memory	D9	Absolute Indexed,Y	N-----ZC	3	4[^1][^3]
+            { 0xd9, new OpCode (0xd9, Instruction.CMP, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // CMP addr,X		Compare Accumulator with Memory	DD	Absolute Indexed,X	N-----ZC	3	4[^1][^3]
+            { 0xdd, new OpCode (0xdd, Instruction.CMP, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // CMP long,X		Compare Accumulator with Memory	DF	Absolute Long Indexed,X	N-----ZC	4	5[^1]
+            { 0xdf, new OpCode (0xdf, Instruction.CMP, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // COP const		Co-Processor Enable	02	Stack/Interrupt	----DI--	2[^13]	7[^7]
             // CPX #const		Compare Index Register X with Memory	E0	Immediate	N-----ZC	2[^14]	2[^8]
             // CPX dp		Compare Index Register X with Memory	E4	Direct Page	N-----ZC	2	3[^2][^8]
