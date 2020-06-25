@@ -189,20 +189,35 @@ namespace BlazeSnes.Core.Cpu {
             // DEY		Decrement Index Register Y	88	Implied	N-----Z-	1	2
             { 0x88, new OpCode (0x88, Instruction.DEY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // EOR (_dp,_X)		Exclusive-OR Accumulator with Memory	41	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
+            { 0x41, new OpCode (0x41, Instruction.EOR, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR sr,S		Exclusive-OR Accumulator with Memory	43	Stack Relative	N-----Z-	2	4[^1]
+            { 0x43, new OpCode (0x43, Instruction.EOR, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR dp		Exclusive-OR Accumulator with Memory	45	Direct Page	N-----Z-	2	3[^1][^2]
+            { 0x45, new OpCode (0x45, Instruction.EOR, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR [dp]		Exclusive-OR Accumulator with Memory	47	DP Indirect Long	N-----Z-	2	6[^1][^2]
+            { 0x47, new OpCode (0x47, Instruction.EOR, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR #const		Exclusive-OR Accumulator with Memory	49	Immediate	N-----Z-	2[^12]	2[^1]
+            { 0x49, new OpCode (0x49, Instruction.EOR, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR addr		Exclusive-OR Accumulator with Memory	4D	Absolute	N-----Z-	3	4[^1]
+            { 0x4d, new OpCode (0x4d, Instruction.EOR, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR long		Exclusive-OR Accumulator with Memory	4F	Absolute Long	N-----Z-	4	5[^1]
+            { 0x4f, new OpCode (0x4f, Instruction.EOR, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR (dp),Y		Exclusive-OR Accumulator with Memory	51	DP Indirect Indexed, Y	N-----Z-	2	5[^1][^2][^3]
+            { 0x51, new OpCode (0x51, Instruction.EOR, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // EOR (dp)		Exclusive-OR Accumulator with Memory	52	DP Indirect	N-----Z-	2	5[^1][^2]
+            { 0x52, new OpCode (0x52, Instruction.EOR, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR (sr,S),Y		Exclusive-OR Accumulator with Memory	53	SR Indirect Indexed,Y	N-----Z-	2	7[^1]
+            { 0x53, new OpCode (0x53, Instruction.EOR, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR dp,X		Exclusive-OR Accumulator with Memory	55	DP Indexed,X	N-----Z-	2	4[^1][^2]
+            { 0x55, new OpCode (0x55, Instruction.EOR, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR [dp],Y		Exclusive-OR Accumulator with Memory	57	DP Indirect Long Indexed, Y	N-----Z-	2	6[^1][^2]
+            { 0x57, new OpCode (0x57, Instruction.EOR, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR addr,Y		Exclusive-OR Accumulator with Memory	59	Absolute Indexed,Y	N-----Z-	3	4[^1][^3]
+            { 0x59, new OpCode (0x59, Instruction.EOR, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // EOR addr,X		Exclusive-OR Accumulator with Memory	5D	Absolute Indexed,X	N-----Z-	3	4[^1][^3]
+            { 0x5d, new OpCode (0x5d, Instruction.EOR, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // EOR long,X		Exclusive-OR Accumulator with Memory	5F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
+            { 0x5f, new OpCode (0x5f, Instruction.EOR, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // INC A	INA	Increment	1A	Accumulator	N-----Z-	1	2
             // INC dp		Increment	E6	Direct Page	N-----Z-	2	5[^2][^4]
             // INC addr		Increment	EE	Absolute	N-----Z-	3	6[^4]
