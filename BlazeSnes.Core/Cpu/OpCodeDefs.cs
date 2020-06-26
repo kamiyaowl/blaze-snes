@@ -219,12 +219,19 @@ namespace BlazeSnes.Core.Cpu {
             // EOR long,X		Exclusive-OR Accumulator with Memory	5F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
             { 0x5f, new OpCode (0x5f, Instruction.EOR, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // INC A	INA	Increment	1A	Accumulator	N-----Z-	1	2
+            { 0x1a, new OpCode (0x1a, Instruction.INC, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // INC dp		Increment	E6	Direct Page	N-----Z-	2	5[^2][^4]
+            { 0xe6, new OpCode (0xe6, Instruction.INC, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // INC addr		Increment	EE	Absolute	N-----Z-	3	6[^4]
+            { 0xee, new OpCode (0xee, Instruction.INC, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // INC dp,X		Increment	F6	DP Indexed,X	N-----Z-	2	6[^2][^4]
+            { 0xf6, new OpCode (0xf6, Instruction.INC, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // INC addr,X		Increment	FE	Absolute Indexed,X	N-----Z-	3	7[^4]
+            { 0xfe, new OpCode (0xfe, Instruction.INC, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // INX		Increment Index Register X	E8	Implied	N-----Z-	1	2
+            { 0xe8, new OpCode (0xe8, Instruction.INX, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // INY		Increment Index Register Y	C8	Implied	N-----Z-	1	2
+            { 0xc8, new OpCode (0xc8, Instruction.INY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // JMP addr		Jump	4C	Absolute		3	3
             // JMP long	JML	Jump	5C	Absolute Long		4	4
             // JMP (addr)		Jump	6C	Absolute Indirect		3	5
