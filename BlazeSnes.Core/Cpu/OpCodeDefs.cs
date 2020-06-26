@@ -249,30 +249,55 @@ namespace BlazeSnes.Core.Cpu {
             // JSR (addr,X))		Jump to Subroutine	FC	Absolute Indexed Indirect		3	8
             { 0xfc, new OpCode (0xfc, Instruction.JSR, Addressing.AbsoluteIndexedIndirectX, new FetchByte (3), 8, CycleOption.None) },
             // LDA (_dp,_X)		Load Accumulator from Memory	A1	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
+            { 0xa1, new OpCode (0xa1, Instruction.LDA, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA sr,S		Load Accumulator from Memory	A3	Stack Relative	N-----Z-	2	4[^1]
+            { 0xa3, new OpCode (0xa3, Instruction.LDA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA dp		Load Accumulator from Memory	A5	Direct Page	N-----Z-	2	3[^1][^2]
+            { 0xa5, new OpCode (0xa5, Instruction.LDA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA [dp]		Load Accumulator from Memory	A7	DP Indirect Long	N-----Z-	2	6[^1][^2]
+            { 0xa7, new OpCode (0xa7, Instruction.LDA, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA #const		Load Accumulator from Memory	A9	Immediate	N-----Z-	2[^12]	2[^1]
+            { 0xa9, new OpCode (0xa9, Instruction.LDA, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA addr		Load Accumulator from Memory	AD	Absolute	N-----Z-	3	4[^1]
+            { 0xad, new OpCode (0xad, Instruction.LDA, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA long		Load Accumulator from Memory	AF	Absolute Long	N-----Z-	4	5[^1]
+            { 0xaf, new OpCode (0xaf, Instruction.LDA, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA (dp),Y		Load Accumulator from Memory	B1	DP Indirect Indexed, Y	N-----Z-	2	5[^1][^2][^3]
+            { 0xb1, new OpCode (0xb1, Instruction.LDA, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // LDA (dp)		Load Accumulator from Memory	B2	DP Indirect	N-----Z-	2	5[^1][^2]
+            { 0xb2, new OpCode (0xb2, Instruction.LDA, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA (sr,S),Y		Load Accumulator from Memory	B3	SR Indirect Indexed,Y	N-----Z-	2	7[^1]
+            { 0xb3, new OpCode (0xb3, Instruction.LDA, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA dp,X		Load Accumulator from Memory	B5	DP Indexed,X	N-----Z-	2	4[^1][^2]
+            { 0xb5, new OpCode (0xb5, Instruction.LDA, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA [dp],Y		Load Accumulator from Memory	B7	DP Indirect Long Indexed, Y	N-----Z-	2	6[^1][^2]
+            { 0xb7, new OpCode (0xb7, Instruction.LDA, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA addr,Y		Load Accumulator from Memory	B9	Absolute Indexed,Y	N-----Z-	3	4[^1][^3]
+            { 0xb9, new OpCode (0xb9, Instruction.LDA, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // LDA addr,X		Load Accumulator from Memory	BD	Absolute Indexed,X	N-----Z-	3	4[^1][^3]
+            { 0xbd, new OpCode (0xbd, Instruction.LDA, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // LDA long,X		Load Accumulator from Memory	BF	Absolute Long Indexed,X	N-----Z-	4	5[^1]
+            { 0xbf, new OpCode (0xbf, Instruction.LDA, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // LDX #const		Load Index Register X from Memory	A2	Immediate	N-----Z-	2[^14]	2[^8]
+            { 0xa2, new OpCode (0xa2, Instruction.LDX, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // LDX dp		Load Index Register X from Memory	A6	Direct Page	N-----Z-	2	3[^2][^8]
+            { 0xa6, new OpCode (0xa6, Instruction.LDX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDX addr		Load Index Register X from Memory	AE	Absolute	N-----Z-	3	4[^8]
+            { 0xae, new OpCode (0xae, Instruction.LDX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // LDX dp,Y		Load Index Register X from Memory	B6	DP Indexed,Y	N-----Z-	2	4[^2][^8]
+            { 0xb6, new OpCode (0xb6, Instruction.LDX, Addressing.DirectIndexedY, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDX addr,Y		Load Index Register X from Memory	BE	Absolute Indexed,Y	N-----Z-	3	4[^3][^8]
+            { 0xbe, new OpCode (0xbe, Instruction.LDX, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) },
             // LDY #const		Load Index Register Y from Memory	A0	Immediate	N-----Z-	2[^14]	2[^8]
+            { 0xa0, new OpCode (0xa0, Instruction.LDY, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // LDY dp		Load Index Register Y from Memory	A4	Direct Page	N-----Z-	2	3[^2][^8]
+            { 0xa4, new OpCode (0xa4, Instruction.LDY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDY addr		Load Index Register Y from Memory	AC	Absolute	N-----Z-	3	4[^8]
+            { 0xac, new OpCode (0xac, Instruction.LDY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // LDY dp,X		Load Index Register Y from Memory	B4	DP Indexed,X	N-----Z-	2	4[^2][^8]
+            { 0xb4, new OpCode (0xb4, Instruction.LDY, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDY addr,X		Load Index Register Y from Memory	BC	Absolute Indexed,X	N-----Z-	3	4[^3][^8]
+            { 0xbc, new OpCode (0xbc, Instruction.LDY, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) },
             // LSR dp		Logical Shift Memory or Accumulator Right	46	Direct Page	N-----ZC	2	5[^2][^4]
             // LSR A		Logical Shift Memory or Accumulator Right	4A	Accumulator	N-----ZC	1	2
             // LSR addr		Logical Shift Memory or Accumulator Right	4E	Absolute	N-----ZC	3	6[^4]
