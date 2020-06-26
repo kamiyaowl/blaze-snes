@@ -399,27 +399,49 @@ namespace BlazeSnes.Core.Cpu {
             // ROR addr,X		Rotate Memory or Accumulator Right	7E	Absolute Indexed,X	N-----ZC	3	7[^4]
             { 0x7e, new OpCode (0x7e, Instruction.ROR, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // RTI		Return from Interrupt	40	Stack (RTI)	NVMXDIZC	1	6[^7]
+            { 0x40, new OpCode (0x40, Instruction.RTI, Addressing.Implied, new FetchByte (1), 6, CycleOption.Add1CycleIfNativeMode) },
             // RTL		Return from Subroutine Long	6B	Stack (RTL)		1	6
+            { 0x6b, new OpCode (0x6b, Instruction.RTL, Addressing.Implied, new FetchByte (1), 6, CycleOption.None) },
             // RTS		Return from Subroutine	60	Stack (RTS)		1	6
+            { 0x60, new OpCode (0x60, Instruction.RTS, Addressing.Implied, new FetchByte (1), 6, CycleOption.None) },
             // SBC (_dp,_X)		Subtract with Borrow from Accumulator	E1	DP Indexed Indirect,X	NV----ZC	2	6[^1][^2]
+            { 0xe1, new OpCode (0xe1, Instruction.SBC, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC sr,S		Subtract with Borrow from Accumulator	E3	Stack Relative	NV----ZC	2	4[^1]
+            { 0xe3, new OpCode (0xe3, Instruction.SBC, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC dp		Subtract with Borrow from Accumulator	E5	Direct Page	NV----ZC	2	3[^1][^2]
+            { 0xe5, new OpCode (0xe5, Instruction.SBC, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC [dp]		Subtract with Borrow from Accumulator	E7	DP Indirect Long	NV----ZC	2	6[^1][^2]
+            { 0xe7, new OpCode (0xe7, Instruction.SBC, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC #const		Subtract with Borrow from Accumulator	E9	Immediate	NV----ZC	2[^12]	2[^1]
+            { 0xe9, new OpCode (0xe9, Instruction.SBC, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC addr		Subtract with Borrow from Accumulator	ED	Absolute	NV----ZC	3	4[^1]
+            { 0xed, new OpCode (0xed, Instruction.SBC, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC long		Subtract with Borrow from Accumulator	EF	Absolute Long	NV----ZC	4	5[^1]
+            { 0xef, new OpCode (0xef, Instruction.SBC, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC (dp),Y		Subtract with Borrow from Accumulator	F1	DP Indirect Indexed, Y	NV----ZC	2	5[^1][^2][^3]
+            { 0xf1, new OpCode (0xf1, Instruction.SBC, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // SBC (dp)		Subtract with Borrow from Accumulator	F2	DP Indirect	NV----ZC	2	5[^1][^2]
+            { 0xf2, new OpCode (0xf2, Instruction.SBC, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC (sr,S),Y		Subtract with Borrow from Accumulator	F3	SR Indirect Indexed,Y	NV----ZC	2	7[^1]
+            { 0xf3, new OpCode (0xf3, Instruction.SBC, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC dp,X		Subtract with Borrow from Accumulator	F5	DP Indexed,X	NV----ZC	2	4[^1][^2]
+            { 0xf5, new OpCode (0xf5, Instruction.SBC, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC [dp],Y		Subtract with Borrow from Accumulator	F7	DP Indirect Long Indexed, Y	NV----ZC	2	6[^1][^2]
+            { 0xf7, new OpCode (0xf7, Instruction.SBC, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC addr,Y		Subtract with Borrow from Accumulator	F9	Absolute Indexed,Y	NV----ZC	3	4[^1][^3]
+            { 0xf9, new OpCode (0xf9, Instruction.SBC, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // SBC addr,X		Subtract with Borrow from Accumulator	FD	Absolute Indexed,X	NV----ZC	3	4[^1][^3]
+            { 0xfd, new OpCode (0xfd, Instruction.SBC, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // SBC long,X		Subtract with Borrow from Accumulator	FF	Absolute Long Indexed,X	NV----ZC	4	5[^1]
+            { 0xff, new OpCode (0xff, Instruction.SBC, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // SEC		Set Carry Flag	38	Implied	-------C	1	2
+            { 0x38, new OpCode (0x38, Instruction.SEC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // SED		Set Decimal Flag	F8	Implied	----D---	1	2
+            { 0xf8, new OpCode (0xf8, Instruction.SED, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // SEI		Set Interrupt Disable Flag	78	Implied	-----I--	1	2
+            { 0x78, new OpCode (0x78, Instruction.SEI, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // SEP #const		Reset Processor Status Bits	E2	Immediate	NVMXDIZC	2	3
+            { 0xe2, new OpCode (0xe2, Instruction.SEP, Addressing.Implied, new FetchByte (2), 3, CycleOption.None) },
             // STA (_dp,_X)		Store Accumulator to Memory	81	DP Indexed Indirect,X		2	6[^1][^2]
             // STA sr,S		Store Accumulator to Memory	83	Stack Relative		2	4[^1]
             // STA dp		Store Accumulator to Memory	85	Direct Page		2	3[^1][^2]
