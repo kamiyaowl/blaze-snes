@@ -10,14 +10,10 @@ namespace BlazeSnes.Core.Cpu {
     /// </summary>
     public static class OpCodeDefs {
 
-        // TODO: 全部やる
         /// <summary>
         ///  命令定義一式です
         ///  ref https://wiki.superfamicom.org/65816-reference
         /// </summary>
-        /// <typeparam name="byte"></typeparam>
-        /// <typeparam name="OpCode"></typeparam>
-        /// <returns></returns>
         public static readonly SortedDictionary<byte, OpCode> OpCodes = new SortedDictionary<byte, OpCode>() {
             // Assembler Example	Alias	Proper Name	HEX	Addressing Mode	Flags Set	Bytes	Cycles
             // ADC (dp,X)		Add With Carry	61	DP Indexed Indirect,X	NV----ZC	2	6[^1][^2]
@@ -493,25 +489,45 @@ namespace BlazeSnes.Core.Cpu {
             // STZ addr,X		Store Zero to Memory	9E	Absolute Indexed,X		3	5[^1]
             { 0x9e, new OpCode (0x9e, Instruction.STZ, Addressing.AbsoluteIndexedX, new FetchByte (3), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // TAX		Transfer Accumulator to Index Register X	AA	Implied	N-----Z-	1	2
+            { 0xaa, new OpCode (0xaa, Instruction.TAX, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TAY		Transfer Accumulator to Index Register Y	A8	Implied	N-----Z-	1	2
+            { 0xa8, new OpCode (0xa8, Instruction.TAY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TCD		Transfer 16-bit Accumulator to Direct Page Register	5B	Implied	N-----Z-	1	2
+            { 0x5b, new OpCode (0x5b, Instruction.TAY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TCS		Transfer 16-bit Accumulator to Stack Pointer	1B	Implied		1	2
+            { 0x2b, new OpCode (0x2b, Instruction.TCS, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TDC		Transfer Direct Page Register to 16-bit Accumulator	7B	Implied	N-----Z-	1	2
+            { 0x7b, new OpCode (0x7b, Instruction.TDC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TRB dp		Test and Reset Memory Bits Against Accumulator	14	Direct Page	------Z-	2	5[^2][^4]
+            { 0x14, new OpCode (0x14, Instruction.TRB, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // TRB addr		Test and Reset Memory Bits Against Accumulator	1C	Absolute	------Z-	3	6[^3]
+            { 0x1c, new OpCode (0x1c, Instruction.TRB, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // TSB dp		Test and Set Memory Bits Against Accumulator	04	Direct Page	------Z-	2	5[^2][^4]
+            { 0x04, new OpCode (0x04, Instruction.TSB, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // TSB addr		Test and Set Memory Bits Against Accumulator	0C	Absolute	------Z-	3	6[^4]
+            { 0x0c, new OpCode (0x0c, Instruction.TSB, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // TSC		Transfer Stack Pointer to 16-bit Accumulator	3B	Implied	N-----Z-	1	2
+            { 0x3b, new OpCode (0x3b, Instruction.TSC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TSX		Transfer Stack Pointer to Index Register X	BA	Implied	N-----Z-	1	2
+            { 0xba, new OpCode (0xba, Instruction.TSX, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TXA		Transfer Index Register X to Accumulator	8A	Implied	N-----Z-	1	2
+            { 0x8a, new OpCode (0x8a, Instruction.TXA, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TXS		Transfer Index Register X to Stack Pointer	9A	Implied		1	2
+            { 0x9a, new OpCode (0x9a, Instruction.TXS, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TXY		Transfer Index Register X to Index Register Y	9B	Implied	N-----Z-	1	2
+            { 0x9b, new OpCode (0x9b, Instruction.TXY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TYA		Transfer Index Register Y to Accumulator	98	Implied	N-----Z-	1	2
+            { 0x98, new OpCode (0x98, Instruction.TYA, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TYX		Transfer Index Register Y to Index Register X	BB	Implied	N-----Z-	1	2
+            { 0xbb, new OpCode (0xbb, Instruction.TYX, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // WAI		Wait for Interrupt	CB	Implied		1	3[^10]
+            { 0xcb, new OpCode (0xcb, Instruction.WAI, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add3CycleToShutdownByInterrupt) },
             // WDM		Reserved for Future Expansion	42			2	0[^11]
+            // { 0x42, new OpCode (0x42, Instruction.WDM, Addressing.Implied, new FetchByte (2), 0, CycleOption.None) },
             // XBA		Exchange B and A 8-bit Accumulators	EB	Implied	N-----Z-	1	3
+            { 0xeb, new OpCode (0xeb, Instruction.XBA, Addressing.Implied, new FetchByte (1), 3, CycleOption.None) },
             // XCE		Exchange Carry and Emulation Flags	FB	Implied	--MX---CE	1	2
+            { 0xfb, new OpCode (0xfb, Instruction.XCE, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
         };
     }
 }
