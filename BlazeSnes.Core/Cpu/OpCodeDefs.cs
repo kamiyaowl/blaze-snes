@@ -379,15 +379,25 @@ namespace BlazeSnes.Core.Cpu {
             // REP #const		Reset Processor Status Bits	C2	Immediate	NVMXDIZC	2	3
             { 0xc2, new OpCode (0xc2, Instruction.REP, Addressing.Immediate, new FetchByte (2), 3, CycleOption.None) },
             // ROL dp		Rotate Memory or Accumulator Left	26	Direct Page	N-----ZC	2	5[^2][^4]
+            { 0x26, new OpCode (0x26, Instruction.ROL, Addressing.Direct, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROL A		Rotate Memory or Accumulator Left	2A	Accumulator	N-----ZC	1	2
+            { 0x2a, new OpCode (0x2a, Instruction.ROL, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ROL addr		Rotate Memory or Accumulator Left	2E	Absolute	N-----ZC	3	6[^4]
+            { 0x2e, new OpCode (0x2e, Instruction.ROL, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // ROL dp,X		Rotate Memory or Accumulator Left	36	DP Indexed,X	N-----ZC	2	6[^2][^4]
+            { 0x36, new OpCode (0x36, Instruction.ROL, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROL addr,X		Rotate Memory or Accumulator Left	3E	Absolute Indexed,X	N-----ZC	3	7[^4]
+            { 0x3e, new OpCode (0x3e, Instruction.ROL, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // ROR dp		Rotate Memory or Accumulator Right	66	Direct Page	N-----ZC	2	5[^2][^4]
+            { 0x66, new OpCode (0x66, Instruction.ROR, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROR A		Rotate Memory or Accumulator Right	6A	Accumulator	N-----ZC	1	2
+            { 0x6a, new OpCode (0x6a, Instruction.ROR, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ROR addr		Rotate Memory or Accumulator Right	6E	Absolute	N-----ZC	3	6[^4]
+            { 0x6e, new OpCode (0x6e, Instruction.ROR, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // ROR dp,X		Rotate Memory or Accumulator Right	76	DP Indexed,X	N-----ZC	2	6[^2][^4]
+            { 0x76, new OpCode (0x76, Instruction.ROR, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROR addr,X		Rotate Memory or Accumulator Right	7E	Absolute Indexed,X	N-----ZC	3	7[^4]
+            { 0x7e, new OpCode (0x7e, Instruction.ROR, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // RTI		Return from Interrupt	40	Stack (RTI)	NVMXDIZC	1	6[^7]
             // RTL		Return from Subroutine Long	6B	Stack (RTL)		1	6
             // RTS		Return from Subroutine	60	Stack (RTS)		1	6
