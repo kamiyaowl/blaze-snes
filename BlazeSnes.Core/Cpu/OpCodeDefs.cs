@@ -315,20 +315,35 @@ namespace BlazeSnes.Core.Cpu {
             // NOP		No Operation	EA	Implied		1	2
             { 0xea, new OpCode (0xea, Instruction.NOP, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // ORA (_dp,_X)		OR Accumulator with Memory	01	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
+            { 0x01, new OpCode (0x01, Instruction.ORA, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA sr,S		OR Accumulator with Memory	03	Stack Relative	N-----Z-	2	4[^1]
+            { 0x03, new OpCode (0x03, Instruction.ORA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA dp		OR Accumulator with Memory	05	Direct Page	N-----Z-	2	3[^1][^2]
+            { 0x05, new OpCode (0x05, Instruction.ORA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA [dp]		OR Accumulator with Memory	07	DP Indirect Long	N-----Z-	2	6[^1][^2]
+            { 0x07, new OpCode (0x07, Instruction.ORA, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA #const		OR Accumulator with Memory	09	Immediate	N-----Z-	2[^12]	2[^1]
+            { 0x09, new OpCode (0x09, Instruction.ORA, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfMRegZero), 2, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA addr		OR Accumulator with Memory	0D	Absolute	N-----Z-	3	4[^1]
+            { 0x0d, new OpCode (0x0d, Instruction.ORA, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA long		OR Accumulator with Memory	0F	Absolute Long	N-----Z-	4	5[^1]
+            { 0x0f, new OpCode (0x0f, Instruction.ORA, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA (dp),Y		OR Accumulator with Memory	11	DP Indirect Indexed, Y	N-----Z-	2	5[^1][^2][^3]
+            { 0x11, new OpCode (0x11, Instruction.ORA, Addressing.DirectIndirectIndexedY, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // ORA (dp)		OR Accumulator with Memory	12	DP Indirect	N-----Z-	2	5[^1][^2]
+            { 0x12, new OpCode (0x12, Instruction.ORA, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA (sr,S),Y		OR Accumulator with Memory	13	SR Indirect Indexed,Y	N-----Z-	2	7[^1]
+            { 0x13, new OpCode (0x13, Instruction.ORA, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA dp,X		OR Accumulator with Memory	15	DP Indexed,X	N-----Z-	2	4[^1][^2]
+            { 0x15, new OpCode (0x15, Instruction.ORA, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA [dp],Y		OR Accumulator with Memory	17	DP Indirect Long Indexed, Y	N-----Z-	2	6[^1][^2]
+            { 0x17, new OpCode (0x17, Instruction.ORA, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA addr,Y		OR Accumulator with Memory	19	Absolute Indexed,Y	N-----Z-	3	4[^1][^3]
+            { 0x19, new OpCode (0x19, Instruction.ORA, Addressing.AbsoluteIndexedY, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // ORA addr,X		OR Accumulator with Memory	1D	Absolute Indexed,X	N-----Z-	3	4[^1][^3]
+            { 0x1d, new OpCode (0x1d, Instruction.ORA, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // ORA long,X		OR Accumulator with Memory	1F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
+            { 0x1f, new OpCode (0x1f, Instruction.ORA, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // PEA addr		Push Effective Absolute Address	F4	Stack (Absolute)		3	5
             // PEI (dp)		Push Effective Indirect Address	D4	Stack (DP Indirect)		2	6[^2]
             // PER label		Push Effective PC Relative Indirect Address	62	Stack (PC Relative Long)		3	6
