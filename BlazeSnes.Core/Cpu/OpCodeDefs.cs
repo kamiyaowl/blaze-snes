@@ -299,13 +299,21 @@ namespace BlazeSnes.Core.Cpu {
             // LDY addr,X		Load Index Register Y from Memory	BC	Absolute Indexed,X	N-----Z-	3	4[^3][^8]
             { 0xbc, new OpCode (0xbc, Instruction.LDY, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) },
             // LSR dp		Logical Shift Memory or Accumulator Right	46	Direct Page	N-----ZC	2	5[^2][^4]
+            { 0x46, new OpCode (0x46, Instruction.LSR, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // LSR A		Logical Shift Memory or Accumulator Right	4A	Accumulator	N-----ZC	1	2
+            { 0x4a, new OpCode (0x4a, Instruction.LSR, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // LSR addr		Logical Shift Memory or Accumulator Right	4E	Absolute	N-----ZC	3	6[^4]
+            { 0x4e, new OpCode (0x4e, Instruction.LSR, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // LSR dp,X		Logical Shift Memory or Accumulator Right	56	DP Indexed,X	N-----ZC	2	6[^2][^4]
+            { 0x56, new OpCode (0x56, Instruction.LSR, Addressing.DirectIndexedX, new FetchByte (2), 6, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // LSR addr,X		Logical Shift Memory or Accumulator Right	5E	Absolute Indexed,X	N-----ZC	3	7[^4]
+            { 0x5e, new OpCode (0x5e, Instruction.LSR, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // MVN srcbk,destbk		Block Move Negative	54	Block Move		3	1[^3]
+            { 0x54, new OpCode (0x54, Instruction.MVN, Addressing.BlockMove, new FetchByte (3), 1, CycleOption.Add2CycleIf16bitaccess) },
             // MVP srcbk,destbk		Block Move Positive	44	Block Move		3	1[^3]
+            { 0x44, new OpCode (0x44, Instruction.MVN, Addressing.BlockMove, new FetchByte (3), 1, CycleOption.Add2CycleIf16bitaccess) },
             // NOP		No Operation	EA	Implied		1	2
+            { 0xea, new OpCode (0xea, Instruction.NOP, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // ORA (_dp,_X)		OR Accumulator with Memory	01	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
             // ORA sr,S		OR Accumulator with Memory	03	Stack Relative	N-----Z-	2	4[^1]
             // ORA dp		OR Accumulator with Memory	05	Direct Page	N-----Z-	2	3[^1][^2]
