@@ -443,20 +443,35 @@ namespace BlazeSnes.Core.Cpu {
             // SEP #const		Reset Processor Status Bits	E2	Immediate	NVMXDIZC	2	3
             { 0xe2, new OpCode (0xe2, Instruction.SEP, Addressing.Implied, new FetchByte (2), 3, CycleOption.None) },
             // STA (_dp,_X)		Store Accumulator to Memory	81	DP Indexed Indirect,X		2	6[^1][^2]
+            { 0x81, new OpCode (0x81, Instruction.STA, Addressing.DirectIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA sr,S		Store Accumulator to Memory	83	Stack Relative		2	4[^1]
+            { 0x83, new OpCode (0x83, Instruction.STA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // STA dp		Store Accumulator to Memory	85	Direct Page		2	3[^1][^2]
+            { 0x85, new OpCode (0x85, Instruction.STA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA [dp]		Store Accumulator to Memory	87	DP Indirect Long		2	6[^1][^2]
+            { 0x87, new OpCode (0x87, Instruction.STA, Addressing.DirectIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA addr		Store Accumulator to Memory	8D	Absolute		3	4[^1]
+            { 0x8d, new OpCode (0x8d, Instruction.STA, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // STA long		Store Accumulator to Memory	8F	Absolute Long		4	5[^1]
+            { 0x8f, new OpCode (0x8f, Instruction.STA, Addressing.AbsoluteLong, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // STA (dp),Y		Store Accumulator to Memory	91	DP Indirect Indexed, Y		2	6[^1][^2]
+            { 0x91, new OpCode (0x91, Instruction.STA, Addressing.DirectIndirectIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA (dp)		Store Accumulator to Memory	92	DP Indirect		2	5[^1][^2]
+            { 0x92, new OpCode (0x92, Instruction.STA, Addressing.DirectIndirect, new FetchByte (2), 5, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA (sr,S),Y		Store Accumulator to Memory	93	SR Indirect Indexed,Y		2	7[^1]
+            { 0x93, new OpCode (0x93, Instruction.STA, Addressing.StackRelativeIndirectIndexedY, new FetchByte (2), 7, CycleOption.Add1CycleIf16bitAcccess) },
             // STA _dp_X		Store Accumulator to Memory	95	DP Indexed,X		2	4[^1][^2]
+            { 0x95, new OpCode (0x95, Instruction.STA, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA [dp],Y		Store Accumulator to Memory	97	DP Indirect Long Indexed, Y		2	6[^1][^2]
+            { 0x97, new OpCode (0x97, Instruction.STA, Addressing.DirectIndirectLongIndexedY, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA addr,Y		Store Accumulator to Memory	99	Absolute Indexed,Y		3	5[^1]
+            { 0x99, new OpCode (0x99, Instruction.STA, Addressing.AbsoluteIndexedY, new FetchByte (3), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // STA addr,X		Store Accumulator to Memory	9D	Absolute Indexed,X		3	5[^1]
+            { 0x9d, new OpCode (0x9d, Instruction.STA, Addressing.AbsoluteIndexedX, new FetchByte (3), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // STA long,X		Store Accumulator to Memory	9F	Absolute Long Indexed,X		4	5[^1]
+            { 0x9f, new OpCode (0x9f, Instruction.STA, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // STP		Stop Processor	DB	Implied		1	3[^9]
+            { 0xdb, new OpCode (0xdb, Instruction.STP, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add3CycleToShutdownByReset) },
             // STX dp		Store Index Register X to Memory	86	Direct Page		2	3[^2][^8]
             // STX addr		Store Index Register X to Memory	8E	Absolute		3	4[^8]
             // STX dp,Y		Store Index Register X to Memory	96	DP Indexed,Y		2	4[^2][^8]
