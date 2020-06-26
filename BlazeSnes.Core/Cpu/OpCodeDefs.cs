@@ -473,15 +473,25 @@ namespace BlazeSnes.Core.Cpu {
             // STP		Stop Processor	DB	Implied		1	3[^9]
             { 0xdb, new OpCode (0xdb, Instruction.STP, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add3CycleToShutdownByReset) },
             // STX dp		Store Index Register X to Memory	86	Direct Page		2	3[^2][^8]
+            { 0x86, new OpCode (0x86, Instruction.STX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STX addr		Store Index Register X to Memory	8E	Absolute		3	4[^8]
+            { 0x8e, new OpCode (0x8e, Instruction.STX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // STX dp,Y		Store Index Register X to Memory	96	DP Indexed,Y		2	4[^2][^8]
+            { 0x96, new OpCode (0x96, Instruction.STX, Addressing.DirectIndexedY, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STY dp		Store Index Register Y to Memory	84	Direct Page		2	3[^2][^8]
+            { 0x84, new OpCode (0x84, Instruction.STY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STY addr		Store Index Register Y to Memory	8C	Absolute		3	4[^8]
+            { 0x8c, new OpCode (0x8c, Instruction.STY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // STY dp,X		Store Index Register Y to Memory	94	DP Indexed,X		2	4[^2][^8]
+            { 0x94, new OpCode (0x94, Instruction.STY, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STZ dp		Store Zero to Memory	64	Direct Page		2	3[^1][^2]
+            { 0x64, new OpCode (0x64, Instruction.STZ, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STZ dp,X		Store Zero to Memory	74	DP Indexed,X		2	4[^1][^2]
+            { 0x74, new OpCode (0x74, Instruction.STZ, Addressing.DirectIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STZ addr		Store Zero to Memory	9C	Absolute		3	4[^1]
+            { 0x9c, new OpCode (0x9c, Instruction.STZ, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // STZ addr,X		Store Zero to Memory	9E	Absolute Indexed,X		3	5[^1]
+            { 0x9e, new OpCode (0x9e, Instruction.STZ, Addressing.AbsoluteIndexedX, new FetchByte (3), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // TAX		Transfer Accumulator to Index Register X	AA	Implied	N-----Z-	1	2
             // TAY		Transfer Accumulator to Index Register Y	A8	Implied	N-----Z-	1	2
             // TCD		Transfer 16-bit Accumulator to Direct Page Register	5B	Implied	N-----Z-	1	2
