@@ -233,13 +233,21 @@ namespace BlazeSnes.Core.Cpu {
             // INY		Increment Index Register Y	C8	Implied	N-----Z-	1	2
             { 0xc8, new OpCode (0xc8, Instruction.INY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // JMP addr		Jump	4C	Absolute		3	3
+            { 0x4c, new OpCode (0x4c, Instruction.JMP, Addressing.Absolute, new FetchByte (3), 3, CycleOption.None) },
             // JMP long	JML	Jump	5C	Absolute Long		4	4
+            { 0x5c, new OpCode (0x5c, Instruction.JMP, Addressing.AbsoluteLong, new FetchByte (4), 4, CycleOption.None) },
             // JMP (addr)		Jump	6C	Absolute Indirect		3	5
+            { 0x6c, new OpCode (0x6c, Instruction.JMP, Addressing.AbsoluteIndirect, new FetchByte (3), 5, CycleOption.None) },
             // JMP (addr,X)		Jump	7C	Absolute Indexed Indirect		3	6
+            { 0x7c, new OpCode (0x7c, Instruction.JMP, Addressing.AbsoluteIndexedIndirectX, new FetchByte (3), 6, CycleOption.None) },
             // JMP [addr]	JML	Jump	DC	Absolute Indirect Long		3	6
+            { 0xdc, new OpCode (0xdc, Instruction.JMP, Addressing.AbsoluteIndirectLong, new FetchByte (3), 6, CycleOption.None) },
             // JSR addr		Jump to Subroutine	20	Absolute		3	6
+            { 0x20, new OpCode (0x20, Instruction.JSR, Addressing.Absolute, new FetchByte (3), 6, CycleOption.None) },
             // JSR long	JSL	Jump to Subroutine	22	Absolute Long		4	8
+            { 0x22, new OpCode (0x22, Instruction.JSR, Addressing.AbsoluteLong, new FetchByte (4), 8, CycleOption.None) },
             // JSR (addr,X))		Jump to Subroutine	FC	Absolute Indexed Indirect		3	8
+            { 0xfc, new OpCode (0xfc, Instruction.JSR, Addressing.AbsoluteIndexedIndirectX, new FetchByte (3), 8, CycleOption.None) },
             // LDA (_dp,_X)		Load Accumulator from Memory	A1	DP Indexed Indirect,X	N-----Z-	2	6[^1][^2]
             // LDA sr,S		Load Accumulator from Memory	A3	Stack Relative	N-----Z-	2	4[^1]
             // LDA dp		Load Accumulator from Memory	A5	Direct Page	N-----Z-	2	3[^1][^2]
