@@ -345,22 +345,39 @@ namespace BlazeSnes.Core.Cpu {
             // ORA long,X		OR Accumulator with Memory	1F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
             { 0x1f, new OpCode (0x1f, Instruction.ORA, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // PEA addr		Push Effective Absolute Address	F4	Stack (Absolute)		3	5
+            { 0xf4, new OpCode (0xf4, Instruction.PEA, Addressing.Absolute, new FetchByte (3), 5, CycleOption.None) },
             // PEI (dp)		Push Effective Indirect Address	D4	Stack (DP Indirect)		2	6[^2]
+            { 0xd4, new OpCode (0xd4, Instruction.PEI, Addressing.DirectIndirect, new FetchByte (3), 6, CycleOption.Add1CycleIfDPRegNonZero) },
             // PER label		Push Effective PC Relative Indirect Address	62	Stack (PC Relative Long)		3	6
+            { 0x62, new OpCode (0x62, Instruction.PER, Addressing.ProgramCounterRelativeLong, new FetchByte (3), 6, CycleOption.None) },
             // PHA		Push Accumulator	48	Stack (Push)		1	3[^1]
+            { 0x48, new OpCode (0x48, Instruction.PHA, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add1CycleIf16bitAcccess) },
             // PHB		Push Data Bank Register	8B	Stack (Push)		1	3
+            { 0x8b, new OpCode (0x8b, Instruction.PHB, Addressing.Implied, new FetchByte (1), 3, CycleOption.None) },
             // PHD		Push Direct Page Register	0B	Stack (Push)		1	4
+            { 0x0b, new OpCode (0x0b, Instruction.PHD, Addressing.Implied, new FetchByte (1), 4, CycleOption.None) },
             // PHK		Push Program Bank Register	4B	Stack (Push)		1	3
+            { 0x4b, new OpCode (0x4b, Instruction.PHK, Addressing.Implied, new FetchByte (1), 3, CycleOption.None) },
             // PHP		Push Processor Status Register	08	Stack (Push)		1	3
+            { 0x08, new OpCode (0x08, Instruction.PHP, Addressing.Implied, new FetchByte (1), 3, CycleOption.None) },
             // PHX		Push Index Register X	DA	Stack (Push)		1	3[^8]
+            { 0xda, new OpCode (0xda, Instruction.PHX, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add1CycleIfXZero) },
             // PHY		Push Index Register Y	5A	Stack (Push)		1	3[^8]
+            { 0x5a, new OpCode (0x5a, Instruction.PHY, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add1CycleIfXZero) },
             // PLA		Pull Accumulator	68	Stack (Pull)	N-----Z-	1	4[^1]
+            { 0x68, new OpCode (0x68, Instruction.PLA, Addressing.Implied, new FetchByte (1), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // PLB		Pull Data Bank Register	AB	Stack (Pull)	N-----Z-	1	4
+            { 0xab, new OpCode (0xab, Instruction.PLB, Addressing.Implied, new FetchByte (1), 4, CycleOption.None) },
             // PLD		Pull Direct Page Register	2B	Stack (Pull)	N-----Z-	1	5
+            { 0x2b, new OpCode (0x2b, Instruction.PLD, Addressing.Implied, new FetchByte (1), 5, CycleOption.None) },
             // PLP		Pull Processor Status Register	28	Stack (Pull)	NVMXDIZC	1	4
+            { 0x28, new OpCode (0x28, Instruction.PLP, Addressing.Implied, new FetchByte (1), 4, CycleOption.None) },
             // PLX		Pull Index Register X	FA	Stack (Pull)	N-----Z-	1	4[^8]
+            { 0xfa, new OpCode (0xfa, Instruction.PLX, Addressing.Implied, new FetchByte (1), 4, CycleOption.Add1CycleIfXZero) },
             // PLY		Pull Index Register Y	7A	Stack (Pull)	N-----Z-	1	4[^8]
+            { 0x7a, new OpCode (0x7a, Instruction.PLY, Addressing.Implied, new FetchByte (1), 4, CycleOption.Add1CycleIfXZero) },
             // REP #const		Reset Processor Status Bits	C2	Immediate	NVMXDIZC	2	3
+            { 0xc2, new OpCode (0xc2, Instruction.REP, Addressing.Immediate, new FetchByte (2), 3, CycleOption.None) },
             // ROL dp		Rotate Memory or Accumulator Left	26	Direct Page	N-----ZC	2	5[^2][^4]
             // ROL A		Rotate Memory or Accumulator Left	2A	Accumulator	N-----ZC	1	2
             // ROL addr		Rotate Memory or Accumulator Left	2E	Absolute	N-----ZC	3	6[^4]
