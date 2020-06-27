@@ -73,8 +73,7 @@ namespace BlazeSnes.Core.Test.Common {
             /// </summary>
             public byte Data = 0x00;
 
-            public BusAccessibleVolatileRegSample() {
-            }
+            public BusAccessibleVolatileRegSample() { }
 
             public void Read(uint addr, byte[] data, bool isNondestructive = false) {
                 data[0] = this.Data;
@@ -108,6 +107,42 @@ namespace BlazeSnes.Core.Test.Common {
             // read destructive
             Assert.Equal(expectValue, target.Read8(0, false));
             Assert.Equal(0x00, target.Read8(0, false)); // destruction
+        }
+
+        /// <summary>
+        /// Read8/Read16/Read32, Write8/Write16/Write32の機能テスト
+        /// </summary>
+        [Theory, InlineData(0xaa, 0x99, 0x55, 0x66), InlineData(0x00, 0x00, 0x00, 0x00), InlineData(0xff, 0xff, 0xff, 0xff)]
+        public void ReadWriteExtension(byte data0, byte data1, byte data2, byte data3) {
+            // incremental pattern
+            var writeData = new byte[] {
+                data0,
+                data1,
+                data2,
+                data3,
+            };
+
+            // test target
+            var target = new BusAccessibleSample(writeData.Length);
+
+            // read test
+            target.Write(0, writeData);
+            Assert.Equal(data0, target.Read8(0, false));
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(0, false));
+
+            // write test
+            var dummyData = Enumerable.Repeat((byte)0, 4).ToArray();
+            target.Write(0, dummyData);
+
+            target.Write8(0, data0);
+            Assert.Equal(data0, target.Read8(0, false)); // Read8/16/32は手前で検証済
+
+            target.Write16(0, (ushort)(data0 | (data1 << 8)));
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false));
+
+            target.Write32(0, (uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)), target.Read32(0, false));
         }
     }
 }
