@@ -1,7 +1,8 @@
-using BlazeSnes.Core.Common;
 using System;
 using System.IO;
 using System.Text;
+
+using BlazeSnes.Core.Common;
 
 namespace BlazeSnes.Core.Cpu {
 

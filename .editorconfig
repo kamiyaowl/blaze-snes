@@ -18,8 +18,8 @@ insert_final_newline = false
 #### .NET コーディング規則 ####
 
 # using の整理
-dotnet_separate_import_directive_groups = false
-dotnet_sort_system_directives_first = false
+dotnet_separate_import_directive_groups = true
+dotnet_sort_system_directives_first = true
 
 # this. と Me. の設定
 dotnet_style_qualification_for_event = false:silent

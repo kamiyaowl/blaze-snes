@@ -1,6 +1,7 @@
-using BlazeSnes.Core.Cpu;
 using System;
 using System.IO;
+
+using BlazeSnes.Core.Cpu;
 
 namespace BlazeSnes.Core.External {
     /// <summary>

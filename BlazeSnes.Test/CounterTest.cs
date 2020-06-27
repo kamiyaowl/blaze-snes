@@ -1,8 +1,12 @@
+using System;
+
 using BlazeSnes.Pages;
+
 using Bunit;
 using Bunit.Mocking.JSInterop;
-using System;
+
 using Xunit;
+
 using static Bunit.ComponentParameterFactory;
 
 namespace BlazeSnes.Test {

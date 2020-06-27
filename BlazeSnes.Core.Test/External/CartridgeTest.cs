@@ -1,7 +1,9 @@
-using BlazeSnes.Core.Cpu;
-using BlazeSnes.Core.External;
 using System;
 using System.IO;
+
+using BlazeSnes.Core.Cpu;
+using BlazeSnes.Core.External;
+
 using Xunit;
 using Xunit.Sdk;
 

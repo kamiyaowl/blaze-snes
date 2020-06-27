@@ -1,13 +1,19 @@
+using System;
+
 using BlazeSnes.Pages;
+
 using Blazor.FileReader;
+
 using Bunit;
 using Bunit.Mocking.JSInterop;
+
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
+
 using Xunit;
+
 using static Bunit.ComponentParameterFactory;
 
 namespace BlazeSnes.Test {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+
 using static BlazeSnes.Core.Cpu.FetchByte;
 using static BlazeSnes.Core.Cpu.OpCode;
 
