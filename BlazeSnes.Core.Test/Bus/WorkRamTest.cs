@@ -16,16 +16,16 @@ namespace BlazeSnes.Core.Test.Common {
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<object[]> GetAccessPattern() {
-            yield return new object[] {0x00_0000, 0x2000};
-            yield return new object[] {0x00_0123, 0x2000 - 0x0123};
-            yield return new object[] {0x10_0000, 0x2000};
-            yield return new object[] {0x3f_0456, 0x2000 - 0x0456};
-            yield return new object[] {0x80_0789, 0x2000 - 0x0789};
-            yield return new object[] {0xbf_0abc, 0x2000 - 0x0abc};
-            yield return new object[] {0x7e_0000, 0x20000};
-            yield return new object[] {0x7f_0000, 0x1000};
-            yield return new object[] {0x7e_0def, 0x20000 - 0x0def};
-            yield return new object[] {0x7f_ffff, 0x0001};
+            yield return new object[] { 0x00_0000, 0x2000 };
+            yield return new object[] { 0x00_0123, 0x2000 - 0x0123 };
+            yield return new object[] { 0x10_0000, 0x2000 };
+            yield return new object[] { 0x3f_0456, 0x2000 - 0x0456 };
+            yield return new object[] { 0x80_0789, 0x2000 - 0x0789 };
+            yield return new object[] { 0xbf_0abc, 0x2000 - 0x0abc };
+            yield return new object[] { 0x7e_0000, 0x20000 };
+            yield return new object[] { 0x7f_0000, 0x1000 };
+            yield return new object[] { 0x7e_0def, 0x20000 - 0x0def };
+            yield return new object[] { 0x7f_ffff, 0x0001 };
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace BlazeSnes.Core.Test.Common {
             return expectReadData;
         }
 
-        
+
         /// <summary>
         /// AddressBus A経由でRead/Writeを使った単純読み書きテスト
         /// </summary>
@@ -118,7 +118,7 @@ namespace BlazeSnes.Core.Test.Common {
 
             // incremental pattern
             byte[] writeData = CreateIncrementalData(length);
-            wram.Write(BusAccess.AddressA, addr,writeData);
+            wram.Write(BusAccess.AddressA, addr, writeData);
 
             // 先頭からのオフセット分を0埋めした期待データを作る
             var expectReadData = CreateExpectData(addr, writeData);

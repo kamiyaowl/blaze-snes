@@ -6,7 +6,14 @@ namespace BlazeSnes.Core.Common {
     /// メモリアクセスするバスの種類
     /// </summary>
     public enum BusAccess {
-        Data, AddressA, AddressB,
+        // 8bit databus or openbus access
+        Data,
+        // 24bit SystemAddr Bus A
+        AddressA,
+        // 8bit SystemAddr Bus A
+        AddressB,
+        // Bus Masterからアクセスする際など、未特定
+        Unspecified,
     }
 
     /// <summary>
