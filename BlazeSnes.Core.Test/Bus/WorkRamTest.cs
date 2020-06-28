@@ -11,7 +11,10 @@ using Xunit.Sdk;
 
 namespace BlazeSnes.Core.Test.Common {
     public class WorkRamTest {
-
+        /// <summary>
+        /// テストする値
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<object[]> GetAccessPattern() {
             yield return new object[] {0x00_0000, 0x2000};
             yield return new object[] {0x00_0123, 0x2000 - 0x0123};
@@ -24,6 +27,32 @@ namespace BlazeSnes.Core.Test.Common {
             yield return new object[] {0x7e_0def, 0x20000 - 0x0def};
             yield return new object[] {0x7f_ffff, 0x0001};
         }
+
+        /// <summary>
+        /// インクリメンタルなデータパターンを作成します
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static byte[] CreateIncrementalData(int length) {
+            return Enumerable.Range(0x0, length)
+                .Select((_, i) => (byte)i)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// 先頭を0埋めした期待値データを作成します
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="writeData"></param>
+        /// <returns></returns>
+        public static byte[] CreateExpectData(uint addr, byte[] writeData) {
+            var offset = ((addr & 0xff0000) == 0x7f0000) ? (int)(addr & 0x1ffff) : (int)(addr & 0xffff); // 7E0000 ~ 7FFFFFには全面MapされているのでOffsetの付け方が異なる
+            var expectReadData = Enumerable.Repeat((byte)0x0, offset)
+                .Concat(writeData)
+                .ToArray();
+            return expectReadData;
+        }
+
         
         /// <summary>
         /// AddressBus A経由でRead/Writeを使った単純読み書きテスト
@@ -33,10 +62,8 @@ namespace BlazeSnes.Core.Test.Common {
             var wram = new WorkRam();
 
             // incremental pattern
-            var writeData = Enumerable.Range(0x0, length)
-                .Select((_, i) => (byte)i)
-                .ToArray();
-            wram.Write(BusAccess.AddressA, addr,writeData);
+            byte[] writeData = CreateIncrementalData(length);
+            wram.Write(BusAccess.AddressA, addr, writeData);
 
             // read
             var readData = new byte[writeData.Length];
@@ -48,23 +75,19 @@ namespace BlazeSnes.Core.Test.Common {
 
         /// <summary>
         /// AddressBusAで書いた内容をAddressBus B経由で読み出すテスト
+        /// 毎回WMADDL, WMADDM, WMADDHを設定する
         /// </summary>
         /// <returns></returns>
         [Theory, MemberData(nameof(GetAccessPattern))]
-        public void SingleAccessFromBusB(uint addr, int length) {
+        public void SingleReadFromBusB(uint addr, int length) {
             var wram = new WorkRam();
 
             // incremental pattern
-            var writeData = Enumerable.Range(0x0, length)
-                .Select((_, i) => (byte)i)
-                .ToArray();
-            wram.Write(BusAccess.AddressA, addr,writeData);
+            byte[] writeData = CreateIncrementalData(length);
+            wram.Write(BusAccess.AddressA, addr, writeData);
 
             // 先頭からのオフセット分を0埋めした期待データを作る
-            var offset = ((addr & 0xff0000) == 0x7f0000) ? (int)(addr & 0x1ffff) : (int)(addr & 0xffff); // 7E0000 ~ 7FFFFFには全面MapされているのでOffsetの付け方が異なる
-            var expectReadData = Enumerable.Repeat((byte)0x0, offset)
-                .Concat(writeData)
-                .ToArray();
+            byte[] expectReadData = CreateExpectData(addr, writeData);
 
             // read single access
             for (uint targetWramLocalAddr = 0; targetWramLocalAddr < expectReadData.Length; targetWramLocalAddr++) {
