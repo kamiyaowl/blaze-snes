@@ -3,26 +3,35 @@ using System.IO;
 
 namespace BlazeSnes.Core.Common {
     /// <summary>
+    /// メモリアクセスするバスの種類
+    /// </summary>
+    public enum BusAccess {
+        Data, A, B, 
+    }
+    
+    /// <summary>
     /// Bus Access可能であることを示します
     /// </summary>
     public interface IBusAccessible {
         /// <summary>
         /// 指定されたアドレスの内容を読み出します
         /// </summary>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">アクセス先、Bankも含む</param>
         /// <param name="data">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue(e.g. BIT など)</param>
         /// <returns>読みだしたデータ</returns>
-        void Read(uint addr, byte[] data, bool isNondestructive = false);
+        void Read(BusAccess access, uint addr, byte[] data, bool isNondestructive = false);
 
         /// <summary>
         /// 指定されたアドレスにdataの内容を書き込みます
         /// </summary>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">アクセス先、Bankも含む</param>
         /// <param name="data">書き込むデータ</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue(e.g. BIT など)</param>
         /// <returns>読みだしたデータ</returns>
-        void Write(uint addr, byte[] data);
+        void Write(BusAccess access, uint addr, byte[] data);
     }
 
     /// <summary>
@@ -34,12 +43,13 @@ namespace BlazeSnes.Core.Common {
         /// 指定したアドレスから1byte読み出します
         /// </summary>
         /// <param name="bus">読み出し対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static byte Read8(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static byte Read8(this IBusAccessible bus, BusAccess access, uint addr, bool isNondestructive = false) {
             var dst = new byte[1];
-            bus.Read(addr, dst, isNondestructive);
+            bus.Read(access, addr, dst, isNondestructive);
             return dst[0];
         }
 
@@ -47,12 +57,13 @@ namespace BlazeSnes.Core.Common {
         /// 指定したアドレスから2byte読み出します
         /// </summary>
         /// <param name="bus">読み出し対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static ushort Read16(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static ushort Read16(this IBusAccessible bus, BusAccess access, uint addr, bool isNondestructive = false) {
             var dst = new byte[2];
-            bus.Read(addr, dst, isNondestructive);
+            bus.Read(access, addr, dst, isNondestructive);
             return (ushort)(dst[0] | (dst[1] << 8));
         }
 
@@ -60,12 +71,13 @@ namespace BlazeSnes.Core.Common {
         /// 指定したアドレスから4byte読み出します
         /// </summary>
         /// <param name="bus">読み出し対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static uint Read32(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static uint Read32(this IBusAccessible bus, BusAccess access, uint addr, bool isNondestructive = false) {
             var dst = new byte[4];
-            bus.Read(addr, dst, isNondestructive);
+            bus.Read(access, addr, dst, isNondestructive);
             return (uint)(dst[0] | (dst[1] << 8) | (dst[2] << 16) | (dst[3] << 24));
         }
 
@@ -73,46 +85,49 @@ namespace BlazeSnes.Core.Common {
         /// 指定したアドレスに1byte書き込みます
         /// </summary>
         /// <param name="bus">書き込み対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">書き込み先</param>
         /// <param name="data">書き込みデータ</param>
         /// <returns></returns>
-        public static void Write8(this IBusAccessible bus, uint addr, byte data) {
+        public static void Write8(this IBusAccessible bus, BusAccess access, uint addr, byte data) {
             var src = new byte[] {
                 data,
             };
-            bus.Write(addr, src);
+            bus.Write(access, addr, src);
         }
 
         /// <summary>
         /// 指定したアドレスに1byte書き込みます
         /// </summary>
         /// <param name="bus">書き込み対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">書き込み先</param>
         /// <param name="data">書き込みデータ</param>
         /// <returns></returns>
-        public static void Write16(this IBusAccessible bus, uint addr, ushort data) {
+        public static void Write16(this IBusAccessible bus, BusAccess access,uint addr, ushort data) {
             var src = new byte[] {
                 (byte)(data & 0xff),
                 (byte)((data >> 8) & 0xff),
             };
-            bus.Write(addr, src);
+            bus.Write(access, addr, src);
         }
 
         /// <summary>
         /// 指定したアドレスに1byte書き込みます
         /// </summary>
         /// <param name="bus">書き込み対象</param>
+        /// <param name="access">バスの種類</param>
         /// <param name="addr">書き込み先</param>
         /// <param name="data">書き込みデータ</param>
         /// <returns></returns>
-        public static void Write32(this IBusAccessible bus, uint addr, uint data) {
+        public static void Write32(this IBusAccessible bus, BusAccess access,uint addr, uint data) {
             var src = new byte[] {
                 (byte)(data & 0xff),
                 (byte)((data >> 8) & 0xff),
                 (byte)((data >> 16) & 0xff),
                 (byte)((data >> 24) & 0xff),
             };
-            bus.Write(addr, src);
+            bus.Write(access, addr, src);
         }
     }
 }
