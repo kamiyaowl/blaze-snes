@@ -107,5 +107,49 @@ namespace BlazeSnes.Core.Test.Common {
             }
         }
 
+        /// <summary>
+        /// AddressBusAで書いた内容をAddressBus B経由で読み出すテスト
+        /// WMADDL, WMADDM, WMADDHは初回のみセットし、インクリメンタルアクセスを使用する
+        /// </summary>
+        /// <returns></returns>
+        [Theory, MemberData(nameof(GetAccessPattern))]
+        public void BurstReadFromBusB(uint addr, int length) {
+            var wram = new WorkRam();
+
+            // incremental pattern
+            byte[] writeData = CreateIncrementalData(length);
+            wram.Write(BusAccess.AddressA, addr,writeData);
+
+            // 先頭からのオフセット分を0埋めした期待データを作る
+            var expectReadData = CreateExpectData(addr, writeData);
+
+            // 先頭に一回だけ書き込む
+            wram.Write8(BusAccess.AddressB, 0x2181, 0x00); // WMADDL
+            wram.Write8(BusAccess.AddressB, 0x2182, 0x00); // WMADDM
+            wram.Write8(BusAccess.AddressB, 0x2183, 0x00); // WMADDH
+
+            // 非破壊読み出しで進まないことを確認する
+            wram.Read8(BusAccess.AddressB, 0x2180, true);
+            wram.Read8(BusAccess.AddressB, 0x2180, true);
+            wram.Read8(BusAccess.AddressB, 0x2180, true);
+            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2181));
+            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2182));
+            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2183));
+
+            // read burst access
+            for (uint targetWramLocalAddr = 0; targetWramLocalAddr < expectReadData.Length; targetWramLocalAddr++) {
+                var addrL = (byte)(targetWramLocalAddr & 0xff);
+                var addrM = (byte)((targetWramLocalAddr >> 8) & 0xff);
+                var addrH = (byte)((targetWramLocalAddr >> 16) & 0x01);
+
+                // verify dst addr
+                Assert.Equal(addrL, wram.Read8(BusAccess.AddressB, 0x2181));
+                Assert.Equal(addrM, wram.Read8(BusAccess.AddressB, 0x2182));
+                Assert.Equal(addrH, wram.Read8(BusAccess.AddressB, 0x2183));
+
+                // verify read data
+                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(BusAccess.AddressB, 0x2180)); // WMDATA
+            }
+        }
     }
 }
