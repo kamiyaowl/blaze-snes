@@ -30,39 +30,39 @@ namespace BlazeSnes.Core.Bus {
         /// <value></value>
         public byte[] WorkBuffer { get; internal set; } = new byte[SIZE];
         /// <summary>
-        /// WMADDL, WMADDM, WMADDLの元データ
+        /// WMADDL, WMADDM, WMADDHの元データ
         /// </summary>
         /// <value></value>
         public uint WmAddr { get; internal set; }
         /// <summary>
-        /// 2181 WMADDRL
+        /// 2181 WMADDL
         /// </summary>
         /// <returns></returns>
         public byte WmAddrL {
             get => (byte)(WmAddr & 0xff);
-            set {
+            internal set {
                 WmAddr &= 0x01ff00; // 現在の内容をクリア
                 WmAddr |= value;
             }
         }
         /// <summary>
-        /// 2182 WMADDRM
+        /// 2182 WMADDM
         /// </summary>
         /// <returns></returns>
         public byte WmAddrM {
             get => (byte)((WmAddr >> 8) & 0xff);
-            set {
+            internal set {
                 WmAddr &= 0x0100ff; // 現在の内容をクリア
                 WmAddr |= (uint)(value << 8);
             }
         }
         /// <summary>
-        /// 2183 WMADDRH
+        /// 2183 WMADDH
         /// </summary>
         /// <value></value>
         public byte WmAddrH {
             get => (byte)((WmAddr >> 16) & 0xff);
-            set {
+            internal set {
                 WmAddr &= 0x0ffff; // 現在の内容をクリア
                 WmAddr |= (uint)((value & 0x1) << 16);
             }
