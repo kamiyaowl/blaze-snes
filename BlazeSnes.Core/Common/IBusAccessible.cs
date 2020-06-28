@@ -6,9 +6,9 @@ namespace BlazeSnes.Core.Common {
     /// メモリアクセスするバスの種類
     /// </summary>
     public enum BusAccess {
-        Data, A, B, 
+        Data, AddressA, AddressB,
     }
-    
+
     /// <summary>
     /// Bus Access可能であることを示します
     /// </summary>
@@ -104,7 +104,7 @@ namespace BlazeSnes.Core.Common {
         /// <param name="addr">書き込み先</param>
         /// <param name="data">書き込みデータ</param>
         /// <returns></returns>
-        public static void Write16(this IBusAccessible bus, BusAccess access,uint addr, ushort data) {
+        public static void Write16(this IBusAccessible bus, BusAccess access, uint addr, ushort data) {
             var src = new byte[] {
                 (byte)(data & 0xff),
                 (byte)((data >> 8) & 0xff),
@@ -120,7 +120,7 @@ namespace BlazeSnes.Core.Common {
         /// <param name="addr">書き込み先</param>
         /// <param name="data">書き込みデータ</param>
         /// <returns></returns>
-        public static void Write32(this IBusAccessible bus, BusAccess access,uint addr, uint data) {
+        public static void Write32(this IBusAccessible bus, BusAccess access, uint addr, uint data) {
             var src = new byte[] {
                 (byte)(data & 0xff),
                 (byte)((data >> 8) & 0xff),
