@@ -43,19 +43,14 @@ namespace BlazeSnes.Core.Bus {
         /// </summary>
         /// <value></value>
         public IBusAccessible DmaControlReg { get; internal set; }
-        /// <summary>
-        /// Expansion port
-        /// 00-3f: 6000-7ffff
-        /// 80-bf: 6000-7ffff
-        /// </summary>
-        /// <value></value>
-        public IBusAccessible Expansion { get; internal set; }
-        /// <summary>
         /// Cartridge ROM/RAM
         /// 00-3f: 8000-ffff: WS1 LoROM  2048Kbytes
         /// 40-7f: 0000-ffff: WS1 HiROM  3968Kbytes
         /// 80-bf: 8000-ffff: WS2 LoROM  2048Kbytes
         /// c0-ff: 0000-ffff: WS2 HiROM  3968Kbytes
+        /// Expansion port
+        /// 00-3f: 6000-7ffff
+        /// 80-bf: 6000-7ffff
         /// </summary>
         /// <value></value>
         public IBusAccessible Cartridge { get; internal set; }
@@ -65,13 +60,12 @@ namespace BlazeSnes.Core.Bus {
         /// <value></value>
         public byte LatestReadData { get; internal set; } = 0x0;
 
-        public Mmu(IBusAccessible wram, IBusAccessible ppu, IBusAccessible apu, IBusAccessible onchip, IBusAccessible dma, IBusAccessible ex, IBusAccessible cartridge) {
+        public Mmu(IBusAccessible wram, IBusAccessible ppu, IBusAccessible apu, IBusAccessible onchip, IBusAccessible dma, IBusAccessible cartridge) {
             this.Wram = wram;
             this.PpuControlReg = ppu;
             this.ApuControlReg = apu;
-            this.OnChipIoPort = OnChipIoPort;
+            this.OnChipIoPort = onchip;
             this.DmaControlReg = dma;
-            this.Expansion = ex;
             this.Cartridge = cartridge;
         }
 
@@ -81,7 +75,7 @@ namespace BlazeSnes.Core.Bus {
         /// <param name="addr"></param>
         /// <returns></returns>
         public IBusAccessible GetTarget(uint addr) {
-            Debug.Assert((addr & 0xff_ffff) == 0x0); // 24bit以上のアクセスは存在しないはず
+            Debug.Assert((addr & 0xff00_0000) == 0x0); // 24bit以上のアクセスは存在しないはず
 
             var bank = (addr >> 16) & 0xff;
             var offset = (addr & 0xffff);
@@ -94,12 +88,10 @@ namespace BlazeSnes.Core.Bus {
                     var o when (o <= 0x213f) => PpuControlReg,
                     var o when (o <= 0x217f) => ApuControlReg,
                     var o when (o <= 0x2183) => Wram,
-                    var o when (o <= 0x21ff) => Expansion, // B-Bus
-                    var o when (o <= 0x3fff) => Expansion, // A-Bus
-                    var o when (o <= 0x4015) => null, // unused
+                    var o when (o <= 0x21ff) => Cartridge, // Expansion(B-Bus)
+                    var o when (o <= 0x3fff) => Cartridge, // unused, Expansion(A-Bus)
                     var o when (o <= 0x42ff) => OnChipIoPort,
-                    var o when (o <= 0x437f) => DmaControlReg, // DMA Channel 0..7
-                    var o when (o <= 0x5fff) => null, // unused
+                    var o when (o <= 0x5fff) => DmaControlReg, // DMA Channel 0..7
                     _ => Cartridge, // 6000-7fff: Expansion(e.g. Battery Backed RAM), 8000 - ffff: ROM
                 },
                 var b when ((b <= 0x7d) || (0xc0 <= b)) => Cartridge, // 40-7d, c0-ff
