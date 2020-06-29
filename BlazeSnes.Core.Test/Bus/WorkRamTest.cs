@@ -156,6 +156,54 @@ namespace BlazeSnes.Core.Test.Common {
         }
 
         /// <summary>
+        /// AddressBus B経由でWMDATA regを使って順繰りアドレス指定で書き込みを行うテスト
+        /// </summary>
+        [Theory, MemberData(nameof(GetAccessPattern))]
+        public void SingleWriteFromBusB(uint addr, int length) {
+            var wram = new WorkRam();
+
+            // incremental pattern
+            byte[] writeData = CreateIncrementalData(length);
+
+            // 順番に書き込み
+            for(int i = 0 ; i< writeData.Length; i++) {
+                // expect address
+                var expectAddr = addr + i;
+                var expectAddrL = (byte)(expectAddr & 0xff);
+                var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
+                var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
+                wram.Write8(0x2181, expectAddrL);
+                wram.Write8(0x2182, expectAddrM);
+                wram.Write8(0x2183, expectAddrH);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
+                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
+                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+
+                // write
+                wram.Write8(0x2180, writeData[i]);
+            }
+
+            // Test用のaddrをそのまま書いた場合、read時にremapされてしまうのでWMDATA経由でRead Verifyもやる
+            // SingleReadFromBusBで動作確認済
+            for(int i = 0 ; i< writeData.Length; i++) {
+                // expect address
+                var expectAddr = addr + i;
+                var expectAddrL = (byte)(expectAddr & 0xff);
+                var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
+                var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
+                wram.Write8(0x2181, expectAddrL);
+                wram.Write8(0x2182, expectAddrM);
+                wram.Write8(0x2183, expectAddrH);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
+                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
+                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+
+                // read verify
+                Assert.Equal(writeData[i], wram.Read8(0x2180).Value);
+            }
+        }
+
+        /// <summary>
         /// AddressBus B経由でWMDATA regを使って一気に書き込みを行うテスト
         /// </summary>
         [Theory, MemberData(nameof(GetAccessPattern))]
