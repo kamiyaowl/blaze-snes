@@ -122,7 +122,7 @@ namespace BlazeSnes.Core.Bus {
                 data[0] = LatestReadData;
                 return false;
             }
-            LatestReadData = data[^0]; // 最後に読めたデータを控える
+            LatestReadData = data[^1]; // 最後に読めたデータを控える
             return true;
         }
 

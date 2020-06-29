@@ -9,7 +9,7 @@ using BlazeSnes.Core.Common;
 using Xunit;
 using Xunit.Sdk;
 
-namespace BlazeSnes.Core.Test.Common {
+namespace BlazeSnes.Core.Test.Bus {
     public class WorkRamTest {
         /// <summary>
         /// テストする値
