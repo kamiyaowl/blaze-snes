@@ -63,11 +63,11 @@ namespace BlazeSnes.Core.Test.Common {
 
             // incremental pattern
             byte[] writeData = CreateIncrementalData(length);
-            wram.Write(BusAccess.AddressA, addr, writeData);
+            wram.Write(addr, writeData);
 
             // read
             var readData = new byte[writeData.Length];
-            wram.Read(BusAccess.AddressA, addr, readData);
+            wram.Read(addr, readData);
 
             // verify
             Assert.Equal(writeData, readData);
@@ -84,7 +84,7 @@ namespace BlazeSnes.Core.Test.Common {
 
             // incremental pattern
             byte[] writeData = CreateIncrementalData(length);
-            wram.Write(BusAccess.AddressA, addr, writeData);
+            wram.Write(addr, writeData);
 
             // 先頭からのオフセット分を0埋めした期待データを作る
             byte[] expectReadData = CreateExpectData(addr, writeData);
@@ -94,16 +94,19 @@ namespace BlazeSnes.Core.Test.Common {
                 var addrL = (byte)(targetWramLocalAddr & 0xff);
                 var addrM = (byte)((targetWramLocalAddr >> 8) & 0xff);
                 var addrH = (byte)((targetWramLocalAddr >> 16) & 0x01);
+                if (addrL == 1 && addrM == 0 && addrH == 1) {
+                    Console.WriteLine("Adsf");
+                }
                 // write dst addr
-                wram.Write8(BusAccess.AddressB, 0x2181, addrL); // WMADDL
-                wram.Write8(BusAccess.AddressB, 0x2182, addrM); // WMADDM
-                wram.Write8(BusAccess.AddressB, 0x2183, addrH); // WMADDH
+                wram.Write8(0x2181, addrL); // WMADDL
+                wram.Write8(0x2182, addrM); // WMADDM
+                wram.Write8(0x2183, addrH); // WMADDH
                 // verify dst addr
-                Assert.Equal(addrL, wram.Read8(BusAccess.AddressB, 0x2181));
-                Assert.Equal(addrM, wram.Read8(BusAccess.AddressB, 0x2182));
-                Assert.Equal(addrH, wram.Read8(BusAccess.AddressB, 0x2183));
+                Assert.Equal(addrL, wram.Read8(0x2181).Value);
+                Assert.Equal(addrM, wram.Read8(0x2182).Value);
+                Assert.Equal(addrH, wram.Read8(0x2183).Value);
                 // verify read data
-                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(BusAccess.AddressB, 0x2180)); // WMDATA
+                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180).Value); // WMDATA
             }
         }
 
@@ -118,23 +121,23 @@ namespace BlazeSnes.Core.Test.Common {
 
             // incremental pattern
             byte[] writeData = CreateIncrementalData(length);
-            wram.Write(BusAccess.AddressA, addr, writeData);
+            wram.Write(addr, writeData);
 
             // 先頭からのオフセット分を0埋めした期待データを作る
             var expectReadData = CreateExpectData(addr, writeData);
 
             // 先頭に一回だけ書き込む
-            wram.Write8(BusAccess.AddressB, 0x2181, 0x00); // WMADDL
-            wram.Write8(BusAccess.AddressB, 0x2182, 0x00); // WMADDM
-            wram.Write8(BusAccess.AddressB, 0x2183, 0x00); // WMADDH
+            wram.Write8(0x2181, 0x00); // WMADDL
+            wram.Write8(0x2182, 0x00); // WMADDM
+            wram.Write8(0x2183, 0x00); // WMADDH
 
             // 非破壊読み出しで進まないことを確認する
-            wram.Read8(BusAccess.AddressB, 0x2180, true);
-            wram.Read8(BusAccess.AddressB, 0x2180, true);
-            wram.Read8(BusAccess.AddressB, 0x2180, true);
-            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2181));
-            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2182));
-            Assert.Equal(0x00, wram.Read8(BusAccess.AddressB, 0x2183));
+            wram.Read8(0x2180, true);
+            wram.Read8(0x2180, true);
+            wram.Read8(0x2180, true);
+            Assert.Equal(0x00, wram.Read8(0x2181).Value);
+            Assert.Equal(0x00, wram.Read8(0x2182).Value);
+            Assert.Equal(0x00, wram.Read8(0x2183).Value);
 
             // read burst access
             for (uint targetWramLocalAddr = 0; targetWramLocalAddr < expectReadData.Length; targetWramLocalAddr++) {
@@ -143,12 +146,12 @@ namespace BlazeSnes.Core.Test.Common {
                 var addrH = (byte)((targetWramLocalAddr >> 16) & 0x01);
 
                 // verify dst addr
-                Assert.Equal(addrL, wram.Read8(BusAccess.AddressB, 0x2181));
-                Assert.Equal(addrM, wram.Read8(BusAccess.AddressB, 0x2182));
-                Assert.Equal(addrH, wram.Read8(BusAccess.AddressB, 0x2183));
+                Assert.Equal(addrL, wram.Read8(0x2181).Value);
+                Assert.Equal(addrM, wram.Read8(0x2182).Value);
+                Assert.Equal(addrH, wram.Read8(0x2183).Value);
 
                 // verify read data
-                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(BusAccess.AddressB, 0x2180)); // WMDATA
+                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180)); // WMDATA
             }
         }
     }

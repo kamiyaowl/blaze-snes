@@ -23,16 +23,18 @@ namespace BlazeSnes.Core.Test.Common {
                 this.InternalBuf = new byte[size];
             }
 
-            public void Read(BusAccess access, uint addr, byte[] data, bool isNondestructive = false) {
+            public bool Read(uint addr, byte[] data, bool isNondestructive = false) {
                 for (int i = 0; i < data.Length; i++) {
                     data[i] = this.InternalBuf[i + addr];
                 }
+                return true;
             }
 
-            public void Write(BusAccess access, uint addr, byte[] data) {
+            public bool Write(uint addr, byte[] data) {
                 for (int i = 0; i < data.Length; i++) {
                     this.InternalBuf[i + addr] = data[i];
                 }
+                return true;
             }
         }
 
@@ -50,10 +52,10 @@ namespace BlazeSnes.Core.Test.Common {
             var target = new BusAccessibleSample((int)addr + writeData.Length);
 
             // write all
-            target.Write(BusAccess.AddressA, addr, writeData);
+            target.Write(addr, writeData);
             // read all
             var readData = new byte[writeData.Length];
-            target.Read(BusAccess.AddressA, addr, readData, false);
+            target.Read(addr, readData, false);
 
             // verify
             Assert.Equal(writeData, readData);
@@ -75,15 +77,17 @@ namespace BlazeSnes.Core.Test.Common {
 
             public BusAccessibleVolatileRegSample() { }
 
-            public void Read(BusAccess access, uint addr, byte[] data, bool isNondestructive = false) {
+            public bool Read(uint addr, byte[] data, bool isNondestructive = false) {
                 data[0] = this.Data;
                 if (!isNondestructive) {
                     this.Data = 0x00; // negate
                 }
+                return true;
             }
 
-            public void Write(BusAccess access, uint addr, byte[] data) {
+            public bool Write(uint addr, byte[] data) {
                 this.Data = data[0];
+                return true;
             }
         }
 
@@ -96,17 +100,17 @@ namespace BlazeSnes.Core.Test.Common {
             var target = new BusAccessibleVolatileRegSample();
 
             // write sampledata
-            target.Write8(BusAccess.AddressA, 0, expectValue);
+            target.Write8(0, expectValue);
 
             // read nondestructive
-            Assert.Equal(expectValue, target.Read8(BusAccess.AddressA, 0, true));
-            Assert.Equal(expectValue, target.Read8(BusAccess.AddressA, 0, true));
-            Assert.Equal(expectValue, target.Read8(BusAccess.AddressA, 0, true));
-            Assert.Equal(expectValue, target.Read8(BusAccess.AddressA, 0, true));
+            Assert.Equal(expectValue, target.Read8(0, true));
+            Assert.Equal(expectValue, target.Read8(0, true));
+            Assert.Equal(expectValue, target.Read8(0, true));
+            Assert.Equal(expectValue, target.Read8(0, true));
 
             // read destructive
-            Assert.Equal(expectValue, target.Read8(BusAccess.AddressA, 0, false));
-            Assert.Equal(0x00, target.Read8(BusAccess.AddressA, 0, false)); // destruction
+            Assert.Equal(expectValue, target.Read8(0, false)); // destruction
+            Assert.Equal(0x00, target.Read8(0, false).Value);
         }
 
         /// <summary>
@@ -126,23 +130,23 @@ namespace BlazeSnes.Core.Test.Common {
             var target = new BusAccessibleSample(writeData.Length);
 
             // read test
-            target.Write(BusAccess.AddressA, 0, writeData);
-            Assert.Equal(data0, target.Read8(BusAccess.AddressA, 0, false));
-            Assert.Equal(data0 | (data1 << 8), target.Read16(BusAccess.AddressA, 0, false));
-            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(BusAccess.AddressA, 0, false));
+            target.Write(0, writeData);
+            Assert.Equal(data0, target.Read8(0, false));
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false).Value);
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(0, false));
 
             // write test
             var dummyData = Enumerable.Repeat((byte)0, 4).ToArray();
-            target.Write(BusAccess.AddressA, 0, dummyData);
+            target.Write(0, dummyData);
 
-            target.Write8(BusAccess.AddressA, 0, data0);
-            Assert.Equal(data0, target.Read8(BusAccess.AddressA, 0, false)); // Read8/16/32は手前で検証済
+            target.Write8(0, data0);
+            Assert.Equal(data0, target.Read8(0, false)); // Read8/16/32は手前で検証済
 
-            target.Write16(BusAccess.AddressA, 0, (ushort)(data0 | (data1 << 8)));
-            Assert.Equal(data0 | (data1 << 8), target.Read16(BusAccess.AddressA, 0, false));
+            target.Write16(0, (ushort)(data0 | (data1 << 8)));
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false).Value);
 
-            target.Write32(BusAccess.AddressA, 0, (uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)));
-            Assert.Equal((uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)), target.Read32(BusAccess.AddressA, 0, false));
+            target.Write32(0, (uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)), target.Read32(0, false));
         }
     }
 }

@@ -49,57 +49,69 @@ namespace BlazeSnes.Core.Bus {
         /// </summary>
         /// <value></value>
         public IBusAccessible Cartridge { get; set; }
+        /// <summary>
+        /// 最後のRead値、OpenBusアクセス時に返す値
+        /// </summary>
+        /// <value></value>
+        public byte LatestReadData { get; internal set; } = 0x0;
 
         /// <summary>
         /// アクセス先のアドレスから対象のペリフェラルとバス種別を取得します
         /// </summary>
         /// <param name="addr"></param>
         /// <returns></returns>
-        public (IBusAccessible, BusAccess) GetTarget(uint addr) {
+        public IBusAccessible GetTarget(uint addr) {
             Debug.Assert((addr & 0xff_ffff) == 0x0); // 24bit以上のアクセスは存在しないはず
 
             var bank = (addr >> 16) & 0xff;
             var offset = (addr & 0xffff);
-            var (target, access) = bank switch // TODO: unused regionをもう少し厳格に定義してOpenBusで返す(例外にしない)
+            var target = bank switch
             {
                 var b when ((b <= 0x3f) || ((0x80 <= b) && (b <= 0xbf))) => offset switch
                 {
-                    var o when (o <= 0x1fff) => (Wram, BusAccess.AddressA),
-                    var o when (o <= 0x20ff) => throw new ArgumentOutOfRangeException($"unused 2000-20ff. addr:${addr:x}"),
-                    var o when (o <= 0x21ff) => (OnChipIoPort, BusAccess.AddressB),
-                    var o when (o <= 0x3fff) => throw new ArgumentOutOfRangeException($"unused 2200-3fff. addr:${addr:x}"),
-                    var o when (o <= 0x41ff) => (OnChipIoPort, BusAccess.AddressA),
-                    var o when (o <= 0x5fff) => (OnChipIoPort, BusAccess.AddressA),
-                    var o when (o <= 0x7fff) => (Expansion, BusAccess.AddressA),
-                    _ => (Cartridge, BusAccess.AddressA), // 8000 - ffff: WS1 LoROM
+                    var o when (o <= 0x1fff) => Wram,
+                    var o when (o <= 0x20ff) => null, // unused
+                    var o when (o <= 0x21ff) => OnChipIoPort,
+                    var o when (o <= 0x3fff) => null, // unused
+                    var o when (o <= 0x41ff) => OnChipIoPort,
+                    var o when (o <= 0x5fff) => OnChipIoPort,
+                    var o when (o <= 0x7fff) => Expansion,
+                    _ => Cartridge, // 8000 - ffff: WS1 LoROM
                 },
-                var b when ((b <= 0x7d) || (0xc0 <= b)) => (Cartridge, BusAccess.AddressA), // 40-7d, c0-ff
-                var b when (b <= 0x7f) => (Wram, BusAccess.AddressA), // 7e-7f
-                _ => throw new ArgumentOutOfRangeException($"リマップ不能なbankにアクセスが有りました addr:${addr:x}"),
+                var b when ((b <= 0x7d) || (0xc0 <= b)) => Cartridge, // 40-7d, c0-ff
+                var b when (b <= 0x7f) => Wram, // 7e-7f
+                _ => null, // open bus
             };
 
-            return (target, access);
+            return target;
         }
 
-        public void Read(uint addr, byte[] data, bool isNondestructive = false) => Read(BusAccess.Unspecified, addr, data, isNondestructive);
-        public void Write(uint addr, byte[] data) => Write(BusAccess.Unspecified, addr, data);
-
-        public void Read(BusAccess access, uint addr, byte[] data, bool isNondestructive = false) {
-            Debug.Assert(access == BusAccess.Unspecified); // TODO: OpenBusの振る舞いを要確認。今のところは気にしなくていいはず...?
+        public bool Read(uint addr, byte[] data, bool isNondestructive = false) {
             Debug.Assert(data.Length > 0);
 
-            var (target, targetAccess) = GetTarget(addr);
-            // TODO: (Read)OpenBus対応を入れる
-            target.Read(targetAccess, addr, data, isNondestructive);
+            var target = GetTarget(addr);
+            // OpenBus対応
+            if (!target?.Read(addr, data, isNondestructive) ?? false) {
+                Debug.Fail($"Open Bus Readを検出 ${addr:x}"); // TODO: デバッグ用に入れてあるが適正なOpen Busアクセスであれば外す
+                // OpenBusは最後に読めたデータを返す
+                Debug.Assert(data.Length == 1);
+                data[0] = LatestReadData;
+                return false;
+            }
+            LatestReadData = data[^0]; // 最後に読めたデータを控える
+            return true;
         }
 
-        public void Write(BusAccess access, uint addr, byte[] data) {
-            Debug.Assert(access == BusAccess.Unspecified);
+        public bool Write(uint addr, byte[] data) {
             Debug.Assert(data.Length > 0);
 
-            var (target, targetAccess) = GetTarget(addr);
-            // TODO: (Write)OpenBus対応を入れる
-            target.Write(targetAccess, addr, data);
+            var target = GetTarget(addr);
+            // OpenBus対応
+            if (!target?.Write(addr, data) ?? false) {
+                Debug.Fail($"Open Bus Writeを検出 ${addr:x}"); // TODO: デバッグ用に入れてあるが適正なOpen Busアクセスであれば外す
+                return false;
+            }
+            return true;
         }
     }
 }
