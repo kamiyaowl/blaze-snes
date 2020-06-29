@@ -9,8 +9,6 @@ namespace BlazeSnes.Core.Bus {
     /// <summary>
     /// CPUからのメモリアクセスを適切にリマップします
     /// ref: https://problemkaputt.de/fullsnes.htm#snesmemorycontrol
-    /// 
-    /// TODO: 特定アドレスのアクセスをフックする機能があってもいいかも for #33
     /// </summary>
     public class Mmu : IBusAccessible {
         /// <summary>
@@ -20,26 +18,38 @@ namespace BlazeSnes.Core.Bus {
         /// 80-bf: 0000-1fff: 8Kbytes
         /// </summary>
         /// <value></value>
-        public IBusAccessible Wram { get; set; }
+        public IBusAccessible Wram { get; internal set; }
         /// <summary>
-        /// I/O Ports (A-Bus/B-Bus)
-        /// 00-3f: 2100-21ff: I/O ports(B-Bus)
-        /// 00-3f: 4000-5fff: I/O ports
-        /// 80-bf: 2100-21ff: I/O ports(B-Bus)
-        /// 80-bf: 4000-5fff: I/O ports
+        /// PPU
+        /// 00-3f, 80-bf: 2100-213f
         /// </summary>
         /// <value></value>
-        public IBusAccessible PpuControlReg { get; set; }
-        public IBusAccessible ApuControlReg { get; set; }
-        public IBusAccessible OnChipIoPort { get; set; }
-        public IBusAccessible DmaControlReg { get; set; }
+        public IBusAccessible PpuControlReg { get; internal set; }
+        /// <summary>
+        /// APU
+        /// 00-3f, 80-bf: 2134-217f
+        /// </summary>
+        /// <value></value>
+        public IBusAccessible ApuControlReg { get; internal set; }
+        /// <summary>
+        /// Joypad, Clock Div, Timer, etc.!--.!--.
+        /// 00-3f, 80-bf: 4000-42ff
+        /// </summary>
+        /// <value></value>
+        public IBusAccessible OnChipIoPort { get; internal set; }
+        /// <summary>
+        /// DMA Channle(0..7)
+        /// 00-3f, 80-bf: 4300--5fff
+        /// </summary>
+        /// <value></value>
+        public IBusAccessible DmaControlReg { get; internal set; }
         /// <summary>
         /// Expansion port
         /// 00-3f: 6000-7ffff
         /// 80-bf: 6000-7ffff
         /// </summary>
         /// <value></value>
-        public IBusAccessible Expansion { get; set; }
+        public IBusAccessible Expansion { get; internal set; }
         /// <summary>
         /// Cartridge ROM/RAM
         /// 00-3f: 8000-ffff: WS1 LoROM  2048Kbytes
@@ -48,12 +58,22 @@ namespace BlazeSnes.Core.Bus {
         /// c0-ff: 0000-ffff: WS2 HiROM  3968Kbytes
         /// </summary>
         /// <value></value>
-        public IBusAccessible Cartridge { get; set; }
+        public IBusAccessible Cartridge { get; internal set; }
         /// <summary>
         /// 最後のRead値、OpenBusアクセス時に返す値
         /// </summary>
         /// <value></value>
         public byte LatestReadData { get; internal set; } = 0x0;
+
+        public Mmu(IBusAccessible wram, IBusAccessible ppu, IBusAccessible apu, IBusAccessible onchip, IBusAccessible dma, IBusAccessible ex, IBusAccessible cartridge) {
+            this.Wram = wram;
+            this.PpuControlReg = ppu;
+            this.ApuControlReg = apu;
+            this.OnChipIoPort = OnChipIoPort;
+            this.DmaControlReg = dma;
+            this.Expansion = ex;
+            this.Cartridge = cartridge;
+        }
 
         /// <summary>
         /// アクセス先のアドレスから対象のペリフェラルとバス種別を取得します
@@ -71,12 +91,16 @@ namespace BlazeSnes.Core.Bus {
                 {
                     var o when (o <= 0x1fff) => Wram,
                     var o when (o <= 0x20ff) => null, // unused
-                    var o when (o <= 0x21ff) => OnChipIoPort,
-                    var o when (o <= 0x3fff) => null, // unused
-                    var o when (o <= 0x41ff) => OnChipIoPort,
-                    var o when (o <= 0x5fff) => OnChipIoPort,
-                    var o when (o <= 0x7fff) => Expansion,
-                    _ => Cartridge, // 8000 - ffff: WS1 LoROM
+                    var o when (o <= 0x213f) => PpuControlReg,
+                    var o when (o <= 0x217f) => ApuControlReg,
+                    var o when (o <= 0x2183) => Wram,
+                    var o when (o <= 0x21ff) => Expansion, // B-Bus
+                    var o when (o <= 0x3fff) => Expansion, // A-Bus
+                    var o when (o <= 0x4015) => null, // unused
+                    var o when (o <= 0x42ff) => OnChipIoPort,
+                    var o when (o <= 0x437f) => DmaControlReg, // DMA Channel 0..7
+                    var o when (o <= 0x5fff) => null, // unused
+                    _ => Cartridge, // 6000-7fff: Expansion(e.g. Battery Backed RAM), 8000 - ffff: ROM
                 },
                 var b when ((b <= 0x7d) || (0xc0 <= b)) => Cartridge, // 40-7d, c0-ff
                 var b when (b <= 0x7f) => Wram, // 7e-7f

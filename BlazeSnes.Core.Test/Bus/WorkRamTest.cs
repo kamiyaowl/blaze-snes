@@ -166,7 +166,7 @@ namespace BlazeSnes.Core.Test.Common {
             byte[] writeData = CreateIncrementalData(length);
 
             // 順番に書き込み
-            for(int i = 0 ; i< writeData.Length; i++) {
+            for (int i = 0; i < writeData.Length; i++) {
                 // expect address
                 var expectAddr = addr + i;
                 var expectAddrL = (byte)(expectAddr & 0xff);
@@ -185,7 +185,7 @@ namespace BlazeSnes.Core.Test.Common {
 
             // Test用のaddrをそのまま書いた場合、read時にremapされてしまうのでWMDATA経由でRead Verifyもやる
             // SingleReadFromBusBで動作確認済
-            for(int i = 0 ; i< writeData.Length; i++) {
+            for (int i = 0; i < writeData.Length; i++) {
                 // expect address
                 var expectAddr = addr + i;
                 var expectAddrL = (byte)(expectAddr & 0xff);
@@ -225,7 +225,7 @@ namespace BlazeSnes.Core.Test.Common {
             Assert.Equal(addrH, wram.Read8(0x2183).Value);
 
             // 順番に書き込み
-            for(int i = 0 ; i< writeData.Length; i++) {
+            for (int i = 0; i < writeData.Length; i++) {
                 // expect address
                 var expectAddr = addr + i;
                 var expectAddrL = (byte)(expectAddr & 0xff);
@@ -244,7 +244,7 @@ namespace BlazeSnes.Core.Test.Common {
             wram.Write8(0x2181, addrL);
             wram.Write8(0x2182, addrM);
             wram.Write8(0x2183, addrH);
-            for(int i = 0 ; i< writeData.Length; i++) {
+            for (int i = 0; i < writeData.Length; i++) {
                 // expect address
                 var expectAddr = addr + i;
                 var expectAddrL = (byte)(expectAddr & 0xff);
