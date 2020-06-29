@@ -154,5 +154,62 @@ namespace BlazeSnes.Core.Test.Common {
                 Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180)); // WMDATA
             }
         }
+
+        /// <summary>
+        /// AddressBus B経由でWMDATA regを使って一気に書き込みを行うテスト
+        /// </summary>
+        [Theory, MemberData(nameof(GetAccessPattern))]
+        public void BurstWriteFromBusB(uint addr, int length) {
+            var wram = new WorkRam();
+
+            // incremental pattern
+            byte[] writeData = CreateIncrementalData(length);
+
+            // 最初のアドレスをセット
+            var addrL = (byte)(addr & 0xff);
+            var addrM = (byte)((addr >> 8) & 0xff);
+            var addrH = (byte)((addr >> 16) & 0x01);
+            wram.Write8(0x2181, addrL);
+            wram.Write8(0x2182, addrM);
+            wram.Write8(0x2183, addrH);
+            Assert.Equal(addrL, wram.Read8(0x2181).Value);
+            Assert.Equal(addrM, wram.Read8(0x2182).Value);
+            Assert.Equal(addrH, wram.Read8(0x2183).Value);
+
+            // 順番に書き込み
+            for(int i = 0 ; i< writeData.Length; i++) {
+                // expect address
+                var expectAddr = addr + i;
+                var expectAddrL = (byte)(expectAddr & 0xff);
+                var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
+                var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
+                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
+                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+
+                // write
+                wram.Write8(0x2180, writeData[i]);
+            }
+
+            // Test用のaddrをそのまま書いた場合、read時にremapされてしまうのでWMDATA経由でRead Verifyもやる
+            // BurstReadFromBusBで動作確認済
+            wram.Write8(0x2181, addrL);
+            wram.Write8(0x2182, addrM);
+            wram.Write8(0x2183, addrH);
+            for(int i = 0 ; i< writeData.Length; i++) {
+                // expect address
+                var expectAddr = addr + i;
+                var expectAddrL = (byte)(expectAddr & 0xff);
+                var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
+                var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
+                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
+                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+
+                // read verify
+                Assert.Equal(writeData[i], wram.Read8(0x2180).Value);
+            }
+        }
+
     }
 }
