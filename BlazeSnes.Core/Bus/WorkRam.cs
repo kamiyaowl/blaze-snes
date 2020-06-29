@@ -73,14 +73,17 @@ namespace BlazeSnes.Core.Bus {
         /// </summary>
         /// <param name="addr"></param>
         /// <returns></returns>
-        public static uint ConvertToLocalAddr(uint addr) {
+        public static uint? ConvertToLocalAddr(uint addr) {
             var bank = (addr >> 16) & 0xff;
-            var localAddr = bank switch
+            uint? localAddr = bank switch
             {
-                var x when (x <= 0x3f) => addr & 0x1fff, // 先頭8Kミラー
-                var x when (0x7e <= x && x <= 0x7f) => addr & MASK, // 全域remap
-                var x when (0x80 <= x && x <= 0xbf) => addr & 0x1fff, // 先頭8Kミラー
-                _ => throw new ArgumentOutOfRangeException($"WRAMへの範囲外アクセス ${addr:x}"),
+                var b when ((b <= 0x3f) || (0x80 <= b && b <= 0xbf)) => (addr & 0xffff) switch
+                {
+                    var o when (o <= 0x1fff) => o, // 先頭8Kミラー
+                    _ => null, // 0x2180~0x2183 もしくはその他
+                },
+                var b when (0x7e <= b && b <= 0x7f) => addr & MASK, // 全域remap
+                _ => throw new ArgumentOutOfRangeException($"WRAMへの範囲外アクセス addr:{addr:x}"),
             };
             return localAddr;
         }
@@ -92,43 +95,39 @@ namespace BlazeSnes.Core.Bus {
         /// <param name="addr"></param>
         /// <param name="data"></param>
         /// <param name="isNondestructive"></param>
-        public void Read(BusAccess access, uint addr, byte[] data, bool isNondestructive = false) {
+        public bool Read(uint addr, byte[] data, bool isNondestructive = false) {
             Debug.Assert(data.Length > 0);
 
-            switch (access) {
-                case BusAccess.AddressA:
-                    // ローカルバッファのアドレス変換だけ行って読み込む
-                    var localAddr = ConvertToLocalAddr(addr);
-                    Buffer.BlockCopy(this.WorkBuffer, (int)localAddr, data, 0, data.Length);
-                    break;
-                case BusAccess.AddressB:
-                    // DMA向けの読み出しレジスタにアクセス
-                    for (uint i = 0; i < data.Length; i++) {
-                        switch (addr + i) {
-                            case 0x2180: // WMDATA
-                                data[i] = this.WorkBuffer[this.WmAddr];
-                                if (!isNondestructive) {
-                                    this.WmAddr++; // address auto increment
-                                }
-                                break;
-                            case 0x2181: // WMADDL
-                                data[i] = this.WmAddrL;
-                                break;
-                            case 0x2182: // WMADDM
-                                data[i] = this.WmAddrM;
-                                break;
-                            case 0x2183: // WMADDH
-                                data[i] = this.WmAddrH;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException($"AddressBus Bからの範囲外アクセス addr:{addr:x}");
-                        }
-                    }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException($"AddressBus A/Bのみ受付 addr:{addr:x}");
+            // ローカルバッファのアドレス変換だけ行って読み込む
+            var localAddr = ConvertToLocalAddr(addr);
+            if (localAddr.HasValue) {
+                Buffer.BlockCopy(this.WorkBuffer, (int)localAddr, data, 0, data.Length);
+                return true;
             }
-
+            // DMA向けの読み出しレジスタにアクセス
+            for (uint i = 0; i < data.Length; i++) {
+                switch (addr + i) {
+                    case 0x2180: // WMDATA
+                        data[i] = this.WorkBuffer[this.WmAddr];
+                        if (!isNondestructive) {
+                            this.WmAddr++; // address auto increment
+                        }
+                        break;
+                    case 0x2181: // WMADDL
+                        data[i] = this.WmAddrL;
+                        break;
+                    case 0x2182: // WMADDM
+                        data[i] = this.WmAddrM;
+                        break;
+                    case 0x2183: // WMADDH
+                        data[i] = this.WmAddrH;
+                        break;
+                    default:
+                        Debug.Fail($"AddressBus Bからの範囲外アクセス addr:{addr:x}");
+                        return false; // OpenBus
+                }
+            }
+            return true;
         }
 
         /// <summary>
@@ -137,41 +136,37 @@ namespace BlazeSnes.Core.Bus {
         /// <param name="access"></param>
         /// <param name="addr"></param>
         /// <param name="data"></param>
-        public void Write(BusAccess access, uint addr, byte[] data) {
+        public bool Write(uint addr, byte[] data) {
             Debug.Assert(data.Length > 0);
 
-            switch (access) {
-                case BusAccess.AddressA:
-                    // ローカルバッファのアドレス変換だけ行って書き込む
-                    var localAddr = ConvertToLocalAddr(addr);
-                    Buffer.BlockCopy(data, 0, this.WorkBuffer, (int)localAddr, data.Length);
-                    break;
-                case BusAccess.AddressB:
-                    // DMA向けの読み出しレジスタにアクセス
-                    for (uint i = 0; i < data.Length; i++) {
-                        switch (addr + i) {
-                            case 0x2180: // WMDATA
-                                this.WorkBuffer[this.WmAddr] = data[i];
-                                this.WmAddr++; // address auto increment
-                                break;
-                            case 0x2181: // WMADDL
-                                this.WmAddrL = data[i];
-                                break;
-                            case 0x2182: // WMADDM
-                                this.WmAddrM = data[i];
-                                break;
-                            case 0x2183: // WMADDH
-                                this.WmAddrH = data[i];
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException($"AddressBus Bからの範囲外アクセス addr:{addr:x}");
-                        }
-                    }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException($"AddressBus A/Bのみ受付 addr:{addr:x}");
+            // ローカルバッファのアドレス変換だけ行って書き込む
+            var localAddr = ConvertToLocalAddr(addr);
+            if (localAddr.HasValue) {
+                Buffer.BlockCopy(data, 0, this.WorkBuffer, (int)localAddr, data.Length);
+                return true;
             }
-
+            // DMA向けの読み出しレジスタにアクセス
+            for (uint i = 0; i < data.Length; i++) {
+                switch (addr + i) {
+                    case 0x2180: // WMDATA
+                        this.WorkBuffer[this.WmAddr] = data[i];
+                        this.WmAddr++; // address auto increment
+                        break;
+                    case 0x2181: // WMADDL
+                        this.WmAddrL = data[i];
+                        break;
+                    case 0x2182: // WMADDM
+                        this.WmAddrM = data[i];
+                        break;
+                    case 0x2183: // WMADDH
+                        this.WmAddrH = data[i];
+                        break;
+                    default:
+                        Debug.Fail($"AddressBus Bからの範囲外アクセス addr:{addr:x}");
+                        return false;
+                }
+            }
+            return true;
         }
     }
 }
