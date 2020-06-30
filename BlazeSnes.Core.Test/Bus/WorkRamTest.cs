@@ -94,9 +94,6 @@ namespace BlazeSnes.Core.Test.Bus {
                 var addrL = (byte)(targetWramLocalAddr & 0xff);
                 var addrM = (byte)((targetWramLocalAddr >> 8) & 0xff);
                 var addrH = (byte)((targetWramLocalAddr >> 16) & 0x01);
-                if (addrL == 1 && addrM == 0 && addrH == 1) {
-                    Console.WriteLine("Adsf");
-                }
                 // write dst addr
                 wram.Write8(0x2181, addrL); // WMADDL
                 wram.Write8(0x2182, addrM); // WMADDM
