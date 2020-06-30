@@ -14,7 +14,6 @@ namespace BlazeSnes.Core.Cpu {
         Direct,// *(IM8)の値 IM8
         DirectIndexedX, // *(IM+X)の値 IM8, X
         DirectIndexedY, // *(IM+Y)の値 IM8, Y
-        Relative, // *(PC+IM8)の値 IM8
         Absolute,// *(DB * $1_0000 + IM16)の値 IM16
         AbsoluteIndexedX, // *(DB * $1_0000 + IM16 + X)の値 IM16, X
         AbsoluteIndexedY, // *(DB * $1_0000 + IM16 + Y)の値 IM16, Y

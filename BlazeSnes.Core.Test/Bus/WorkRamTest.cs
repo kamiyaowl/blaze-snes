@@ -99,11 +99,11 @@ namespace BlazeSnes.Core.Test.Bus {
                 wram.Write8(0x2182, addrM); // WMADDM
                 wram.Write8(0x2183, addrH); // WMADDH
                 // verify dst addr
-                Assert.Equal(addrL, wram.Read8(0x2181).Value);
-                Assert.Equal(addrM, wram.Read8(0x2182).Value);
-                Assert.Equal(addrH, wram.Read8(0x2183).Value);
+                Assert.Equal(addrL, wram.Read8(0x2181));
+                Assert.Equal(addrM, wram.Read8(0x2182));
+                Assert.Equal(addrH, wram.Read8(0x2183));
                 // verify read data
-                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180).Value); // WMDATA
+                Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180)); // WMDATA
             }
         }
 
@@ -132,9 +132,9 @@ namespace BlazeSnes.Core.Test.Bus {
             wram.Read8(0x2180, true);
             wram.Read8(0x2180, true);
             wram.Read8(0x2180, true);
-            Assert.Equal(0x00, wram.Read8(0x2181).Value);
-            Assert.Equal(0x00, wram.Read8(0x2182).Value);
-            Assert.Equal(0x00, wram.Read8(0x2183).Value);
+            Assert.Equal(0x00, wram.Read8(0x2181));
+            Assert.Equal(0x00, wram.Read8(0x2182));
+            Assert.Equal(0x00, wram.Read8(0x2183));
 
             // read burst access
             for (uint targetWramLocalAddr = 0; targetWramLocalAddr < expectReadData.Length; targetWramLocalAddr++) {
@@ -143,9 +143,9 @@ namespace BlazeSnes.Core.Test.Bus {
                 var addrH = (byte)((targetWramLocalAddr >> 16) & 0x01);
 
                 // verify dst addr
-                Assert.Equal(addrL, wram.Read8(0x2181).Value);
-                Assert.Equal(addrM, wram.Read8(0x2182).Value);
-                Assert.Equal(addrH, wram.Read8(0x2183).Value);
+                Assert.Equal(addrL, wram.Read8(0x2181));
+                Assert.Equal(addrM, wram.Read8(0x2182));
+                Assert.Equal(addrH, wram.Read8(0x2183));
 
                 // verify read data
                 Assert.Equal(expectReadData[targetWramLocalAddr], wram.Read8(0x2180)); // WMDATA
@@ -172,9 +172,9 @@ namespace BlazeSnes.Core.Test.Bus {
                 wram.Write8(0x2181, expectAddrL);
                 wram.Write8(0x2182, expectAddrM);
                 wram.Write8(0x2183, expectAddrH);
-                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
-                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
-                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181));
+                Assert.Equal(expectAddrM, wram.Read8(0x2182));
+                Assert.Equal(expectAddrH, wram.Read8(0x2183));
 
                 // write
                 wram.Write8(0x2180, writeData[i]);
@@ -191,12 +191,12 @@ namespace BlazeSnes.Core.Test.Bus {
                 wram.Write8(0x2181, expectAddrL);
                 wram.Write8(0x2182, expectAddrM);
                 wram.Write8(0x2183, expectAddrH);
-                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
-                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
-                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181));
+                Assert.Equal(expectAddrM, wram.Read8(0x2182));
+                Assert.Equal(expectAddrH, wram.Read8(0x2183));
 
                 // read verify
-                Assert.Equal(writeData[i], wram.Read8(0x2180).Value);
+                Assert.Equal(writeData[i], wram.Read8(0x2180));
             }
         }
 
@@ -217,9 +217,9 @@ namespace BlazeSnes.Core.Test.Bus {
             wram.Write8(0x2181, addrL);
             wram.Write8(0x2182, addrM);
             wram.Write8(0x2183, addrH);
-            Assert.Equal(addrL, wram.Read8(0x2181).Value);
-            Assert.Equal(addrM, wram.Read8(0x2182).Value);
-            Assert.Equal(addrH, wram.Read8(0x2183).Value);
+            Assert.Equal(addrL, wram.Read8(0x2181));
+            Assert.Equal(addrM, wram.Read8(0x2182));
+            Assert.Equal(addrH, wram.Read8(0x2183));
 
             // 順番に書き込み
             for (int i = 0; i < writeData.Length; i++) {
@@ -228,9 +228,9 @@ namespace BlazeSnes.Core.Test.Bus {
                 var expectAddrL = (byte)(expectAddr & 0xff);
                 var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
                 var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
-                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
-                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
-                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181));
+                Assert.Equal(expectAddrM, wram.Read8(0x2182));
+                Assert.Equal(expectAddrH, wram.Read8(0x2183));
 
                 // write
                 wram.Write8(0x2180, writeData[i]);
@@ -247,12 +247,12 @@ namespace BlazeSnes.Core.Test.Bus {
                 var expectAddrL = (byte)(expectAddr & 0xff);
                 var expectAddrM = (byte)((expectAddr >> 8) & 0xff);
                 var expectAddrH = (byte)((expectAddr >> 16) & 0x01);
-                Assert.Equal(expectAddrL, wram.Read8(0x2181).Value);
-                Assert.Equal(expectAddrM, wram.Read8(0x2182).Value);
-                Assert.Equal(expectAddrH, wram.Read8(0x2183).Value);
+                Assert.Equal(expectAddrL, wram.Read8(0x2181));
+                Assert.Equal(expectAddrM, wram.Read8(0x2182));
+                Assert.Equal(expectAddrH, wram.Read8(0x2183));
 
                 // read verify
-                Assert.Equal(writeData[i], wram.Read8(0x2180).Value);
+                Assert.Equal(writeData[i], wram.Read8(0x2180));
             }
         }
 

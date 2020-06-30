@@ -57,5 +57,10 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <returns></returns>
         public bool Is16bitAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.M);
+        /// <summary>
+        /// データバンクの値をSystemAddrに変換します
+        /// </summary>
+        /// <returns></returns>
+        public uint DataBankAddr => (uint)this.DB << 16;
     }
 }

@@ -35,7 +35,7 @@ namespace BlazeSnes.Core.Common {
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static byte? Read8(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static byte Read8(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[1];
             bus.Read(addr, dst, isNondestructive);
             return dst[0];
@@ -48,10 +48,23 @@ namespace BlazeSnes.Core.Common {
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static ushort? Read16(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static ushort Read16(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[2];
             bus.Read(addr, dst, isNondestructive);
             return (ushort)(dst[0] | (dst[1] << 8));
+        }
+
+        /// <summary>
+        /// 指定したアドレスから3byte読み出します
+        /// </summary>
+        /// <param name="bus">読み出し対象</param>
+        /// <param name="addr">読み出し先</param>
+        /// <param name="isNondestructive">非破壊読み出しならtrue</param>
+        /// <returns></returns>
+        public static uint Read24(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+            var dst = new byte[3];
+            bus.Read(addr, dst, isNondestructive);
+            return (uint)(dst[0] | (dst[1] << 8) | (dst[2] << 16));
         }
 
         /// <summary>
@@ -61,7 +74,7 @@ namespace BlazeSnes.Core.Common {
         /// <param name="addr">読み出し先</param>
         /// <param name="isNondestructive">非破壊読み出しならtrue</param>
         /// <returns></returns>
-        public static uint? Read32(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
+        public static uint Read32(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[4];
             bus.Read(addr, dst, isNondestructive);
             return (uint)(dst[0] | (dst[1] << 8) | (dst[2] << 16) | (dst[3] << 24));
@@ -82,7 +95,7 @@ namespace BlazeSnes.Core.Common {
         }
 
         /// <summary>
-        /// 指定したアドレスに1byte書き込みます
+        /// 指定したアドレスに2byte書き込みます
         /// </summary>
         /// <param name="bus">書き込み対象</param>
         /// <param name="addr">書き込み先</param>
@@ -97,7 +110,24 @@ namespace BlazeSnes.Core.Common {
         }
 
         /// <summary>
-        /// 指定したアドレスに1byte書き込みます
+        /// 指定したアドレスに3byte書き込みます
+        /// </summary>
+        /// <param name="bus">書き込み対象</param>
+        /// <param name="access">バスの種類</param>
+        /// <param name="addr">書き込み先</param>
+        /// <param name="data">書き込みデータ</param>
+        /// <returns></returns>
+        public static bool Write24(this IBusAccessible bus, uint addr, uint data) {
+            var src = new byte[] {
+                (byte)(data & 0xff),
+                (byte)((data >> 8) & 0xff),
+                (byte)((data >> 16) & 0xff),
+            };
+            return bus.Write(addr, src);
+        }
+
+        /// <summary>
+        /// 指定したアドレスに4byte書き込みます
         /// </summary>
         /// <param name="bus">書き込み対象</param>
         /// <param name="access">バスの種類</param>

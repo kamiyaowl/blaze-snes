@@ -110,7 +110,7 @@ namespace BlazeSnes.Core.Test.Common {
 
             // read destructive
             Assert.Equal(expectValue, target.Read8(0, false)); // destruction
-            Assert.Equal(0x00, target.Read8(0, false).Value);
+            Assert.Equal(0x00, target.Read8(0, false));
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace BlazeSnes.Core.Test.Common {
             // read test
             target.Write(0, writeData);
             Assert.Equal(data0, target.Read8(0, false));
-            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false).Value);
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false));
             Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(0, false));
 
             // write test
@@ -143,10 +143,13 @@ namespace BlazeSnes.Core.Test.Common {
             Assert.Equal(data0, target.Read8(0, false)); // Read8/16/32は手前で検証済
 
             target.Write16(0, (ushort)(data0 | (data1 << 8)));
-            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false).Value);
+            Assert.Equal(data0 | (data1 << 8), target.Read16(0, false));
 
-            target.Write32(0, (uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)));
-            Assert.Equal((uint)(data0 | (data1 << 8) | (data1 << 16) | (data1 << 24)), target.Read32(0, false));
+            target.Write24(0, (uint)(data0 | (data1 << 8) | (data2 << 16)));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16)), target.Read24(0, false));
+
+            target.Write32(0, (uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(0, false));
         }
     }
 }

@@ -155,6 +155,16 @@ namespace BlazeSnes.Core.Cpu {
                     return readDstData((uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr)));
                 case Addressing.DirectIndexedY:
                     return readDstData((uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr)));
+                case Addressing.Absolute:
+                    return readDstData((uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr)));
+                case Addressing.AbsoluteIndexedX:
+                    return readDstData((uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X)));
+                case Addressing.AbsoluteIndexedY:
+                    return readDstData((uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y)));
+                case Addressing.AbsoluteLong:
+                    return readDstData((uint)(bus.Read24(operandBaseAddr)));
+                case Addressing.AbsoluteLongIndexedX:
+                    return readDstData((uint)(bus.Read24(operandBaseAddr) + cpu.X));
                 default:
                     throw new NotImplementedException(); // TODO: 全部やる
 
