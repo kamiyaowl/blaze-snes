@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace BlazeSnes.Core.Common {
@@ -36,9 +37,7 @@ namespace BlazeSnes.Core.Common {
         /// <returns></returns>
         public static byte? Read8(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[1];
-            if (!bus.Read(addr, dst, isNondestructive)) {
-                return null;
-            }
+            bus.Read(addr, dst, isNondestructive);
             return dst[0];
         }
 
@@ -51,9 +50,7 @@ namespace BlazeSnes.Core.Common {
         /// <returns></returns>
         public static ushort? Read16(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[2];
-            if (!bus.Read(addr, dst, isNondestructive)) {
-                return null;
-            }
+            bus.Read(addr, dst, isNondestructive);
             return (ushort)(dst[0] | (dst[1] << 8));
         }
 
@@ -66,9 +63,7 @@ namespace BlazeSnes.Core.Common {
         /// <returns></returns>
         public static uint? Read32(this IBusAccessible bus, uint addr, bool isNondestructive = false) {
             var dst = new byte[4];
-            if (!bus.Read(addr, dst, isNondestructive)) {
-                return null;
-            }
+            bus.Read(addr, dst, isNondestructive);
             return (uint)(dst[0] | (dst[1] << 8) | (dst[2] << 16) | (dst[3] << 24));
         }
 

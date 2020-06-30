@@ -111,7 +111,7 @@ namespace BlazeSnes.Core.Bus {
                 Debug.Fail($"Open Bus Readを検出 ${addr:x}"); // TODO: デバッグ用に入れてあるが適正なOpen Busアクセスであれば外す
                 // OpenBusは最後に読めたデータを返す
                 Debug.Assert(data.Length == 1);
-                data[0] = LatestReadData;
+                Array.Fill(data, LatestReadData); // すべて最後に読めた値で埋める
                 return false;
             }
             LatestReadData = data[^1]; // 最後に読めたデータを控える
