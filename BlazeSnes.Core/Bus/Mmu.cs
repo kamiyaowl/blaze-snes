@@ -118,7 +118,7 @@ namespace BlazeSnes.Core.Bus {
             return true;
         }
 
-        public bool Write(uint addr, byte[] data) {
+        public bool Write(uint addr, in byte[] data) {
             Debug.Assert(data.Length > 0);
 
             var target = GetTarget(addr);

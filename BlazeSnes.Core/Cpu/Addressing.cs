@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using BlazeSnes.Core.Common;
+
 namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// アドレッシングモード一覧
@@ -31,5 +33,18 @@ namespace BlazeSnes.Core.Cpu {
         StackRelative, // 0: 最後にpushされた値, 1: 最後にpopされた値 $00,s or $01,s
         StackRelativeIndirectIndexedY, // *(*(s) + Y) の値、StackRelativeから相対間接参照を実装したもの
         BlockMove, // for MVN/MVP
+    }
+
+    public static class AddressingExtension {
+        /// <summary>
+        /// アドレッシング解決して値を取得します
+        /// </summary>
+        /// <param name="addressing">アドレッシングモードの種類</param>
+        /// <param name="bus">Mmu</param>
+        /// <param name="bus">Cpu, 変更は行わない</param>
+        /// <returns></returns>
+        public static uint Resolve(this Addressing addressing, IBusAccessible bus, in CpuRegister cpu) {
+            throw new NotImplementedException();
+        }
     }
 }

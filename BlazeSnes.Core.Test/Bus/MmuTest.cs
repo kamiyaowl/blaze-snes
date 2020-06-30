@@ -77,7 +77,7 @@ namespace BlazeSnes.Core.Test.Bus {
                         m.Setup(x => x.Read(addr, It.Is<byte[]>(x => x.Length > 0), true)).Returns(true).Verifiable();
                         break;
                     case Operation.Write:
-                        m.Setup(x => x.Write(addr, It.Is<byte[]>(x => x.Length > 0))).Returns(true).Verifiable();
+                        m.Setup(x => x.Write(addr, It.Ref<byte[]>.IsAny)).Returns(true).Verifiable();
                         break;
                     default:
                         throw new ArgumentException();

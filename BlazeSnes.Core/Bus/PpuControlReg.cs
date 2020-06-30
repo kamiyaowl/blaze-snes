@@ -83,7 +83,7 @@ namespace BlazeSnes.Core.Bus {
             throw new NotImplementedException();
         }
 
-        public bool Write(uint addr, byte[] data) {
+        public bool Write(uint addr, in byte[] data) {
             // TODO: 実装する
             throw new NotImplementedException();
         }

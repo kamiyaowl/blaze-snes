@@ -20,7 +20,7 @@ namespace BlazeSnes.Core.Common {
         /// </summary>
         /// <param name="addr">アクセス先、Bankも含む</param>
         /// <param name="data">書き込むデータ</param>
-        bool Write(uint addr, byte[] data);
+        bool Write(uint addr, in byte[] data);
     }
 
     /// <summary>

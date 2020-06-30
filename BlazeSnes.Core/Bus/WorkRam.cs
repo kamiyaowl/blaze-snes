@@ -136,7 +136,7 @@ namespace BlazeSnes.Core.Bus {
         /// <param name="access"></param>
         /// <param name="addr"></param>
         /// <param name="data"></param>
-        public bool Write(uint addr, byte[] data) {
+        public bool Write(uint addr, in byte[] data) {
             Debug.Assert(data.Length > 0);
 
             // ローカルバッファのアドレス変換だけ行って書き込む

@@ -30,7 +30,7 @@ namespace BlazeSnes.Core.Test.Common {
                 return true;
             }
 
-            public bool Write(uint addr, byte[] data) {
+            public bool Write(uint addr, in byte[] data) {
                 for (int i = 0; i < data.Length; i++) {
                     this.InternalBuf[i + addr] = data[i];
                 }
@@ -85,7 +85,7 @@ namespace BlazeSnes.Core.Test.Common {
                 return true;
             }
 
-            public bool Write(uint addr, byte[] data) {
+            public bool Write(uint addr, in byte[] data) {
                 this.Data = data[0];
                 return true;
             }
