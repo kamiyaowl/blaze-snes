@@ -133,6 +133,7 @@ namespace BlazeSnes.Core.Test.Common {
             target.Write(0, writeData);
             Assert.Equal(data0, target.Read8(0, false));
             Assert.Equal(data0 | (data1 << 8), target.Read16(0, false));
+            Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16)), target.Read24(0, false));
             Assert.Equal((uint)(data0 | (data1 << 8) | (data2 << 16) | (data3 << 24)), target.Read32(0, false));
 
             // write test
