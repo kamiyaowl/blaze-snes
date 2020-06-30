@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using BlazeSnes.Core.Common;
+
 namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// FetchするときのByte数を示します
@@ -110,5 +112,53 @@ namespace BlazeSnes.Core.Cpu {
         }
 
         public override string ToString() => $"{Code:02X}: {Inst} {AddressingMode} ({FetchBytes}bytes, {Cycles}cyc)";
+
+        /// <summary>
+        /// アドレッシング解決して値を取得します
+        /// </summary>
+        /// <param name="bus">Mmu</param>
+        /// <param name="bus">Cpu, 変更は行わない</param>
+        /// <returns>(取得したデータ, クロックサイクル)</returns>
+        public (uint, int) GetOperand(IBusAccessible bus, in CpuRegister cpu) {
+            // PCは現在の命令を指した状態で呼ばれるので+1した位置から読む
+            var operandBaseAddr = (uint)(cpu.PC + 1);
+            var is16bitAccess = cpu.Is16bitAccess;
+
+            // 事前計算可能なcycle数
+            int c = this.Cycles;
+            if (!Option.HasFlag(CycleOption.None)) {
+                if (is16bitAccess) {
+                    if (Option.HasFlag(CycleOption.Add1CycleIf16bitAcccess)) c += 1;
+                    if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
+                }
+                if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
+                if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) && cpu.X == 0) c += 1;
+                if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) && cpu.X == 0) c += 1;
+                if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
+                // TODO: 未実装: Add1CycleIfPageBoundaryOrXRegZero, Add1CycleIfBranchIsTaken, Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode
+            }
+
+            // 同じような実装を散りばめるのは気分が悪いので
+            Func<uint, (uint, int)> readDstData = (x) => ((is16bitAccess ? (uint)bus.Read16(x) : (uint)bus.Read8(x)), c);
+
+            // Addressing modeごとに実装
+            switch (this.AddressingMode) {
+                case Addressing.Implied:
+                    return (0x0, c);
+                case Addressing.Accumulator:
+                    return ((is16bitAccess ? (cpu.A) : (byte)(cpu.A & 0xff)), c);
+                case Addressing.Immediate:
+                    return readDstData(operandBaseAddr);
+                case Addressing.Direct:
+                    return readDstData((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                case Addressing.DirectIndexedX:
+                    return readDstData((uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr)));
+                case Addressing.DirectIndexedY:
+                    return readDstData((uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr)));
+                default:
+                    throw new NotImplementedException(); // TODO: 全部やる
+
+            }
+        }
     }
 }

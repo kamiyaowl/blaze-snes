@@ -51,5 +51,11 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <value></value>
         public ushort PC { get; set; }
+
+        /// <summary>
+        /// Memory/Acccumulatorの16bit Accessが有効ならtrueを返します
+        /// </summary>
+        /// <returns></returns>
+        public bool Is16bitAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.M);
     }
 }

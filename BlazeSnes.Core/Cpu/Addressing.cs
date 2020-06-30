@@ -34,17 +34,4 @@ namespace BlazeSnes.Core.Cpu {
         StackRelativeIndirectIndexedY, // *(*(s) + Y) の値、StackRelativeから相対間接参照を実装したもの
         BlockMove, // for MVN/MVP
     }
-
-    public static class AddressingExtension {
-        /// <summary>
-        /// アドレッシング解決して値を取得します
-        /// </summary>
-        /// <param name="addressing">アドレッシングモードの種類</param>
-        /// <param name="bus">Mmu</param>
-        /// <param name="bus">Cpu, 変更は行わない</param>
-        /// <returns></returns>
-        public static uint Resolve(this Addressing addressing, IBusAccessible bus, in CpuRegister cpu) {
-            throw new NotImplementedException();
-        }
-    }
 }
