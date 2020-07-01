@@ -4,52 +4,7 @@ using System.IO;
 using BlazeSnes.Core.Common;
 
 namespace BlazeSnes.Core.Cpu {
-    /// <summary>
-    /// FetchするときのByte数を示します
-    /// 代数データ構造がないので泣く泣く作成
-    /// </summary>
-    public class FetchByte {
-        /// <summary>
-        /// FetchByte数が可変する場合の情報を保持している
-        /// Flagではないのでいずれかを選択
-        /// </summary>
-        public enum AddMode {
-            Fixed, // 固定値、デフォルト
-            Add1ByteIfMRegZero, // 12.M reg=0の場合、16bit accessなので1byte増える
-            Add1ByteForSignatureByte, // 13.命令は1byteだが、2bytePCが進む。BRK, COP(Co Processor Enable)でのシグネチャ用
-            Add1ByteIfXRegZero, // 14.X reg=0の場合、16bit accessなので1byte増える
-        }
-        /// <summary>
-        /// Fetch Byte数が可変する条件
-        /// </summary>
-        /// <value></value>
-        public AddMode Mode { get; internal set; }
-        /// <summary>
-        /// FetchするByte数。Mode分は考慮しない値を入れる
-        /// </summary>
-        /// <value></value>
-        public int Bytes { get; internal set; }
 
-        /// <summary>
-        /// 固定Byte数のコンストラクタ
-        /// </summary>
-        /// <param name="bytes"></param>
-        public FetchByte(int bytes) {
-            this.Bytes = bytes;
-            this.Mode = AddMode.Fixed;
-        }
-
-        /// <summary>
-        /// Byte数可変のコンストラクタ
-        /// </summary>
-        /// <param name="bytes"></param>
-        public FetchByte(int bytes, AddMode mode) {
-            this.Bytes = bytes;
-            this.Mode = mode;
-        }
-
-        public override string ToString() => (Mode == AddMode.Fixed) ? $"{Bytes}byte" : $"{Bytes}byte(+{Mode})";
-    }
     /// <summary>
     /// Assembler HEXと命令の対応を示します
     /// </summary>
@@ -114,39 +69,68 @@ namespace BlazeSnes.Core.Cpu {
         public override string ToString() => $"{Code:02X}: {Inst} {AddressingMode} ({FetchBytes}bytes, {Cycles}cyc)";
 
         /// <summary>
+        /// 必要なCPU Clock Cycle数を求めます
+        /// 分岐予測までは確認できていないので、Add1CycleIfBranchIsTaken, Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode は別途確認すること
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="cpu"></param>
+        /// <returns></returns>
+        public int GetTotalCycles(in IBusAccessible bus, in CpuRegister cpu) {
+            // 特殊なオプションなし
+            if (Option == CycleOption.None) {
+                return this.Cycles;
+            }
+
+            // 事前計算可能なcycle数
+            int c = this.Cycles;
+            if (cpu.Is16bitMemoryAccess) {
+                if (Option.HasFlag(CycleOption.Add1CycleIf16bitAcccess)) c += 1;
+                if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
+            }
+            if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
+            if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) && cpu.X == 0) c += 1;
+            if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) && cpu.X == 0) c += 1;
+            if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
+
+            return c;
+        }
+        /// <summary>
+        /// 今回のオペランド取得で進むPCのbyte数を取得します
+        /// FetchByte.AddModeはフラグではないので分岐して取得可
+        /// /// </summary>
+        /// <param name="cpu"></param>
+        /// <returns></returns>
+        public int GetTotalArrangeBytes(in CpuRegister cpu) => this.FetchBytes.Mode switch
+        {
+            FetchByte.AddMode.Fixed => FetchBytes.Bytes,
+            FetchByte.AddMode.Add1ByteIfMRegZero when cpu.Is16bitMemoryAccess => FetchBytes.Bytes + 1,
+            FetchByte.AddMode.Add1ByteIfXRegZero when cpu.Is16bitIndexAccess => FetchBytes.Bytes + 1,
+            FetchByte.AddMode.Add1ByteForSignatureByte => FetchBytes.Bytes + 1,
+            _ => throw new ArgumentException("存在しないenum値が指定されています"),
+        };
+
+        /// <summary>
         /// アドレッシング解決して値を取得します
         /// </summary>
         /// <param name="bus">Mmu</param>
         /// <param name="bus">Cpu, 変更は行わない</param>
-        /// <returns>(取得したデータ, クロックサイクル)</returns>
-        public (uint, int) GetOperand(IBusAccessible bus, in CpuRegister cpu) {
+        /// <returns>(取得したデータ, クロックサイクル, dstAddr)</returns>
+        public uint GetData(IBusAccessible bus, in CpuRegister cpu) {
             // PCは現在の命令を指した状態で呼ばれるので+1した位置から読む
             var operandBaseAddr = (uint)(cpu.PC + 1);
-            var is16bitAccess = cpu.Is16bitAccess;
+            var is16bitAccess = cpu.Is16bitMemoryAccess;
 
-            // 事前計算可能なcycle数
-            int c = this.Cycles;
-            if (!Option.HasFlag(CycleOption.None)) {
-                if (is16bitAccess) {
-                    if (Option.HasFlag(CycleOption.Add1CycleIf16bitAcccess)) c += 1;
-                    if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
-                }
-                if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
-                if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) && cpu.X == 0) c += 1;
-                if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) && cpu.X == 0) c += 1;
-                if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
-                // TODO: 未実装: Add1CycleIfPageBoundaryOrXRegZero, Add1CycleIfBranchIsTaken, Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode
-            }
+            var c = this.GetTotalCycles(bus, cpu);
 
             // 同じような実装を散りばめるのは気分が悪いので
-            Func<uint, (uint, int)> readDstData = (x) => ((is16bitAccess ? (uint)bus.Read16(x) : (uint)bus.Read8(x)), c);
+            Func<uint, uint> readDstData = (x) => (is16bitAccess ? (uint)bus.Read16(x) : (uint)bus.Read8(x));
 
             // Addressing modeごとに実装
             switch (this.AddressingMode) {
                 case Addressing.Implied:
-                    return (0x0, c);
+                    return 0x0;
                 case Addressing.Accumulator:
-                    return ((is16bitAccess ? (cpu.A) : (byte)(cpu.A & 0xff)), c);
+                    return (is16bitAccess ? (cpu.A) : (byte)(cpu.A & 0xff));
                 case Addressing.Immediate:
                     return readDstData(operandBaseAddr);
                 case Addressing.Direct:
@@ -170,5 +154,15 @@ namespace BlazeSnes.Core.Cpu {
 
             }
         }
+
+        /// <summary>
+        /// アドレッシング解決して、読みだしたデータ、かかったクロックサイクル、すすめるPCを取得します
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="cpu"></param>
+        /// <returns></returns>
+        public Operand GetOperand(IBusAccessible bus, in CpuRegister cpu) =>
+            new Operand(this.AddressingMode, this.GetData(bus, cpu), this.GetTotalCycles(bus, cpu), this.GetTotalArrangeBytes(cpu));
+
     }
 }
