@@ -114,55 +114,50 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <param name="bus">Mmu</param>
         /// <param name="bus">Cpu, 変更は行わない</param>
-        /// <returns>(取得したデータ, クロックサイクル, dstAddr)</returns>
-        public uint GetData(IBusAccessible bus, in CpuRegister cpu) {
+        /// <returns>読み出し先ベースアドレス</returns>
+        public uint GetAddr(IBusAccessible bus, in CpuRegister cpu) {
             // PCは現在の命令を指した状態で呼ばれるので+1した位置から読む
             var operandBaseAddr = (uint)(cpu.PC + 1);
-            var is16bitAccess = cpu.Is16bitMemoryAccess;
-
-            var c = this.GetTotalCycles(bus, cpu);
-
-            // 同じような実装を散りばめるのは気分が悪いので
-            Func<uint, uint> readDstData = (x) => (is16bitAccess ? (uint)bus.Read16(x) : (uint)bus.Read8(x));
 
             // Addressing modeごとに実装
             switch (this.AddressingMode) {
-                case Addressing.Implied:
-                    return 0x0;
-                case Addressing.Accumulator:
-                    return (is16bitAccess ? (cpu.A) : (byte)(cpu.A & 0xff));
                 case Addressing.Immediate:
-                    return readDstData(operandBaseAddr);
+                    return operandBaseAddr; // OpCodeの次のアドレスそのまま
                 case Addressing.Direct:
-                    return readDstData((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
-                case Addressing.DirectIndexedX:
-                    return readDstData((uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr)));
-                case Addressing.DirectIndexedY:
-                    return readDstData((uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr)));
+                    return (uint)(cpu.DP + bus.Read8(operandBaseAddr));
+                case Addressing.DirectPageIndexedX:
+                    return (uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr));
+                case Addressing.DirectPageIndexedY:
+                    return (uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr));
                 case Addressing.Absolute:
-                    return readDstData((uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr)));
+                    return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr));
                 case Addressing.AbsoluteIndexedX:
-                    return readDstData((uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X)));
+                    return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X));
                 case Addressing.AbsoluteIndexedY:
-                    return readDstData((uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y)));
+                    return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y));
                 case Addressing.AbsoluteLong:
-                    return readDstData((uint)(bus.Read24(operandBaseAddr)));
+                    return (uint)(bus.Read24(operandBaseAddr));
                 case Addressing.AbsoluteLongIndexedX:
-                    return readDstData((uint)(bus.Read24(operandBaseAddr) + cpu.X));
+                    return (uint)(bus.Read24(operandBaseAddr) + cpu.X);
+                case Addressing.DirectPageIndirect:
+                    var a = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                    return (cpu.DataBankAddr | a);
+                case Addressing.Implied:
+                case Addressing.Accumulator:
+                    throw new ArgumentException("Implied, Accumulatorではアドレス解決できません");
                 default:
                     throw new NotImplementedException(); // TODO: 全部やる
-
             }
         }
 
         /// <summary>
-        /// アドレッシング解決して、読みだしたデータ、かかったクロックサイクル、すすめるPCを取得します
+        /// アドレッシング解決して、読みだしたいデータアドレス、かかったクロックサイクル、すすめるPCを取得します
         /// </summary>
         /// <param name="bus"></param>
         /// <param name="cpu"></param>
         /// <returns></returns>
-        public Operand GetOperand(IBusAccessible bus, in CpuRegister cpu) =>
-            new Operand(this.AddressingMode, this.GetData(bus, cpu), this.GetTotalCycles(bus, cpu), this.GetTotalArrangeBytes(cpu));
+        public Operand ResolveAddressing(IBusAccessible bus, in CpuRegister cpu) =>
+            new Operand(this.AddressingMode, this.GetAddr(bus, cpu), this.GetTotalCycles(bus, cpu), this.GetTotalArrangeBytes(cpu));
 
     }
 }

@@ -12,18 +12,18 @@ namespace BlazeSnes.Core.Cpu {
         Accumulator, // (A)の値
         Immediate, // (IM8)の値 IM8
         Direct,// *(IM8)の値 IM8
-        DirectIndexedX, // *(IM+X)の値 IM8, X
-        DirectIndexedY, // *(IM+Y)の値 IM8, Y
+        DirectPageIndexedX, // *(IM+X)の値 IM8, X
+        DirectPageIndexedY, // *(IM+Y)の値 IM8, Y
         Absolute,// *(DB * $1_0000 + IM16)の値 IM16
         AbsoluteIndexedX, // *(DB * $1_0000 + IM16 + X)の値 IM16, X
         AbsoluteIndexedY, // *(DB * $1_0000 + IM16 + Y)の値 IM16, Y
         AbsoluteLong, // *(IM24)の値 IM24
         AbsoluteLongIndexedX, // *(IM24+X)の値 IM24, X
-        DirectIndexedIndirectX, // *(DB * $1_0000 + *(IM8+X))の値 IM8, X
-        DirectIndirectIndexedY, // *(DB * $1_0000 + *IM8 + Y)の値 (IM8), Y
-        DirectIndirect, // *(*(IM8))の値 (IM8)
-        DirectIndirectLong, // *(*(IM16))の値 [IM16]
-        DirectIndirectLongIndexedY, // *(*(IM8) + Y)の値 [IM8]
+        DirectPageIndirect, // *(*(IM8))の値 (IM8)
+        DirectPageIndirectLong, // *(*(IM16))の値 [IM16]
+        DirectPageIndirectLongIndexedY, // *(*(IM8) + Y)の値 [IM8]
+        DirectPageIndexedIndirectX, // *(DB * $1_0000 + *(IM8+X))の値 IM8, X
+        DirectPageIndirectIndexedY, // *(DB * $1_0000 + *IM8 + Y)の値 (IM8), Y
         AbsoluteIndirect, // *(IM16)の値 (IM16)
         AbsoluteIndexedIndirectX, // *(IM16 + X)の値 (IM16, X)
         AbsoluteIndirectLong, // *(IM24)の値 [IM24]
