@@ -75,7 +75,7 @@ namespace BlazeSnes.Core.Cpu {
         /// <param name="bus"></param>
         /// <param name="cpu"></param>
         /// <returns></returns>
-        public int GetTotalCycles(in IBusAccessible bus, in CpuRegister cpu) {
+        public int GetTotalCycles(in CpuRegister cpu) {
             // 特殊なオプションなし
             if (Option == CycleOption.None) {
                 return this.Cycles;
@@ -157,7 +157,7 @@ namespace BlazeSnes.Core.Cpu {
         /// <param name="cpu"></param>
         /// <returns></returns>
         public Operand ResolveAddressing(IBusAccessible bus, in CpuRegister cpu) =>
-            new Operand(this.AddressingMode, this.GetAddr(bus, cpu), this.GetTotalCycles(bus, cpu), this.GetTotalArrangeBytes(cpu));
+            new Operand(this.AddressingMode, this.GetAddr(bus, cpu), this.GetTotalCycles(cpu), this.GetTotalArrangeBytes(cpu));
 
     }
 }

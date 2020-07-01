@@ -45,7 +45,7 @@ namespace BlazeSnes.Core.Cpu {
         /// Processor Status
         /// </summary>
         /// <value></value>
-        public ProcessorStatus P { get; set; }
+        public ProcessorStatus P { get; set; } = new ProcessorStatus();
         /// <summary>
         /// Program Counter
         /// </summary>
