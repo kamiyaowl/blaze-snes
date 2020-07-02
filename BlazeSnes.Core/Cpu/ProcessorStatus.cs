@@ -27,6 +27,11 @@ namespace BlazeSnes.Core.Cpu {
     /// </summary>
     public class ProcessorStatus : Register<ProcessorStatusFlag> {
 
+        public ProcessorStatus() {}
+        public ProcessorStatus(ProcessorStatusFlag flag) {
+            this.Value = flag;
+        }
+
         public override string ToString() {
             var sb = new StringBuilder();
             sb.Append(Value.HasFlag(ProcessorStatusFlag.E) ? "E" : "-");

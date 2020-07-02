@@ -14,17 +14,17 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         [Flags]
         public enum CycleOption {
-            None, // 0.追加はない
-            Add1CycleIf16bitAcccess, // 1.16bit Access時に1cycle追加
-            Add1CycleIfDPRegNonZero, // 2.Direct Page Registerが非Zeroなら1cycle追加
-            Add1CycleIfPageBoundaryOrXRegZero, // 3.page境界を跨ぐ、x=0で1cycle追加
-            Add2CycleIf16bitaccess, // 4.16bit Access時に2cycle追加
-            Add1CycleIfBranchIsTaken, // 5.分岐した場合に1cycle追加
-            Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode, // 6.EmulationModeでページ跨ぎの分岐が発生した場合に1cycle追加
-            Add1CycleIfNativeMode, // 7.NativeModeで1cycle追加
-            Add1CycleIfXZero, // 8.X=0で1cycle追加
-            Add3CycleToShutdownByReset, // 9.Processor停止に3cycle
-            Add3CycleToShutdownByInterrupt, // 10.Processor停止に3cycle
+            None = 0, // 0.追加はない
+            Add1CycleIf16bitAcccess = 0x1, // 1.16bit Access時に1cycle追加
+            Add1CycleIfDPRegNonZero = 0x2, // 2.Direct Page Registerが非Zeroなら1cycle追加
+            Add1CycleIfPageBoundaryOrXRegZero = 0x4, // 3.page境界を跨ぐ、x=0で1cycle追加
+            Add2CycleIf16bitaccess = 0x8, // 4.16bit Access時に2cycle追加
+            Add1CycleIfBranchIsTaken = 0x10, // 5.分岐した場合に1cycle追加
+            Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode = 0x20, // 6.EmulationModeでページ跨ぎの分岐が発生した場合に1cycle追加
+            Add1CycleIfNativeMode = 0x40, // 7.NativeModeで1cycle追加
+            Add1CycleIfXZero = 0x80, // 8.X=0で1cycle追加
+            Add3CycleToShutdownByReset = 0x100, // 9.Processor停止に3cycle
+            Add3CycleToShutdownByInterrupt = 0x200, // 10.Processor停止に3cycle
         }
         /// <summary>
         /// HEX
@@ -88,8 +88,7 @@ namespace BlazeSnes.Core.Cpu {
                 if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
             }
             if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
-            if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) && cpu.X == 0) c += 1;
-            if (Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) && cpu.X == 0) c += 1;
+            if ((Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero)  || Option.HasFlag(CycleOption.Add1CycleIfXZero)) && cpu.X == 0) c += 1;
             if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
 
             return c;
