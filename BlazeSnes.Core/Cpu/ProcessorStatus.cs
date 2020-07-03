@@ -27,7 +27,7 @@ namespace BlazeSnes.Core.Cpu {
     /// </summary>
     public class ProcessorStatus : Register<ProcessorStatusFlag> {
 
-        public ProcessorStatus() {}
+        public ProcessorStatus() { }
         public ProcessorStatus(ProcessorStatusFlag flag) {
             this.Value = flag;
         }

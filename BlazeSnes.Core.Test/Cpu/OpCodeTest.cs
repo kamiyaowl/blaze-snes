@@ -20,13 +20,13 @@ namespace BlazeSnes.Core.Test.Cpu {
             // default
             yield return new object[] { CycleOption.None, new CpuRegister() { P = new ProcessorStatus() }, 1, };
             // 16bit memory/accumulator access +1cyc
-            yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.M) } , 1, };
-            yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) } , 1, }; // emulationが有効だと1byte
+            yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.M) }, 1, };
+            yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) }, 1, }; // emulationが有効だと1byte
             yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.M) }, 1, }; // nativeだけど1byte
             yield return new object[] { CycleOption.Add1CycleIf16bitAcccess, new CpuRegister() { P = new ProcessorStatus() }, 2, };
             // 16bit memory/accumulator access +2cyc
             yield return new object[] { CycleOption.Add2CycleIf16bitaccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.M) }, 1, };
-            yield return new object[] { CycleOption.Add2CycleIf16bitaccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) } , 1, }; // emulationが有効だと1byte
+            yield return new object[] { CycleOption.Add2CycleIf16bitaccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) }, 1, }; // emulationが有効だと1byte
             yield return new object[] { CycleOption.Add2CycleIf16bitaccess, new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.M) }, 1, }; // nativeだけど1byte
             yield return new object[] { CycleOption.Add2CycleIf16bitaccess, new CpuRegister() { P = new ProcessorStatus() }, 3, };
             // direct page/zero page
@@ -65,15 +65,15 @@ namespace BlazeSnes.Core.Test.Cpu {
             yield return new object[] { new FetchByte(1), new CpuRegister(), 1 };
             yield return new object[] { new FetchByte(2), new CpuRegister(), 2 };
             // Memory Mode
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.M)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.M)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus()}, 2 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.M) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.M) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfMRegZero), new CpuRegister() { P = new ProcessorStatus() }, 2 };
             // Index Register Mode
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.X)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.X)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E)}, 1 };
-            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus()}, 2 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E | ProcessorStatusFlag.X) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.X) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus(ProcessorStatusFlag.E) }, 1 };
+            yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteIfXRegZero), new CpuRegister() { P = new ProcessorStatus() }, 2 };
             // signature
             yield return new object[] { new FetchByte(1, FetchByte.AddMode.Add1ByteForSignatureByte), new CpuRegister(), 2 };
         }
@@ -85,7 +85,7 @@ namespace BlazeSnes.Core.Test.Cpu {
         /// <param name="cpu"></param>
         /// <param name="expectFetchByte"></param>
         [Theory, MemberData(nameof(GetTotalArrangeBytesParams))]
-        public void TotalFetchBytes(FetchByte fetchByte, CpuRegister cpu, int expectFetchByte){
+        public void TotalFetchBytes(FetchByte fetchByte, CpuRegister cpu, int expectFetchByte) {
             // 適当なOpcodeを生成
             var opcode = new OpCode(0x00, Instruction.ADC, Addressing.Absolute, fetchByte, 1, CycleOption.None);
 

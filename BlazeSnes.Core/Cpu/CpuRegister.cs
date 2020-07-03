@@ -67,5 +67,10 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <returns></returns>
         public uint DataBankAddr => (uint)this.DB << 16;
+        /// <summary>
+        /// ページバンクの値をSystemAddrに変換します
+        /// </summary>
+        /// <returns></returns>
+        public uint PageBankAddr => (uint)this.PB << 16;
     }
 }

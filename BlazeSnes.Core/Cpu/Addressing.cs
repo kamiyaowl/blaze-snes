@@ -11,7 +11,7 @@ namespace BlazeSnes.Core.Cpu {
         Implied, // 指定なし
         Accumulator, // (A)の値
         Immediate, // (IM8)の値 IM8
-        Direct,// *(IM8)の値 IM8
+        DirectPage,// *(IM8)の値 IM8
         DirectPageIndexedX, // *(IM+X)の値 IM8, X
         DirectPageIndexedY, // *(IM+Y)の値 IM8, Y
         Absolute,// *(DB * $1_0000 + IM16)の値 IM16

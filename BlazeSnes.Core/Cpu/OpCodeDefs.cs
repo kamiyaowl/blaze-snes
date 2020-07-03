@@ -22,7 +22,7 @@ namespace BlazeSnes.Core.Cpu {
             // ADC sr,S		Add With Carry	63	Stack Relative	NV----ZC	2	4[^1]
             { 0x63, new OpCode (0x63, Instruction.ADC, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // ADC dp		Add With Carry	65	Direct Page	NV----ZC	2	3[^1][^2]
-            { 0x65, new OpCode (0x65, Instruction.ADC, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x65, new OpCode (0x65, Instruction.ADC, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ADC [dp]		Add With Carry	67	DP Indirect Long	NV----ZC	2	6[^1][^2]
             { 0x67, new OpCode (0x67, Instruction.ADC, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ADC #const		Add With Carry	69	Immediate	NV----ZC	2[^12]	2[^1]
@@ -52,7 +52,7 @@ namespace BlazeSnes.Core.Cpu {
             // AND sr,S		AND Accumulator with Memory	23	Stack Relative	N-----Z-	2	4[^1]
             { 0x23, new OpCode (0x23, Instruction.AND, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // AND dp		AND Accumulator with Memory	25	Direct Page	N-----Z-	2	3[^1][^2]
-            { 0x25, new OpCode (0x25, Instruction.AND, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x25, new OpCode (0x25, Instruction.AND, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND [dp]		AND Accumulator with Memory	27	DP Indirect Long	N-----Z-	2	6[^1][^2]
             { 0x27, new OpCode (0x27, Instruction.AND, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // AND #const		AND Accumulator with Memory	29	Immediate	N-----Z-	2[^12]	2[^1]
@@ -78,7 +78,7 @@ namespace BlazeSnes.Core.Cpu {
             // AND long,X		AND Accumulator with Memory	3F	Absolute Long Indexed,X	N-----Z-	4	5[^1]
             { 0x3f, new OpCode (0x3f, Instruction.AND, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // ASL dp		Arithmetic Shift Left	06	Direct Page	N-----ZC	2	5[^2][^4]
-            { 0x06, new OpCode (0x06, Instruction.ASL, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x06, new OpCode (0x06, Instruction.ASL, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ASL A		Arithmetic Shift Left	0A	Accumulator	N-----ZC	1	2
             { 0x0a, new OpCode (0x0a, Instruction.ASL, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ASL addr		Arithmetic Shift Left	0E	Absolute	N-----ZC	3	6[^4]
@@ -94,7 +94,7 @@ namespace BlazeSnes.Core.Cpu {
             // BEQ nearlabel		Branch if Equal	F0	Program Counter Relative		2	2[^5][^6]
             { 0xf0, new OpCode (0xf0, Instruction.BEQ, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BIT dp		Test Bits	24	Direct Page	NV----Z-	2	3[^1][^2]
-            { 0x24, new OpCode (0x24, Instruction.BIT, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x24, new OpCode (0x24, Instruction.BIT, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // BIT addr		Test Bits	2C	Absolute	NV----Z-	3	4[^1]
             { 0x2c, new OpCode (0x2c, Instruction.BIT, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // BIT dp,X		Test Bits	34	DP Indexed,X	NV----Z-	2	4[^1][^2]
@@ -132,7 +132,7 @@ namespace BlazeSnes.Core.Cpu {
             // CMP sr,S		Compare Accumulator with Memory	C3	Stack Relative	N-----ZC	2	4[^1]
             { 0xc3, new OpCode (0xc3, Instruction.CMP, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // CMP dp		Compare Accumulator with Memory	C5	Direct Page	N-----ZC	2	3[^1][^2]
-            { 0xc5, new OpCode (0x65, Instruction.CMP, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0xc5, new OpCode (0x65, Instruction.CMP, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP [dp]		Compare Accumulator with Memory	C7	DP Indirect Long	N-----ZC	2	6[^1][^2]
             { 0xc7, new OpCode (0xc7, Instruction.CMP, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // CMP #const		Compare Accumulator with Memory	C9	Immediate	N-----ZC	2[^12]	2[^1]
@@ -162,19 +162,19 @@ namespace BlazeSnes.Core.Cpu {
             // CPX #const		Compare Index Register X with Memory	E0	Immediate	N-----ZC	2[^14]	2[^8]
             { 0xe0, new OpCode (0xe0, Instruction.CPX, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // CPX dp		Compare Index Register X with Memory	E4	Direct Page	N-----ZC	2	3[^2][^8]
-            { 0xe4, new OpCode (0xe4, Instruction.CPX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0xe4, new OpCode (0xe4, Instruction.CPX, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // CPX addr		Compare Index Register X with Memory	EC	Absolute	N-----ZC	3	4[^8]
             { 0xec, new OpCode (0xec, Instruction.CPX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // CPY #const		Compare Index Register Y with Memory	C0	Immediate	N-----ZC	2[^14]	2[^8]
             { 0xc0, new OpCode (0xc0, Instruction.CPY, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // CPY dp		Compare Index Register Y with Memory	C4	Direct Page	N-----ZC	2	3[^2][^8]
-            { 0xc4, new OpCode (0xc4, Instruction.CPY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0xc4, new OpCode (0xc4, Instruction.CPY, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // CPY addr		Compare Index Register Y with Memory	CC	Absolute	N-----ZC	3	4[^8]
             { 0xcc, new OpCode (0xcc, Instruction.CPY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // DEC A	DEA	Decrement	3A	Accumulator	N-----Z-	1	2
             { 0x3a, new OpCode (0x3a, Instruction.DEC, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // DEC dp		Decrement	C6	Direct Page	N-----Z-	2	5[^2][^4]
-            { 0xc6, new OpCode (0xc6, Instruction.DEC, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0xc6, new OpCode (0xc6, Instruction.DEC, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // DEC addr		Decrement	CE	Absolute	N-----Z-	3	6[^4]
             { 0xce, new OpCode (0xce, Instruction.DEC, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // DEC dp,X		Decrement	D6	DP Indexed,X	N-----Z-	2	6[^2][^4]
@@ -190,7 +190,7 @@ namespace BlazeSnes.Core.Cpu {
             // EOR sr,S		Exclusive-OR Accumulator with Memory	43	Stack Relative	N-----Z-	2	4[^1]
             { 0x43, new OpCode (0x43, Instruction.EOR, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // EOR dp		Exclusive-OR Accumulator with Memory	45	Direct Page	N-----Z-	2	3[^1][^2]
-            { 0x45, new OpCode (0x45, Instruction.EOR, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x45, new OpCode (0x45, Instruction.EOR, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR [dp]		Exclusive-OR Accumulator with Memory	47	DP Indirect Long	N-----Z-	2	6[^1][^2]
             { 0x47, new OpCode (0x47, Instruction.EOR, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // EOR #const		Exclusive-OR Accumulator with Memory	49	Immediate	N-----Z-	2[^12]	2[^1]
@@ -218,7 +218,7 @@ namespace BlazeSnes.Core.Cpu {
             // INC A	INA	Increment	1A	Accumulator	N-----Z-	1	2
             { 0x1a, new OpCode (0x1a, Instruction.INC, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // INC dp		Increment	E6	Direct Page	N-----Z-	2	5[^2][^4]
-            { 0xe6, new OpCode (0xe6, Instruction.INC, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0xe6, new OpCode (0xe6, Instruction.INC, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // INC addr		Increment	EE	Absolute	N-----Z-	3	6[^4]
             { 0xee, new OpCode (0xee, Instruction.INC, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // INC dp,X		Increment	F6	DP Indexed,X	N-----Z-	2	6[^2][^4]
@@ -250,7 +250,7 @@ namespace BlazeSnes.Core.Cpu {
             // LDA sr,S		Load Accumulator from Memory	A3	Stack Relative	N-----Z-	2	4[^1]
             { 0xa3, new OpCode (0xa3, Instruction.LDA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // LDA dp		Load Accumulator from Memory	A5	Direct Page	N-----Z-	2	3[^1][^2]
-            { 0xa5, new OpCode (0xa5, Instruction.LDA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0xa5, new OpCode (0xa5, Instruction.LDA, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA [dp]		Load Accumulator from Memory	A7	DP Indirect Long	N-----Z-	2	6[^1][^2]
             { 0xa7, new OpCode (0xa7, Instruction.LDA, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // LDA #const		Load Accumulator from Memory	A9	Immediate	N-----Z-	2[^12]	2[^1]
@@ -278,7 +278,7 @@ namespace BlazeSnes.Core.Cpu {
             // LDX #const		Load Index Register X from Memory	A2	Immediate	N-----Z-	2[^14]	2[^8]
             { 0xa2, new OpCode (0xa2, Instruction.LDX, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // LDX dp		Load Index Register X from Memory	A6	Direct Page	N-----Z-	2	3[^2][^8]
-            { 0xa6, new OpCode (0xa6, Instruction.LDX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0xa6, new OpCode (0xa6, Instruction.LDX, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDX addr		Load Index Register X from Memory	AE	Absolute	N-----Z-	3	4[^8]
             { 0xae, new OpCode (0xae, Instruction.LDX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // LDX dp,Y		Load Index Register X from Memory	B6	DP Indexed,Y	N-----Z-	2	4[^2][^8]
@@ -288,7 +288,7 @@ namespace BlazeSnes.Core.Cpu {
             // LDY #const		Load Index Register Y from Memory	A0	Immediate	N-----Z-	2[^14]	2[^8]
             { 0xa0, new OpCode (0xa0, Instruction.LDY, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // LDY dp		Load Index Register Y from Memory	A4	Direct Page	N-----Z-	2	3[^2][^8]
-            { 0xa4, new OpCode (0xa4, Instruction.LDY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0xa4, new OpCode (0xa4, Instruction.LDY, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // LDY addr		Load Index Register Y from Memory	AC	Absolute	N-----Z-	3	4[^8]
             { 0xac, new OpCode (0xac, Instruction.LDY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // LDY dp,X		Load Index Register Y from Memory	B4	DP Indexed,X	N-----Z-	2	4[^2][^8]
@@ -296,7 +296,7 @@ namespace BlazeSnes.Core.Cpu {
             // LDY addr,X		Load Index Register Y from Memory	BC	Absolute Indexed,X	N-----Z-	3	4[^3][^8]
             { 0xbc, new OpCode (0xbc, Instruction.LDY, Addressing.AbsoluteIndexedX, new FetchByte (3), 4, CycleOption.Add1CycleIfPageBoundaryOrXRegZero | CycleOption.Add1CycleIfXZero) },
             // LSR dp		Logical Shift Memory or Accumulator Right	46	Direct Page	N-----ZC	2	5[^2][^4]
-            { 0x46, new OpCode (0x46, Instruction.LSR, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x46, new OpCode (0x46, Instruction.LSR, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // LSR A		Logical Shift Memory or Accumulator Right	4A	Accumulator	N-----ZC	1	2
             { 0x4a, new OpCode (0x4a, Instruction.LSR, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // LSR addr		Logical Shift Memory or Accumulator Right	4E	Absolute	N-----ZC	3	6[^4]
@@ -316,7 +316,7 @@ namespace BlazeSnes.Core.Cpu {
             // ORA sr,S		OR Accumulator with Memory	03	Stack Relative	N-----Z-	2	4[^1]
             { 0x03, new OpCode (0x03, Instruction.ORA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // ORA dp		OR Accumulator with Memory	05	Direct Page	N-----Z-	2	3[^1][^2]
-            { 0x05, new OpCode (0x05, Instruction.ORA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x05, new OpCode (0x05, Instruction.ORA, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA [dp]		OR Accumulator with Memory	07	DP Indirect Long	N-----Z-	2	6[^1][^2]
             { 0x07, new OpCode (0x07, Instruction.ORA, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // ORA #const		OR Accumulator with Memory	09	Immediate	N-----Z-	2[^12]	2[^1]
@@ -376,7 +376,7 @@ namespace BlazeSnes.Core.Cpu {
             // REP #const		Reset Processor Status Bits	C2	Immediate	NVMXDIZC	2	3
             { 0xc2, new OpCode (0xc2, Instruction.REP, Addressing.Immediate, new FetchByte (2), 3, CycleOption.None) },
             // ROL dp		Rotate Memory or Accumulator Left	26	Direct Page	N-----ZC	2	5[^2][^4]
-            { 0x26, new OpCode (0x26, Instruction.ROL, Addressing.Direct, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x26, new OpCode (0x26, Instruction.ROL, Addressing.DirectPage, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROL A		Rotate Memory or Accumulator Left	2A	Accumulator	N-----ZC	1	2
             { 0x2a, new OpCode (0x2a, Instruction.ROL, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ROL addr		Rotate Memory or Accumulator Left	2E	Absolute	N-----ZC	3	6[^4]
@@ -386,7 +386,7 @@ namespace BlazeSnes.Core.Cpu {
             // ROL addr,X		Rotate Memory or Accumulator Left	3E	Absolute Indexed,X	N-----ZC	3	7[^4]
             { 0x3e, new OpCode (0x3e, Instruction.ROL, Addressing.AbsoluteIndexedX, new FetchByte (3), 7, CycleOption.Add2CycleIf16bitaccess) },
             // ROR dp		Rotate Memory or Accumulator Right	66	Direct Page	N-----ZC	2	5[^2][^4]
-            { 0x66, new OpCode (0x66, Instruction.ROR, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x66, new OpCode (0x66, Instruction.ROR, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // ROR A		Rotate Memory or Accumulator Right	6A	Accumulator	N-----ZC	1	2
             { 0x6a, new OpCode (0x6a, Instruction.ROR, Addressing.Accumulator, new FetchByte (1), 2, CycleOption.None) },
             // ROR addr		Rotate Memory or Accumulator Right	6E	Absolute	N-----ZC	3	6[^4]
@@ -406,7 +406,7 @@ namespace BlazeSnes.Core.Cpu {
             // SBC sr,S		Subtract with Borrow from Accumulator	E3	Stack Relative	NV----ZC	2	4[^1]
             { 0xe3, new OpCode (0xe3, Instruction.SBC, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // SBC dp		Subtract with Borrow from Accumulator	E5	Direct Page	NV----ZC	2	3[^1][^2]
-            { 0xe5, new OpCode (0xe5, Instruction.SBC, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0xe5, new OpCode (0xe5, Instruction.SBC, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC [dp]		Subtract with Borrow from Accumulator	E7	DP Indirect Long	NV----ZC	2	6[^1][^2]
             { 0xe7, new OpCode (0xe7, Instruction.SBC, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // SBC #const		Subtract with Borrow from Accumulator	E9	Immediate	NV----ZC	2[^12]	2[^1]
@@ -444,7 +444,7 @@ namespace BlazeSnes.Core.Cpu {
             // STA sr,S		Store Accumulator to Memory	83	Stack Relative		2	4[^1]
             { 0x83, new OpCode (0x83, Instruction.STA, Addressing.StackRelative, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess) },
             // STA dp		Store Accumulator to Memory	85	Direct Page		2	3[^1][^2]
-            { 0x85, new OpCode (0x85, Instruction.STA, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x85, new OpCode (0x85, Instruction.STA, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA [dp]		Store Accumulator to Memory	87	DP Indirect Long		2	6[^1][^2]
             { 0x87, new OpCode (0x87, Instruction.STA, Addressing.DirectPageIndirectLong, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA addr		Store Accumulator to Memory	8D	Absolute		3	4[^1]
@@ -470,19 +470,19 @@ namespace BlazeSnes.Core.Cpu {
             // STP		Stop Processor	DB	Implied		1	3[^9]
             { 0xdb, new OpCode (0xdb, Instruction.STP, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add3CycleToShutdownByReset) },
             // STX dp		Store Index Register X to Memory	86	Direct Page		2	3[^2][^8]
-            { 0x86, new OpCode (0x86, Instruction.STX, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0x86, new OpCode (0x86, Instruction.STX, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STX addr		Store Index Register X to Memory	8E	Absolute		3	4[^8]
             { 0x8e, new OpCode (0x8e, Instruction.STX, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // STX dp,Y		Store Index Register X to Memory	96	DP Indexed,Y		2	4[^2][^8]
             { 0x96, new OpCode (0x96, Instruction.STX, Addressing.DirectPageIndexedY, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STY dp		Store Index Register Y to Memory	84	Direct Page		2	3[^2][^8]
-            { 0x84, new OpCode (0x84, Instruction.STY, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
+            { 0x84, new OpCode (0x84, Instruction.STY, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STY addr		Store Index Register Y to Memory	8C	Absolute		3	4[^8]
             { 0x8c, new OpCode (0x8c, Instruction.STY, Addressing.Absolute, new FetchByte (3), 4, CycleOption.Add1CycleIfXZero) },
             // STY dp,X		Store Index Register Y to Memory	94	DP Indexed,X		2	4[^2][^8]
             { 0x94, new OpCode (0x94, Instruction.STY, Addressing.DirectPageIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add1CycleIfXZero) },
             // STZ dp		Store Zero to Memory	64	Direct Page		2	3[^1][^2]
-            { 0x64, new OpCode (0x64, Instruction.STZ, Addressing.Direct, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
+            { 0x64, new OpCode (0x64, Instruction.STZ, Addressing.DirectPage, new FetchByte (2), 3, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STZ dp,X		Store Zero to Memory	74	DP Indexed,X		2	4[^1][^2]
             { 0x74, new OpCode (0x74, Instruction.STZ, Addressing.DirectPageIndexedX, new FetchByte (2), 4, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STZ addr		Store Zero to Memory	9C	Absolute		3	4[^1]
@@ -500,11 +500,11 @@ namespace BlazeSnes.Core.Cpu {
             // TDC		Transfer Direct Page Register to 16-bit Accumulator	7B	Implied	N-----Z-	1	2
             { 0x7b, new OpCode (0x7b, Instruction.TDC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TRB dp		Test and Reset Memory Bits Against Accumulator	14	Direct Page	------Z-	2	5[^2][^4]
-            { 0x14, new OpCode (0x14, Instruction.TRB, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x14, new OpCode (0x14, Instruction.TRB, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // TRB addr		Test and Reset Memory Bits Against Accumulator	1C	Absolute	------Z-	3	6[^3]
             { 0x1c, new OpCode (0x1c, Instruction.TRB, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add1CycleIfPageBoundaryOrXRegZero) },
             // TSB dp		Test and Set Memory Bits Against Accumulator	04	Direct Page	------Z-	2	5[^2][^4]
-            { 0x04, new OpCode (0x04, Instruction.TSB, Addressing.Direct, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
+            { 0x04, new OpCode (0x04, Instruction.TSB, Addressing.DirectPage, new FetchByte (2), 5, CycleOption.Add1CycleIfDPRegNonZero | CycleOption.Add2CycleIf16bitaccess) },
             // TSB addr		Test and Set Memory Bits Against Accumulator	0C	Absolute	------Z-	3	6[^4]
             { 0x0c, new OpCode (0x0c, Instruction.TSB, Addressing.Absolute, new FetchByte (3), 6, CycleOption.Add2CycleIf16bitaccess) },
             // TSC		Transfer Stack Pointer to 16-bit Accumulator	3B	Implied	N-----Z-	1	2

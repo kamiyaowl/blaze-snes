@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 using BlazeSnes.Core.Common;
@@ -88,7 +89,7 @@ namespace BlazeSnes.Core.Cpu {
                 if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
             }
             if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
-            if ((Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero)  || Option.HasFlag(CycleOption.Add1CycleIfXZero)) && cpu.X == 0) c += 1;
+            if ((Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) || Option.HasFlag(CycleOption.Add1CycleIfXZero)) && cpu.X == 0) c += 1;
             if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
 
             return c;
@@ -96,7 +97,7 @@ namespace BlazeSnes.Core.Cpu {
         /// <summary>
         /// 今回のオペランド取得で進むPCのbyte数を取得します
         /// FetchByte.AddModeはフラグではないので分岐して取得可
-        /// /// </summary>
+        /// </summary>
         /// <param name="cpu"></param>
         /// <returns></returns>
         public int GetTotalArrangeBytes(in CpuRegister cpu) => this.FetchBytes.Mode switch
@@ -120,30 +121,81 @@ namespace BlazeSnes.Core.Cpu {
 
             // Addressing modeごとに実装
             switch (this.AddressingMode) {
-                case Addressing.Immediate:
-                    return operandBaseAddr; // OpCodeの次のアドレスそのまま
-                case Addressing.Direct:
-                    return (uint)(cpu.DP + bus.Read8(operandBaseAddr));
-                case Addressing.DirectPageIndexedX:
-                    return (uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr));
-                case Addressing.DirectPageIndexedY:
-                    return (uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr));
-                case Addressing.Absolute:
-                    return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr));
-                case Addressing.AbsoluteIndexedX:
-                    return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X));
-                case Addressing.AbsoluteIndexedY:
-                    return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y));
-                case Addressing.AbsoluteLong:
-                    return (uint)(bus.Read24(operandBaseAddr));
-                case Addressing.AbsoluteLongIndexedX:
-                    return (uint)(bus.Read24(operandBaseAddr) + cpu.X);
-                case Addressing.DirectPageIndirect:
-                    var a = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
-                    return (cpu.DataBankAddr | a);
+                case Addressing.Immediate: {
+                        return operandBaseAddr; // OpCodeの次のアドレスそのまま
+                    }
+                case Addressing.DirectPage: {
+                        return (uint)(cpu.DP + bus.Read8(operandBaseAddr));
+                    }
+                case Addressing.DirectPageIndexedX: {
+                        return (uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr));
+                    }
+                case Addressing.DirectPageIndexedY: {
+                        return (uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr));
+                    }
+                case Addressing.DirectPageIndirect: {
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        return (cpu.DataBankAddr | interAddr);
+                    }
+                case Addressing.DirectPageIndirectLong: {
+                        return (uint)(bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr))));
+                    }
+                case Addressing.DirectPageIndexedIndirectX: {
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr) + cpu.X));
+                        return (cpu.DataBankAddr | interAddr);
+                    }
+                case Addressing.DirectPageIndirectIndexedY: {
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        return (uint)(cpu.DataBankAddr | (uint)(interAddr + cpu.Y));
+                    }
+                case Addressing.DirectPageIndirectLongIndexedY: {
+                        var interAddr = bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        return (uint)(interAddr + cpu.Y);
+                    }
+                case Addressing.Absolute: {
+                        return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr));
+                    }
+                case Addressing.AbsoluteIndexedX: {
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X));
+                    }
+                case Addressing.AbsoluteIndexedY: {
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y));
+                    }
+                case Addressing.AbsoluteIndirect: {
+                        var interAddr = (uint)(bus.Read16(operandBaseAddr));
+                        return (uint)(cpu.PageBankAddr | interAddr);
+                    }
+                case Addressing.AbsoluteIndexedIndirectX: {
+                        var interAddr = (uint)(bus.Read16(operandBaseAddr + cpu.X));
+                        return (uint)(cpu.PageBankAddr | interAddr);
+                    }
+                case Addressing.AbsoluteLong: {
+                        return (uint)(bus.Read24(operandBaseAddr));
+                    }
+                case Addressing.AbsoluteLongIndexedX: {
+                        return (uint)(bus.Read24(operandBaseAddr) + cpu.X);
+                    }
+                case Addressing.StackRelative: {
+                        // SPは常に空き領域を示している、ここからのオフセットを1byteで指定(SP自体は変更しない)
+                        var offset = (byte)bus.Read8(operandBaseAddr);
+                        return (uint)checked(cpu.SP - offset);
+                    }
+                case Addressing.ProgramCounterRelative: {
+                        // PCは次の命令位置を指している前提で演算されるため、事前に足しておく
+                        var nextOpcodeAddr = cpu.PC + GetTotalArrangeBytes(cpu);
+                        var offset = (sbyte)bus.Read8(operandBaseAddr);  //TODO : 符号が正しくないかもしれん...
+                        return (uint)(nextOpcodeAddr + offset);
+                    }
+                case Addressing.ProgramCounterRelativeLong: {
+                        // PCは次の命令位置を指している前提で演算されるため、事前に足しておく
+                        var nextOpcodeAddr = cpu.PC + GetTotalArrangeBytes(cpu);
+                        var offset = (short)bus.Read16(operandBaseAddr);  //TODO : 符号が正しくないかもしれん...
+                        return (uint)(nextOpcodeAddr + offset);
+                    }
                 case Addressing.Implied:
                 case Addressing.Accumulator:
-                    throw new ArgumentException("Implied, Accumulatorではアドレス解決できません");
+                case Addressing.BlockMove:
+                    throw new ArgumentException("Implied, Accumulator, BlockMoveではアドレス解決できません");
                 default:
                     throw new NotImplementedException(); // TODO: 全部やる
             }
