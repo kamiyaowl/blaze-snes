@@ -197,7 +197,7 @@ namespace BlazeSnes.Core.Cpu {
                 case Addressing.BlockMove:
                     throw new ArgumentException("Implied, Accumulator, BlockMoveではアドレス解決できません");
                 default:
-                    throw new NotImplementedException(); // TODO: 全部やる
+                    throw new NotImplementedException();
             }
         }
 

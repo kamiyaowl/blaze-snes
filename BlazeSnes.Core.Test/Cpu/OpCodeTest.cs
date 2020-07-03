@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using BlazeSnes.Core.Common;
 using BlazeSnes.Core.Cpu;
+
+using Moq;
 
 using Xunit;
 using Xunit.Sdk;
@@ -93,7 +96,103 @@ namespace BlazeSnes.Core.Test.Cpu {
             Assert.Equal(expectFetchByte, actual);
         }
 
-        // TODO: #39 残りのテストも書く
+        /// <summary>
+        /// あドレッシンモード検証用のパラメータ
+        /// </summary>
+        public class AddressingTestParam {
+            /// <summary>
+            /// 対象のモード
+            /// </summary>
+            /// <value></value>
+            public Addressing Mode { get; set; }
+            /// <summary>
+            /// CPUの状態
+            /// </summary>
+            /// <value></value>
+            public CpuRegister Cpu { get; set; }
+            /// <summary>
+            /// 期待値
+            /// </summary>
+            /// <value></value>
+            public uint ExpectAddr { get; set; }
+            /// <summary>
+            /// 読み出し期待アドレスと、読み出せる結果のペア
+            /// </summary>
+            public IEnumerable<(uint, byte[])> ReadDatas { get; set; }
 
+            public AddressingTestParam() { }
+            public AddressingTestParam(Addressing mode, CpuRegister cpu, uint expect) {
+                this.Mode = mode;
+                this.Cpu = cpu;
+                this.ExpectAddr = expect;
+            }
+            public AddressingTestParam(Addressing mode, CpuRegister cpu, uint expect, IEnumerable<(uint, byte[])> readDatas) {
+                this.Mode = mode;
+                this.Cpu = cpu;
+                this.ExpectAddr = expect;
+                this.ReadDatas = readDatas;
+            }
+
+            /// <summary>
+            /// 引数に渡されたMockに期待アドレスの読み出しを追加します
+            /// </summary>
+            /// <param name="bus"></param>
+            public void Setup(Mock<IBusAccessible> bus) {
+                foreach (var (addr, datas) in ReadDatas ?? Enumerable.Empty<(uint, byte[])>()) {
+                    var setup = bus.Setup(x => x.Read(addr, It.Is<byte[]>(x => x.Length == datas.Length), false));
+                    setup.Callback((uint argAddr, byte[] argData, bool _) => {
+                        // 期待値をコピー
+                        Buffer.BlockCopy(datas, 0, argData, 0, argData.Length);
+                    });
+                    setup.Returns(true);
+                    setup.Verifiable();
+                }
+            }
+        }
+
+        /// <summary>
+        /// アドレッシングモード検証用のテストパラメータ
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<object[]> GetAddrParams() {
+            // Immediate
+            yield return new object[] { new AddressingTestParam(
+                Addressing.Immediate,
+                new CpuRegister(),
+                1
+            )};
+            yield return new object[] { new AddressingTestParam(
+                Addressing.Immediate,
+                new CpuRegister() { PC = 0xa5 },
+                0xa6
+            )};
+            // Direct Page
+            yield return new object[] { new AddressingTestParam(
+                Addressing.DirectPage,
+                new CpuRegister(),
+                0xaa,
+                new (uint, byte[])[] {
+                    (1, new byte[] { 0xaa, }),
+                }
+            )};
+            // TODO: #39 色々増やす
+        }
+
+        /// <summary>
+        /// アドレッシングモードごとのテスト
+        /// </summary>
+        /// <param name="param"></param>
+        [Theory, MemberData(nameof(GetAddrParams))]
+        public void GetAddr(AddressingTestParam param) {
+            // アドレッシング実行時のSystem BusをMockで用意してあげる
+            var bus = new Mock<IBusAccessible>();
+            param.Setup(bus);
+            // Addressing Mode以外適当なOpCodeを生成
+            var opcode = new OpCode(0x00, Instruction.ADC, param.Mode, new FetchByte(1), 1, CycleOption.None);
+
+            // 実行してきた位置チェック
+            var actualAddr = opcode.GetAddr(bus.Object, param.Cpu);
+            Assert.Equal(param.ExpectAddr, actualAddr);
+        }
     }
 }
