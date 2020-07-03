@@ -63,6 +63,11 @@ namespace BlazeSnes.Core.Cpu {
         /// <returns></returns>
         public bool Is16bitIndexAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.X);
         /// <summary>
+        /// ダイレクトページの値をSystemAddrに変換します
+        /// </summary>
+        /// <returns></returns>
+        public uint DirectPageAddr => (uint)this.DP << 8;
+        /// <summary>
         /// データバンクの値をSystemAddrに変換します
         /// </summary>
         /// <returns></returns>
@@ -76,7 +81,7 @@ namespace BlazeSnes.Core.Cpu {
         /// Memory Registerのビット幅を考慮して入出力します
         /// </summary>
         /// <value></value>
-        public ushort AConsideringMemoryReg { 
+        public ushort AConsideringMemoryReg {
             get => Is16bitMemoryAccess ? (ushort)A : (ushort)(A & 0xff);
             set => A = Is16bitMemoryAccess ? value : (ushort)(value & 0xff);
         }
@@ -84,7 +89,7 @@ namespace BlazeSnes.Core.Cpu {
         /// Index Registerのビット幅を考慮して入出力します
         /// </summary>
         /// <value></value>
-        public ushort XConsideringIndexReg { 
+        public ushort XConsideringIndexReg {
             get => Is16bitIndexAccess ? (ushort)X : (ushort)(X & 0xff);
             set => X = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
         }
@@ -92,7 +97,7 @@ namespace BlazeSnes.Core.Cpu {
         /// Index Registerのビット幅を考慮して入出力します
         /// </summary>
         /// <value></value>
-        public ushort YConsideringIndexReg { 
+        public ushort YConsideringIndexReg {
             get => Is16bitIndexAccess ? (ushort)Y : (ushort)(Y & 0xff);
             set => Y = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
         }
