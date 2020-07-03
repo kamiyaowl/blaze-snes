@@ -105,7 +105,7 @@ namespace BlazeSnes.Core.Cpu {
             FetchByte.AddMode.Add1ByteIfMRegZero when cpu.Is16bitMemoryAccess => FetchBytes.Bytes + 1,
             FetchByte.AddMode.Add1ByteIfXRegZero when cpu.Is16bitIndexAccess => FetchBytes.Bytes + 1,
             FetchByte.AddMode.Add1ByteForSignatureByte => FetchBytes.Bytes + 1,
-            _ => throw new ArgumentException("存在しないenum値が指定されています"),
+            _ => FetchBytes.Bytes,
         };
 
         /// <summary>
