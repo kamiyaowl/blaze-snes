@@ -89,7 +89,7 @@ namespace BlazeSnes.Core.Cpu {
                 if (Option.HasFlag(CycleOption.Add2CycleIf16bitaccess)) c += 2;
             }
             if (Option.HasFlag(CycleOption.Add1CycleIfDPRegNonZero) && cpu.DP != 0) c += 1;
-            if ((Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) || Option.HasFlag(CycleOption.Add1CycleIfXZero)) && cpu.X == 0) c += 1;
+            if ((Option.HasFlag(CycleOption.Add1CycleIfPageBoundaryOrXRegZero) || Option.HasFlag(CycleOption.Add1CycleIfXZero)) && cpu.XConsideringIndexReg == 0) c += 1;
             if (Option.HasFlag(CycleOption.Add1CycleIfNativeMode) && !cpu.P.Value.HasFlag(ProcessorStatusFlag.E)) c += 1;
 
             return c;
@@ -128,10 +128,10 @@ namespace BlazeSnes.Core.Cpu {
                         return (uint)(cpu.DP + bus.Read8(operandBaseAddr));
                     }
                 case Addressing.DirectPageIndexedX: {
-                        return (uint)(cpu.DP + cpu.X + bus.Read8(operandBaseAddr));
+                        return (uint)(cpu.DP + cpu.XConsideringIndexReg + bus.Read8(operandBaseAddr));
                     }
                 case Addressing.DirectPageIndexedY: {
-                        return (uint)(cpu.DP + cpu.Y + bus.Read8(operandBaseAddr));
+                        return (uint)(cpu.DP + cpu.YConsideringIndexReg + bus.Read8(operandBaseAddr));
                     }
                 case Addressing.DirectPageIndirect: {
                         var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
@@ -141,39 +141,39 @@ namespace BlazeSnes.Core.Cpu {
                         return (uint)(bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr))));
                     }
                 case Addressing.DirectPageIndexedIndirectX: {
-                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr) + cpu.X));
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr) + cpu.XConsideringIndexReg));
                         return (cpu.DataBankAddr | interAddr);
                     }
                 case Addressing.DirectPageIndirectIndexedY: {
                         var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
-                        return (uint)(cpu.DataBankAddr | (uint)(interAddr + cpu.Y));
+                        return (uint)(cpu.DataBankAddr | (uint)(interAddr + cpu.YConsideringIndexReg));
                     }
                 case Addressing.DirectPageIndirectLongIndexedY: {
                         var interAddr = bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
-                        return (uint)(interAddr + cpu.Y);
+                        return (uint)(interAddr + cpu.YConsideringIndexReg);
                     }
                 case Addressing.Absolute: {
                         return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr));
                     }
                 case Addressing.AbsoluteIndexedX: {
-                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.X));
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.XConsideringIndexReg));
                     }
                 case Addressing.AbsoluteIndexedY: {
-                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.Y));
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.YConsideringIndexReg));
                     }
                 case Addressing.AbsoluteIndirect: {
                         var interAddr = (uint)(bus.Read16(operandBaseAddr));
                         return (uint)(cpu.PageBankAddr | interAddr);
                     }
                 case Addressing.AbsoluteIndexedIndirectX: {
-                        var interAddr = (uint)(bus.Read16(operandBaseAddr + cpu.X));
+                        var interAddr = (uint)(bus.Read16(operandBaseAddr + cpu.XConsideringIndexReg));
                         return (uint)(cpu.PageBankAddr | interAddr);
                     }
                 case Addressing.AbsoluteLong: {
                         return (uint)(bus.Read24(operandBaseAddr));
                     }
                 case Addressing.AbsoluteLongIndexedX: {
-                        return (uint)(bus.Read24(operandBaseAddr) + cpu.X);
+                        return (uint)(bus.Read24(operandBaseAddr) + cpu.XConsideringIndexReg);
                     }
                 case Addressing.StackRelative: {
                         // SPは常に空き領域を示している、ここからのオフセットを1byteで指定(SP自体は変更しない)

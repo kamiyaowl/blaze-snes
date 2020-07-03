@@ -72,5 +72,29 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <returns></returns>
         public uint PageBankAddr => (uint)this.PB << 16;
+        /// <summary>
+        /// Memory Registerのビット幅を考慮して入出力します
+        /// </summary>
+        /// <value></value>
+        public ushort AConsideringMemoryReg { 
+            get => Is16bitMemoryAccess ? (ushort)A : (ushort)(A & 0xff);
+            set => A = Is16bitMemoryAccess ? value : (ushort)(value & 0xff);
+        }
+        /// <summary>
+        /// Index Registerのビット幅を考慮して入出力します
+        /// </summary>
+        /// <value></value>
+        public ushort XConsideringIndexReg { 
+            get => Is16bitIndexAccess ? (ushort)X : (ushort)(X & 0xff);
+            set => X = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
+        }
+        /// <summary>
+        /// Index Registerのビット幅を考慮して入出力します
+        /// </summary>
+        /// <value></value>
+        public ushort YConsideringIndexReg { 
+            get => Is16bitIndexAccess ? (ushort)Y : (ushort)(Y & 0xff);
+            set => Y = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
+        }
     }
 }
