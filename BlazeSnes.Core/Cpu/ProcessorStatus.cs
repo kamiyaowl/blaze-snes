@@ -35,9 +35,9 @@ namespace BlazeSnes.Core.Cpu {
         /// <summary>
         /// 引数で指定されたフラグをセット、及びクリアします
         /// </summary>
-        /// <param name="isSet"></param>
         /// <param name="flags"></param>
-        public void Update(bool isSet, ProcessorStatusFlag flags) {
+        /// <param name="isSet"></param>
+        public void UpdateFlag(ProcessorStatusFlag flags, bool isSet) {
             if (isSet) {
                 this.Value |= flags;
             } else {
@@ -49,19 +49,40 @@ namespace BlazeSnes.Core.Cpu {
         /// 引数に指定されたフラグがセットされていた場合にtrueを返します
         /// </summary>
         /// <param name="flags"></param>
-        public bool HasSet(ProcessorStatusFlag flags) => this.value.HasFlag(flags);
+        public bool HasFlag(ProcessorStatusFlag flags) => this.value.HasFlag(flags);
+
+        /// <summary>
+        /// 計算結果の最上位ビット(符号ビット)が立っていればNegative Flagをセットします
+        /// </summary>
+        /// <param name="srcData"></param>
+        public void UpdateNegativeFlag(ushort srcData, bool is16bitMemoryAccess) {
+            var isSet = is16bitMemoryAccess switch {
+                true => (srcData >> 15) != 0x0,
+                false => ((srcData & 0xff) >> 7) != 0x0,
+            };
+            this.UpdateFlag(ProcessorStatusFlag.N, isSet);
+        }
+
+        /// <summary>
+        /// 計算結果が0であるならZero Flagをセットします
+        /// </summary>
+        /// <param name="srcData"></param>
+        public void UpdateZeroFlag(ushort srcData) {
+            var isSet = (srcData == 0);
+            this.UpdateFlag(ProcessorStatusFlag.Z, isSet);
+        }
 
         public override string ToString() {
             var sb = new StringBuilder();
-            sb.Append(this.HasSet(ProcessorStatusFlag.E) ? "E" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.N) ? "N" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.V) ? "V" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.M) ? "M" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.X) ? "X" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.D) ? "D" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.I) ? "I" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.Z) ? "Z" : "-");
-            sb.Append(this.HasSet(ProcessorStatusFlag.C) ? "C" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.E) ? "E" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.N) ? "N" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.V) ? "V" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.M) ? "M" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.X) ? "X" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.D) ? "D" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.I) ? "I" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.Z) ? "Z" : "-");
+            sb.Append(this.HasFlag(ProcessorStatusFlag.C) ? "C" : "-");
             return sb.ToString();
         }
     }

@@ -1,5 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+
+using BlazeSnes.Core.Common;
 
 namespace BlazeSnes.Core.Cpu {
     /// <summary>
@@ -56,12 +59,12 @@ namespace BlazeSnes.Core.Cpu {
         /// Memory/Acccumulatorの16bit Accessが有効ならtrueを返します
         /// </summary>
         /// <returns></returns>
-        public bool Is16bitMemoryAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.M);
+        public bool Is16bitMemoryAccess => !P.HasFlag(ProcessorStatusFlag.E) && !P.HasFlag(ProcessorStatusFlag.M);
         /// <summary>
         /// Indexに16bit Accesが有効ならtrueを返します
         /// </summary>
         /// <returns></returns>
-        public bool Is16bitIndexAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.X);
+        public bool Is16bitIndexAccess => !P.HasFlag(ProcessorStatusFlag.E) && !P.HasFlag(ProcessorStatusFlag.X);
         /// <summary>
         /// データバンクの値をSystemAddrに変換します
         /// </summary>
@@ -98,12 +101,64 @@ namespace BlazeSnes.Core.Cpu {
         }
 
         /// <summary>
-        /// 引数の値に応じてZero Flagをセットします
+        /// 指定された値をStackにPushする
         /// </summary>
-        /// <param name="srcData"></param>
-        public void UpdateZeroFlag(ushort srcData) {
-            var isSet = (srcData == 0);
-            this.P.Update(isSet, ProcessorStatusFlag.Z);
+        /// <param name="bus"></param>
+        /// <param name="data"></param>
+        public void PushToStack(IBusAccessible bus, byte data) {
+            Debug.Assert(this.SP > 0);
+
+            bus.Write8(this.SP, data);
+            this.SP--;
+        }
+
+        /// <summary>
+        /// Stackから値を取り出します
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <returns></returns>
+        public byte PopFromStack(IBusAccessible bus) {
+            // SPは常に次に書き込める位置を指しているので、先に戻す
+            checked {
+                this.SP++;
+            }
+            return bus.Read8(this.SP);
+        }
+
+        /// <summary>
+        /// 割り込みを発生させます
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="irq"></param>
+        public void InvokeInterrupt(IBusAccessible bus, Interrupt irq) {
+            // Native ModeのReset Vectorは使わない(起動時はEmulation modeになるはず)
+            Debug.Assert((irq != Interrupt.Reset) || (irq == Interrupt.Reset && P.HasFlag(ProcessorStatusFlag.E)));
+            // RESET/NMI以外は割り込み許可レジスタを見に行く
+            if (P.HasFlag(ProcessorStatusFlag.I) && (irq != Interrupt.Reset || irq != Interrupt.NonMaskable)) {
+                return;
+            }
+            // 割り込みの種類によっては必要な値をStackに退避する
+            switch (irq) {
+                case Interrupt.CoProcessor: {
+                    // TODO: 一通り実装する
+                    break;
+                }
+                default: 
+                    throw new ArgumentException($"存在しない割り込み種類が使用されました {irq}");
+            }
+            // lower addrを取得する、
+            // ROM上の配置はLoROM, HiROMで変わるがメモリマップ上はBANK0末端のはず
+            ushort lowAddr = irq switch {
+                Interrupt.CoProcessor => 0x0fe4,
+                Interrupt.Abort => 0x0fe6,
+                Interrupt.NonMaskable => 0x0fe8,
+                Interrupt.Reset => 0x0fea,
+                Interrupt.OtherIrq => 0x0fec,
+                _ => throw new ArgumentException($"存在しないか定義されていない割り込み種類です {irq}"),
+            };
+            // 取得したPCに飛ばす
+            var dstAddr = bus.Read16(lowAddr);
+            this.PC = dstAddr;
         }
     }
 }

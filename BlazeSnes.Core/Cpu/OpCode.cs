@@ -232,7 +232,7 @@ namespace BlazeSnes.Core.Cpu {
                     var srcData = readFromBus(srcAddr);
                     cpu.AConsideringMemoryReg = srcData;
                     // CPU Flag, PCを更新
-                    cpu.UpdateZeroFlag(srcData);
+                    cpu.P.UpdateZeroFlag(srcData);
                     cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                     break;
                 }

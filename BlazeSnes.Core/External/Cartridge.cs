@@ -15,6 +15,7 @@ namespace BlazeSnes.Core.External {
 
         /// <summary>
         /// $00:xFB0 ~ $00:FFDF までの情報を格納します
+        /// TODO: ROM全域マッピングに置き換えて, romRegistrationDataを削除する
         /// </summary>
         protected byte[] romRegistrationData;
 
@@ -35,6 +36,7 @@ namespace BlazeSnes.Core.External {
 
         /// <summary>
         /// $00:xFE0 ~ $00:xFFF までの情報を格納します
+        /// TODO: ROM全域マッピングに置き換えて, interruptVectorDataを削除する
         /// </summary>
         protected byte[] interruptVectorData;
 
@@ -89,21 +91,6 @@ namespace BlazeSnes.Core.External {
                 // TODO: 残りのデータ
             }
         }
-
-        public InterruptVector CreateInterruptVector() => new InterruptVector() {
-            CopAddrInNative = this.CopAddrInNative,
-            BreakAddrInNative = this.BreakAddrInNative,
-            AbortAddrInNative = this.AbortAddrInNative,
-            NmiAddrInNative = this.NmiAddrInNative,
-            ResetAddrInNative = this.ResetAddrInNative,
-            IrqAddrInNative = this.IrqAddrInNative,
-            CopAddrInEmulation = this.CopAddrInEmulation,
-            BreakAddrInEmulation = this.BreakAddrInEmulation,
-            AbortAddrInEmulation = this.AbortAddrInEmulation,
-            NmiAddrInEmulation = this.NmiAddrInEmulation,
-            ResetAddrInEmulation = this.ResetAddrInEmulation,
-            IrqAddrInEmulation = this.IrqAddrInEmulation,
-        };
 
         /// <summary>
         /// ROM情報を読み取って展開します

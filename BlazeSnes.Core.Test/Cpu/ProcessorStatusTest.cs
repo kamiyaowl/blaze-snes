@@ -15,15 +15,15 @@ namespace BlazeSnes.Core.Test.Cpu {
         [Fact]
         public void Initial() {
             var p = new ProcessorStatus();
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.E));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.N));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.V));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.M));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.X));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.D));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.I));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.Z));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.C));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.E));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.N));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.V));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.M));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.X));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.D));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.I));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.Z));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.C));
         }
 
         /// <summary>
@@ -38,15 +38,15 @@ namespace BlazeSnes.Core.Test.Cpu {
             p.Value |= ProcessorStatusFlag.I;
             p.Value |= ProcessorStatusFlag.C;
 
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.E));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.N));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.V));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.M));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.X));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.D));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.I));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.Z));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.C));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.E));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.N));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.V));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.M));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.X));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.D));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.I));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.Z));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.C));
         }
         /// <summary>
         /// 値経由で値の設定が可能か確認
@@ -56,57 +56,56 @@ namespace BlazeSnes.Core.Test.Cpu {
             var p = new ProcessorStatus();
             p.Value |= (ProcessorStatusFlag)0x8055;
 
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.E));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.N));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.V));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.M));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.X));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.D));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.I));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.Z));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.C));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.E));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.N));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.V));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.M));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.X));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.D));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.I));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.Z));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.C));
         }
         /// <summary>
         /// Enum/Literal両方使って交互に上げ下げしてみる
         /// </summary>
         [Fact]
-        public void Mixed() {
+        public void UpdateFlag() {
             var p = new ProcessorStatus();
             // All set
             p.Value |= (ProcessorStatusFlag)0x00aa;
-            p.Value |= ProcessorStatusFlag.E;
-            p.Value |= ProcessorStatusFlag.V;
-            p.Value |= ProcessorStatusFlag.X;
-            p.Value |= ProcessorStatusFlag.I;
-            p.Value |= ProcessorStatusFlag.C;
+            p.UpdateFlag(ProcessorStatusFlag.E, true);
+            p.UpdateFlag(ProcessorStatusFlag.V, true);
+            p.UpdateFlag(ProcessorStatusFlag.X, true);
+            p.UpdateFlag(ProcessorStatusFlag.I, true);
+            p.UpdateFlag(ProcessorStatusFlag.C, true);
 
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.E));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.N));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.V));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.M));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.X));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.D));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.I));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.Z));
-            Assert.True(p.Value.HasFlag(ProcessorStatusFlag.C));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.E));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.N));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.V));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.M));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.X));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.D));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.I));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.Z));
+            Assert.True(p.HasFlag(ProcessorStatusFlag.C));
 
             // All clear
             p.Value &= (ProcessorStatusFlag)0x00aa;
-            p.Value &= ~(ProcessorStatusFlag.N);
-            p.Value &= ~(ProcessorStatusFlag.M);
-            p.Value &= ~(ProcessorStatusFlag.D);
-            p.Value &= ~(ProcessorStatusFlag.Z);
+            p.UpdateFlag(ProcessorStatusFlag.N, false);
+            p.UpdateFlag(ProcessorStatusFlag.M, false);
+            p.UpdateFlag(ProcessorStatusFlag.D, false);
+            p.UpdateFlag(ProcessorStatusFlag.Z, false);
 
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.E));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.N));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.V));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.M));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.X));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.D));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.I));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.Z));
-            Assert.False(p.Value.HasFlag(ProcessorStatusFlag.C));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.E));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.N));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.V));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.M));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.X));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.D));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.I));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.Z));
+            Assert.False(p.HasFlag(ProcessorStatusFlag.C));
         }
-
     }
 }
