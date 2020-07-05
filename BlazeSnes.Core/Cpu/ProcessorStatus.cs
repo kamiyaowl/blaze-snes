@@ -32,17 +32,36 @@ namespace BlazeSnes.Core.Cpu {
             this.Value = flag;
         }
 
+        /// <summary>
+        /// 引数で指定されたフラグをセット、及びクリアします
+        /// </summary>
+        /// <param name="isSet"></param>
+        /// <param name="flags"></param>
+        public void Update(bool isSet, ProcessorStatusFlag flags) {
+            if (isSet) {
+                this.Value |= flags;
+            } else {
+                this.Value &= ~flags;
+            }
+        }
+
+        /// <summary>
+        /// 引数に指定されたフラグがセットされていた場合にtrueを返します
+        /// </summary>
+        /// <param name="flags"></param>
+        public bool HasSet(ProcessorStatusFlag flags) => this.value.HasFlag(flags);
+
         public override string ToString() {
             var sb = new StringBuilder();
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.E) ? "E" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.N) ? "N" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.V) ? "V" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.M) ? "M" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.X) ? "X" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.D) ? "D" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.I) ? "I" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.Z) ? "Z" : "-");
-            sb.Append(Value.HasFlag(ProcessorStatusFlag.C) ? "C" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.E) ? "E" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.N) ? "N" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.V) ? "V" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.M) ? "M" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.X) ? "X" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.D) ? "D" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.I) ? "I" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.Z) ? "Z" : "-");
+            sb.Append(this.HasSet(ProcessorStatusFlag.C) ? "C" : "-");
             return sb.ToString();
         }
     }

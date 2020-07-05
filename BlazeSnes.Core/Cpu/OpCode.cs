@@ -213,8 +213,32 @@ namespace BlazeSnes.Core.Cpu {
         public Operand ResolveAddressing(IBusAccessible bus, in CpuRegister cpu, bool isNondestructive = true) =>
             new Operand(this.AddressingMode, this.GetAddr(bus, cpu, isNondestructive), this.GetTotalCycles(cpu), this.GetTotalArrangeBytes(cpu));
 
-        public void Run(IBusAccessible bus, CpuRegister cpu) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="cpu"></param>
+        /// <returns>処理にかかったCPU Clock Cycle数</returns>
+        public int Run(IBusAccessible bus, CpuRegister cpu) {
+            // Memory mode次第で読み出すデータ量が違うのでWrapする
+            Func<uint, ushort> readFromBus = (srcAddr) => cpu.Is16bitMemoryAccess ? bus.Read16(srcAddr) : bus.Read8(srcAddr);
 
+            // 命令を実行, PCは個別に進める必要があるので注意
+            switch (this.Inst) {
+                // Load/Store
+                case Instruction.LDA: {
+                    // 取得した値をA regに読み込み
+                    var srcAddr = this.GetAddr(bus, cpu);
+                    var srcData = readFromBus(srcAddr);
+                    cpu.AConsideringMemoryReg = srcData;
+                    // CPU Flag, PCを更新
+                    cpu.UpdateZeroFlag(srcData);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+            }
+            // 処理にかかったCPU Clock Cycle数を返す
+            return this.GetTotalCycles(cpu);
         }
 
     }

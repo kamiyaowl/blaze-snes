@@ -63,12 +63,6 @@ namespace BlazeSnes.Core.Cpu {
         /// <returns></returns>
         public bool Is16bitIndexAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.X);
         /// <summary>
-        /// ダイレクトページの値をSystemAddrに変換します
-        /// TODO: 不要かもしれない
-        /// </summary>
-        /// <returns></returns>
-        public uint DirectPageAddr => (uint)this.DP << 8;
-        /// <summary>
         /// データバンクの値をSystemAddrに変換します
         /// </summary>
         /// <returns></returns>
@@ -101,6 +95,15 @@ namespace BlazeSnes.Core.Cpu {
         public ushort YConsideringIndexReg {
             get => Is16bitIndexAccess ? (ushort)Y : (ushort)(Y & 0xff);
             set => Y = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
+        }
+
+        /// <summary>
+        /// 引数の値に応じてZero Flagをセットします
+        /// </summary>
+        /// <param name="srcData"></param>
+        public void UpdateZeroFlag(ushort srcData) {
+            var isSet = (srcData == 0);
+            this.P.Update(isSet, ProcessorStatusFlag.Z);
         }
     }
 }
