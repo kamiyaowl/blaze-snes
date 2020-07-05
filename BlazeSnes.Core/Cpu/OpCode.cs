@@ -114,8 +114,9 @@ namespace BlazeSnes.Core.Cpu {
         /// </summary>
         /// <param name="bus">Mmu</param>
         /// <param name="bus">Cpu, 変更は行わない</param>
+        /// <param name="isNondestructive">破壊読み出しを避ける場合はtrue</param>
         /// <returns>読み出し先ベースアドレス</returns>
-        public uint GetAddr(IBusAccessible bus, in CpuRegister cpu) {
+        public uint GetAddr(IBusAccessible bus, in CpuRegister cpu, bool isNondestructive = false) {
             // PCは現在の命令を指した状態で呼ばれるので+1した位置から読む
             var operandBaseAddr = (uint)(cpu.PC + 1);
 
@@ -125,44 +126,44 @@ namespace BlazeSnes.Core.Cpu {
                         return operandBaseAddr; // OpCodeの次のアドレスそのまま
                     }
                 case Addressing.DirectPage: {
-                        return (uint)(cpu.DP + bus.Read8(operandBaseAddr));
+                        return (uint)(cpu.DP + bus.Read8(operandBaseAddr, isNondestructive));
                     }
                 case Addressing.DirectPageIndexedX: {
-                        return (uint)(cpu.DP + (uint)(cpu.XConsideringIndexReg + bus.Read8(operandBaseAddr)));
+                        return (uint)(cpu.DP + (uint)(cpu.XConsideringIndexReg + bus.Read8(operandBaseAddr, isNondestructive)));
                     }
                 case Addressing.DirectPageIndexedY: {
-                        return (uint)(cpu.DP + (uint)(cpu.YConsideringIndexReg + bus.Read8(operandBaseAddr)));
+                        return (uint)(cpu.DP + (uint)(cpu.YConsideringIndexReg + bus.Read8(operandBaseAddr, isNondestructive)));
                     }
                 case Addressing.DirectPageIndirect: {
-                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr, isNondestructive)), isNondestructive);
                         return (cpu.DataBankAddr | interAddr);
                     }
                 case Addressing.DirectPageIndirectLong: {
-                        return (uint)(bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr))));
+                        return (uint)(bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr, isNondestructive)), isNondestructive));
                     }
                 case Addressing.DirectPageIndexedIndirectX: {
-                        var interAddr = bus.Read16((uint)(cpu.DP + (uint)(bus.Read8(operandBaseAddr) + cpu.XConsideringIndexReg)));
+                        var interAddr = bus.Read16((uint)(cpu.DP + (uint)(bus.Read8(operandBaseAddr, isNondestructive) + cpu.XConsideringIndexReg)), isNondestructive);
                         return (cpu.DataBankAddr | interAddr);
                     }
                 case Addressing.DirectPageIndirectIndexedY: {
-                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        var interAddr = bus.Read16((uint)(cpu.DP + bus.Read8(operandBaseAddr, isNondestructive)), isNondestructive);
                         return (uint)(cpu.DataBankAddr | (uint)(interAddr + cpu.YConsideringIndexReg));
                     }
                 case Addressing.DirectPageIndirectLongIndexedY: {
-                        var interAddr = bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr)));
+                        var interAddr = bus.Read24((uint)(cpu.DP + bus.Read8(operandBaseAddr, isNondestructive)), isNondestructive);
                         return (uint)(interAddr + cpu.YConsideringIndexReg);
                     }
                 case Addressing.Absolute: {
-                        return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr));
+                        return (uint)(cpu.DataBankAddr | bus.Read16(operandBaseAddr, isNondestructive));
                     }
                 case Addressing.AbsoluteIndexedX: {
-                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.XConsideringIndexReg));
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr, isNondestructive) + cpu.XConsideringIndexReg));
                     }
                 case Addressing.AbsoluteIndexedY: {
-                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr) + cpu.YConsideringIndexReg));
+                        return (uint)(cpu.DataBankAddr | (uint)(bus.Read16(operandBaseAddr, isNondestructive) + cpu.YConsideringIndexReg));
                     }
                 case Addressing.AbsoluteIndirect: {
-                        var interAddr = (uint)(bus.Read16(operandBaseAddr));
+                        var interAddr = (uint)(bus.Read16(operandBaseAddr, isNondestructive));
                         return (uint)(cpu.PageBankAddr | interAddr);
                     }
                 case Addressing.AbsoluteIndexedIndirectX: {
@@ -170,27 +171,27 @@ namespace BlazeSnes.Core.Cpu {
                         return (uint)(cpu.PageBankAddr | interAddr);
                     }
                 case Addressing.AbsoluteLong: {
-                        return (uint)(bus.Read24(operandBaseAddr));
+                        return (uint)(bus.Read24(operandBaseAddr, isNondestructive));
                     }
                 case Addressing.AbsoluteLongIndexedX: {
-                        return (uint)(bus.Read24(operandBaseAddr) + cpu.XConsideringIndexReg);
+                        return (uint)(bus.Read24(operandBaseAddr, isNondestructive) + cpu.XConsideringIndexReg);
                     }
                 case Addressing.StackRelative: {
                         // SPは常に空き領域を示している、ここからのオフセットを1byteで指定(SP自体は変更しない)
                         // SPはPushするたびに奥のアドレスから手前に伸びる
-                        var offset = (byte)bus.Read8(operandBaseAddr);
+                        var offset = (byte)bus.Read8(operandBaseAddr, isNondestructive);
                         return (uint)checked(cpu.SP + offset);
                     }
                 case Addressing.ProgramCounterRelative: {
                         // PCは次の命令位置を指している前提で演算されるため、事前に足しておく
                         var nextOpcodeAddr = cpu.PC + GetTotalArrangeBytes(cpu);
-                        var offset = (sbyte)bus.Read8(operandBaseAddr);
+                        var offset = (sbyte)bus.Read8(operandBaseAddr, isNondestructive);
                         return (uint)(nextOpcodeAddr + offset);
                     }
                 case Addressing.ProgramCounterRelativeLong: {
                         // PCは次の命令位置を指している前提で演算されるため、事前に足しておく
                         var nextOpcodeAddr = cpu.PC + GetTotalArrangeBytes(cpu);
-                        var offset = (short)bus.Read16(operandBaseAddr);
+                        var offset = (short)bus.Read16(operandBaseAddr, isNondestructive);
                         return (uint)(nextOpcodeAddr + offset);
                     }
                 case Addressing.Implied:
@@ -203,13 +204,18 @@ namespace BlazeSnes.Core.Cpu {
         }
 
         /// <summary>
-        /// アドレッシング解決して、読みだしたいデータアドレス、かかったクロックサイクル、すすめるPCを取得します
+        /// アドレッシング解決して、読みだしたいデータアドレス、かかったクロックサイクル、進めるPCを取得します
+        /// この関数はデバッグ用の解析用途に使用することが目的のため、非破壊読み出しがデフォルトで有効になっています
         /// </summary>
         /// <param name="bus"></param>
         /// <param name="cpu"></param>
         /// <returns></returns>
-        public Operand ResolveAddressing(IBusAccessible bus, in CpuRegister cpu) =>
-            new Operand(this.AddressingMode, this.GetAddr(bus, cpu), this.GetTotalCycles(cpu), this.GetTotalArrangeBytes(cpu));
+        public Operand ResolveAddressing(IBusAccessible bus, in CpuRegister cpu, bool isNondestructive = true) =>
+            new Operand(this.AddressingMode, this.GetAddr(bus, cpu, isNondestructive), this.GetTotalCycles(cpu), this.GetTotalArrangeBytes(cpu));
+
+        public void Run(IBusAccessible bus, CpuRegister cpu) {
+
+        }
 
     }
 }
