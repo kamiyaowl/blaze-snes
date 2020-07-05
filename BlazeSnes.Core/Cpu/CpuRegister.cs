@@ -64,6 +64,7 @@ namespace BlazeSnes.Core.Cpu {
         public bool Is16bitIndexAccess => !this.P.Value.HasFlag(ProcessorStatusFlag.E) && !this.P.Value.HasFlag(ProcessorStatusFlag.X);
         /// <summary>
         /// ダイレクトページの値をSystemAddrに変換します
+        /// TODO: 不要かもしれない
         /// </summary>
         /// <returns></returns>
         public uint DirectPageAddr => (uint)this.DP << 8;
