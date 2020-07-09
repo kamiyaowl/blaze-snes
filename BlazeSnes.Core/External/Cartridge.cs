@@ -13,9 +13,29 @@ namespace BlazeSnes.Core.External {
         public static readonly uint EXTRA_HEADER_SIZE = 512;
         public static readonly int HEADER_SIZE = 0x30;
 
+        /// ROMデータ本体のデバッグアクセス用
+        /// </summary>
+        public byte[] RomData => romData;
+        /// <summary>
+
+        /// <summary>
+        /// ROMのデータ本体
+        /// </summary>
+        protected byte[] romData;
+        
+        /// <summary>
+        /// LoROM: Total 512K
+        /// 70-7d 0000-0fff
+        /// fe-ff 0000-7fff
+        /// 
+        /// HiROM: Total 256K
+        /// 20-3f 6000-7fff
+        /// </summary>
+        protected byte[] sram;
+
         /// <summary>
         /// $00:xFB0 ~ $00:FFDF までの情報を格納します
-        /// TODO: ROM全域マッピングに置き換えて, romRegistrationDataを削除する
+        /// romDataにも同様のデータはあるが、Offsetが面倒なので固定で読み出しておく
         /// </summary>
         protected byte[] romRegistrationData;
 
@@ -36,7 +56,7 @@ namespace BlazeSnes.Core.External {
 
         /// <summary>
         /// $00:xFE0 ~ $00:xFFF までの情報を格納します
-        /// TODO: ROM全域マッピングに置き換えて, interruptVectorDataを削除する
+        /// romDataにも同様のデータはあるが、Offsetが面倒なので固定で読み出しておく
         /// </summary>
         protected byte[] interruptVectorData;
 
@@ -88,7 +108,14 @@ namespace BlazeSnes.Core.External {
                     throw new FileLoadException("Interrupt Vectors Read Error");
                 }
 
-                // TODO: 残りのデータ
+                // ROMの全データを展開
+                this.romData = new byte[br.BaseStream.Length];
+                if (br.BaseStream.Seek(0, SeekOrigin.Begin) != 0) {
+                    throw new FileLoadException("ROM Data Seek Error");
+                }
+                if (br.Read(this.romData, 0, this.romData.Length) != this.romData.Length) {
+                    throw new FileLoadException("ROM Data Read Error");
+                }
             }
         }
 
