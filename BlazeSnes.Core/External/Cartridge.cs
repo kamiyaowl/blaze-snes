@@ -109,8 +109,9 @@ namespace BlazeSnes.Core.External {
                 }
 
                 // ROMの全データを展開
-                this.romData = new byte[br.BaseStream.Length];
-                if (br.BaseStream.Seek(0, SeekOrigin.Begin) != 0) {
+                var offset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
+                this.romData = new byte[br.BaseStream.Length - offset];
+                if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != 0) {
                     throw new FileLoadException("ROM Data Seek Error");
                 }
                 if (br.Read(this.romData, 0, this.romData.Length) != this.romData.Length) {
