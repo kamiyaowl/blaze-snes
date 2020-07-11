@@ -1,13 +1,13 @@
 using System;
 using System.IO;
 
-using BlazeSnes.Core.Cpu;
+using BlazeSnes.Core.Common;
 
 namespace BlazeSnes.Core.External {
     /// <summary>
     /// .smcファイルフォーマットを解釈した内容です
     /// </summary>
-    public class Cartridge {
+    public class Cartridge : IBusAccessible {
         public static readonly uint LOROM_OFFSET = 0x7fb0;
         public static readonly uint HIROM_OFFSET = 0xffb0;
         public static readonly uint EXTRA_HEADER_SIZE = 512;
@@ -188,5 +188,63 @@ namespace BlazeSnes.Core.External {
         }
 
         public override string ToString() => GameTitle;
+
+        /// <summary>
+        /// Busアクセスをローカルアドレスに変換します
+        /// refs: https://en.wikibooks.org/wiki/Super_NES_Programming/SNES_memory_map
+        /// 
+        /// Cartridge ROM/RAM
+        /// 00-3f: 8000-ffff: WS1 LoROM  2048Kbytes
+        /// 40-7f: 0000-ffff: WS1 HiROM  3968Kbytes
+        /// 80-bf: 8000-ffff: WS2 LoROM  2048Kbytes
+        /// c0-ff: 0000-ffff: WS2 HiROM  3968Kbytes
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <returns></returns>
+        public int ConvertToLocalAddr(uint addr) {
+            var bank = (addr >> 16) & 0xff;
+            var offset = (addr & 0xffff);
+
+            if (IsLoRom) {
+                // 00-3f(mirror 80-bf): 8000-ffff => 000000-1fffff
+                // 40-6f(mirror c0-ef): 0000-7fff => 200000-37ffff
+                // 40-6f(mirror c0-ef): 8000-ffff => 200000-37ffff
+                
+                // 70-7d(mirror f0-fd) :0000-7fff => cartrdige sram(mode 20 448KB)
+                // 70-7d(mirror f0-fd) :8000-ffff => 380000-3effff
+
+                // fe-ff: 0000-7fff => cartridge sram(mode 20 64KB)
+                // fe-ff: 8000-ffff => 3f0000-3fffff
+            } else {
+                // 00-1f(mirror 80-9f): 8000-ffff => 000000-1fffff
+                // 20-3f(mirror 7e)   : 6000-7fff => Cartridge SRAM 8KB
+                // 20-3f(mirror a0-bf): 8000-ffff => 208000-3fffff
+                // 40-7d(mirror c0-fd): 8000-ffff => 000000-3dffff : bankごと010000刻み(ほかは8000刻み)
+                // fe-ff              : 0000-ffff => 3e0000-3fffff : bankごと010000刻み(ほかは8000刻み)
+            }
+            throw new NotImplementedException(); // TODO: 実装する #62
+        }
+
+        public bool Read(uint addr, byte[] data, bool isNondestructive = false) => 
+            IsLoRom ? ReadLoRom(addr, data, isNondestructive) : ReadHiRom(addr, data, isNondestructive);
+
+        private bool ReadLoRom(uint addr, byte[] data, bool isNondestructive) {
+            throw new NotImplementedException();
+        }
+
+        private bool ReadHiRom(uint addr, byte[] data, bool isNondestructive) {
+            throw new NotImplementedException();
+        }
+
+        public bool Write(uint addr, in byte[] data) =>
+            IsLoRom ? WriteLoRom(addr, data) : WriteHiRom(addr, data);
+
+        private bool WriteHiRom(uint addr, byte[] data) {
+            throw new NotImplementedException();
+        }
+
+        private bool WriteLoRom(uint addr, byte[] data) {
+            throw new NotImplementedException();
+        }
     }
 }
