@@ -12,6 +12,9 @@ namespace BlazeSnes.Core.External {
         public static readonly uint HIROM_OFFSET = 0xffb0;
         public static readonly uint EXTRA_HEADER_SIZE = 512;
         public static readonly int HEADER_SIZE = 0x30;
+        public static readonly uint MODE20_SRAM1_SIZE = 448 * 1024;
+        public static readonly uint MODE20_SRAM2_SIZE = 64 * 1024;
+        public static readonly uint MODE21_SRAM_SIZE = 256 * 1024;
 
         /// ROMデータ本体のデバッグアクセス用
         /// </summary>
@@ -24,14 +27,20 @@ namespace BlazeSnes.Core.External {
         protected byte[] romData;
         
         /// <summary>
-        /// LoROM: Total 512K
+        /// LoROM Mode 20 SRAM 448KB
         /// 70-7d 0000-0fff
-        /// fe-ff 0000-7fff
-        /// 
-        /// HiROM: Total 256K
+        /// </summary>
+        protected byte[] mode20sram1;
+        /// <summary>
+        /// LoROM Mode 20 SRAM 64KB
+        /// fe-ff 0000-7fff 64KB
+        /// </summary>
+        protected byte[] mode20sram2;
+        /// <summary>
+        /// HiROM: Mode 21 SRAM 256K(Mappingできてるのいは8Kだけっぽい)
         /// 20-3f 6000-7fff
         /// </summary>
-        protected byte[] sram;
+        protected byte[] mode21sram;
 
         /// <summary>
         /// $00:xFB0 ~ $00:FFDF までの情報を格納します
@@ -116,6 +125,14 @@ namespace BlazeSnes.Core.External {
                 }
                 if (br.Read(this.romData, 0, this.romData.Length) != this.romData.Length) {
                     throw new FileLoadException("ROM Data Read Error");
+                }
+
+                // Cartridge SRAMを初期化
+                if (IsLoRom) {
+                    mode20sram1 = new byte[MODE20_SRAM1_SIZE];
+                    mode20sram2 = new byte[MODE20_SRAM2_SIZE];
+                } else {
+                    mode21sram = new byte[MODE21_SRAM_SIZE];
                 }
             }
         }
