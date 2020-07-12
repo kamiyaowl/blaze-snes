@@ -259,26 +259,49 @@ namespace BlazeSnes.Core.External {
             }
         }
 
-        public bool Read(uint addr, byte[] data, bool isNondestructive = false) => 
-            IsLoRom ? ReadLoRom(addr, data, isNondestructive) : ReadHiRom(addr, data, isNondestructive);
+        /// <summary>
+        /// enumの値から実Bufferを取得します
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected byte[] GetTargetBuffer(TargetDevice target) => target switch {
+                TargetDevice.Rom => this.romData,
+                TargetDevice.Mode20Sram1 => this.mode20sram1,
+                TargetDevice.Mode20Sram2 => this.mode20sram2,
+                TargetDevice.Mode21Sram => this.mode21sram,
+                _ => throw new ArgumentException($"存在しないTargetが指定されました ${target}")
+            };
 
-        private bool ReadLoRom(uint addr, byte[] data, bool isNondestructive) {
-            throw new NotImplementedException();
+        /// <summary>
+        /// 引数で指定されたアドレスの内容を配列に内容を読み出します
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="data"></param>
+        /// <param name="isNondestructive"></param>
+        /// <returns></returns>
+        public bool Read(uint addr, byte[] data, bool isNondestructive = false) {
+            // 書き込み先とOffsetを解決
+            var (target, localAddr) = ConvertToLocalAddr(addr);
+            var targetBuf = GetTargetBuffer(target);
+            // 引数の配列に内容をCopy
+            Buffer.BlockCopy(targetBuf, (int)localAddr, data, 0, data.Length);
+            return true;
         }
 
-        private bool ReadHiRom(uint addr, byte[] data, bool isNondestructive) {
-            throw new NotImplementedException();
-        }
 
-        public bool Write(uint addr, in byte[] data) =>
-            IsLoRom ? WriteLoRom(addr, data) : WriteHiRom(addr, data);
-
-        private bool WriteHiRom(uint addr, byte[] data) {
-            throw new NotImplementedException();
-        }
-
-        private bool WriteLoRom(uint addr, byte[] data) {
-            throw new NotImplementedException();
+        /// <summary>
+        /// 引数で指定されたアドレスに、指定されたデータを書き込みます
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public bool Write(uint addr, in byte[] data) {
+            // 書き込み先とOffsetを解決
+            var (target, localAddr) = ConvertToLocalAddr(addr);
+            var targetBuf = GetTargetBuffer(target);
+            // 引数の配列に内容をCopy
+            Buffer.BlockCopy(data, 0, targetBuf, (int)localAddr, data.Length);
+            return true;
         }
     }
 }
