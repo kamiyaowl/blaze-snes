@@ -218,8 +218,8 @@ namespace BlazeSnes.Core.External {
             if (IsLoRom) {
                 return bank switch {
                     // 00-3f(mirror 80-bf): 8000-ffff => 000000-1fffff
-                    var b when (b <= 0x3f) => (TargetDevice.Rom, (b * 0x8000) + offset),
-                    var b when ((0x80 <= b) && (b <= 0xbf)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + offset),
+                    var b when (b <= 0x3f) => (TargetDevice.Rom, (b * 0x8000) + (offset - 0x8000)),
+                    var b when ((0x80 <= b) && (b <= 0xbf)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + (offset & 0x7fff)),
                     // 40-6f(mirror c0-ef): 0000-7fff => 200000-37ffff
                     // 40-6f(mirror c0-ef): 8000-ffff => 200000-37ffff
                     var b when (b <= 0x6f) => (TargetDevice.Rom, 0x200000 + ((b - 0x40) * 0x8000) + (offset & 0x7fff)),
@@ -240,8 +240,8 @@ namespace BlazeSnes.Core.External {
             } else {
                 return bank switch {
                     // 00-1f(mirror 80-9f): 8000-ffff => 000000-1fffff
-                    var b when (b <= 0x1f) => (TargetDevice.Rom, (b * 0x8000) + offset),
-                    var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + offset),
+                    var b when (b <= 0x1f) => (TargetDevice.Rom, (b * 0x8000) + (offset & 0x7fff)),
+                    var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + (offset & 0x7fff)),
                     // 20-3f(mirror a0-bf): 6000-7fff => Cartridge SRAM 8KB
                     var b when (b <= 0x3f) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0x20) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
                     var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0xa0) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み

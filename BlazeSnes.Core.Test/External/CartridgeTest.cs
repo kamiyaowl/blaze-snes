@@ -14,6 +14,21 @@ namespace BlazeSnes.Core.Test.External {
         static readonly string SAMPLE_PATH = @"../../../../assets/roms/helloworld/sample1.smc";
 
         /// <summary>
+        /// 最低限のROM Dataを作ります。CheckSumにしか値がセットされていません。
+        /// </summary>
+        /// <param name="isLowRom"></param>
+        /// <param name="hasHeader"></param>
+        /// <returns></returns>
+        public static byte[] CreateRomData(bool isLowRom, bool hasHeader) {
+            var headerOffset = hasHeader ? Cartridge.EXTRA_HEADER_SIZE : 0;
+            var src = new byte[headerOffset + (isLowRom ? 0x8000 : 0x10000)];
+            var checkSumBaseAddr = headerOffset + (isLowRom ? Cartridge.LOROM_OFFSET : Cartridge.HIROM_OFFSET) + 0x2e;
+            src[headerOffset + checkSumBaseAddr] = 0xff;
+            src[headerOffset + checkSumBaseAddr + 1] = 0xff;
+            return src;
+        }
+
+        /// <summary>
         /// テストするROMのパス一覧
         /// </summary>
         /// <returns></returns>
@@ -50,6 +65,43 @@ namespace BlazeSnes.Core.Test.External {
             // verify
             var romBinary = File.ReadAllBytes(path);
             Assert.Equal(romBinary, cartridge.RomData);
+        }
+
+        /// <summary>
+        /// ConvertToLocalAddr のテスト期待値
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<object[]> GetConvertToLocalAddrParams() {
+            // LoRom
+            yield return new object[]{ true, 0x00_8000, Cartridge.TargetDevice.Rom, 0x000000 };
+            //TODO: 一通り作る #78
+            // HiRom
+            yield return new object[]{ false, 0x00_8000, Cartridge.TargetDevice.Rom, 0x000000 };
+            //TODO: 一通り作る #78
+        }
+
+        /// <summary>
+        /// Cartridge内のアドレス変換を検証します
+        /// </summary>
+        /// <param name="isLowRom"></param>
+        /// <param name="addr"></param>
+        /// <param name="expectTarget"></param>
+        /// <param name="expectLocalAddr"></param>
+        [Theory, MemberData(nameof(GetConvertToLocalAddrParams))]
+        public void ConvertToLocalAddr(bool isLowRom, uint addr, Cartridge.TargetDevice expectTarget, uint expectLocalAddr) {
+            // CheckSum/CheckSumComplementが一致するようなデータを作る
+            Cartridge cartridge;
+            var romData = CreateRomData(isLowRom, false);
+            using(var stream = new MemoryStream(romData)) {
+                cartridge = new Cartridge(stream);
+            }
+            // 一応ROM Typeが一致することを確認
+            Assert.Equal(isLowRom, cartridge.IsLoRom);
+            Assert.False(cartridge.HasHeaderOffset);
+            // 変換する関数だけ叩いて期待値チェック
+            var (target, localAddr) = cartridge.ConvertToLocalAddr(addr);
+            Assert.Equal(expectTarget, target);
+            Assert.Equal(expectLocalAddr, localAddr);
         }
     }
 }
