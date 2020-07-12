@@ -26,6 +26,7 @@ namespace BlazeSnes.Core.Common {
     /// <summary>
     /// IBusAccessibleの拡張メソッド
     /// Read8/16/32などをおいているのはLong AccessなどでRead8を複数回やられるたびにアドレス解決するとパフォーマンス上問題があるため
+    /// TODO: 速度上問題があればstackallocに置き換える
     /// </summary>
     public static class BusAccessibleExtension {
         /// <summary>
