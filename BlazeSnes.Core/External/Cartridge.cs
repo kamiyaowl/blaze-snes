@@ -220,18 +220,18 @@ namespace BlazeSnes.Core.External {
 
         private static (TargetDevice, uint) ConvertToHiRomLocalAddr(uint addr, uint bank, uint offset) => bank switch {
                 // 00-1f(mirror 80-9f): 8000-ffff => 000000-1fffff
-                var b when (b <= 0x1f) => (TargetDevice.Rom, (b * 0x8000) + (offset & 0x7fff)),
-                var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + (offset & 0x7fff)),
+                var b when (b <= 0x1f) => (TargetDevice.Rom, 0x8000 + (b * 0x10000) + (offset & 0x7fff)),
+                var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, 0x8000 + ((b - 0x80) * 0x10000) + (offset & 0x7fff)),
                 // 20-3f(mirror a0-bf): 6000-7fff => Cartridge SRAM 8KB
                 var b when (b <= 0x3f) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0x20) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
                 var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0xa0) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
-                                                                                                                                                                               // 20-3f(mirror a0-bf): 8000-ffff => 208000-3fffff
-                var b when (b <= 0x3f) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0x20) * 0x8000) + (offset - 0x8000)),
-                var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0xa0) * 0x8000) + (offset - 0x8000)),
-                // 40-7d(mirror c0-fd): 8000-ffff => 000000-3dffff : bankごと010000刻み(ほかは8000刻み)
-                var b when (b <= 0x7d) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, ((b - 0x40) * 0x10000) + (offset - 0x8000)),
-                var b when ((0xc0 <= b) && (b <= 0xfd)) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, ((b - 0xc0) * 0x10000) + (offset - 0x8000)),
-                // fe-ff              : 0000-ffff => 3e0000-3fffff : bankごと010000刻み(ほかは8000刻み)
+                // 20-3f(mirror a0-bf): 8000-ffff => 208000-3fffff
+                var b when (b <= 0x3f) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0x20) * 0x10000) + (offset - 0x8000)),
+                var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0xa0) * 0x10000) + (offset - 0x8000)),
+                // 40-7d(mirror c0-fd): 0000-ffff => 000000-3dffff
+                var b when (b <= 0x7d) => (TargetDevice.Rom, ((b - 0x40) * 0x10000) + offset),
+                var b when ((0xc0 <= b) && (b <= 0xfd)) => (TargetDevice.Rom, ((b - 0xc0) * 0x10000) + offset),
+                // fe-ff              : 0000-ffff => 3e0000-3fffff
                 var b when (b <= 0xff) => (TargetDevice.Rom, (0x3e0000 + (b - 0xfe) * 0x10000) + offset),
                 // 範囲外
                 _ => throw new ArgumentOutOfRangeException($"不正な範囲アクセス ${addr:x}"),
