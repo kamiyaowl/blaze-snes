@@ -5,9 +5,11 @@ using System.Linq;
 
 using BlazeSnes.Core.Cpu;
 using BlazeSnes.Core.External;
+using BlazeSnes.Core.Common;
 
 using Xunit;
 using Xunit.Sdk;
+using System.Reflection;
 
 namespace BlazeSnes.Core.Test.External {
     public class CartridgeTest {
@@ -64,7 +66,7 @@ namespace BlazeSnes.Core.Test.External {
             }
             // verify
             var romBinary = File.ReadAllBytes(path);
-            Assert.Equal(romBinary, cartridge.RomData);
+            Assert.Equal(romBinary, cartridge.RomData.Take(romBinary.Length)); // Lo/Hi関わらず最大サイズでMapしてあるので比較範囲は狭めておく
         }
 
         /// <summary>
@@ -424,5 +426,39 @@ namespace BlazeSnes.Core.Test.External {
             Assert.Equal(expectTarget, target);
             Assert.Equal(expectLocalAddr, localAddr);
         }
+
+        /// <summary>
+        /// CartridgeへのWrite/Readで期待通りの値が帰ってくること、ROMの期待した場所に書き込みがなされていることを確認する
+        /// </summary>
+        /// <param name="isLowRom"></param>
+        /// <param name="addr"></param>
+        /// <param name="expectTarget"></param>
+        /// <param name="expectLocalAddr"></param>
+        [Theory, MemberData(nameof(GetConvertToLocalAddrParams))]
+        public void WriteRead(bool isLowRom, uint addr, Cartridge.TargetDevice expectTarget, uint expectLocalAddr) {
+            // CheckSum/CheckSumComplementが一致するようなデータを作る
+            Cartridge cartridge;
+            var romData = CreateRomData(isLowRom, false);
+            using(var stream = new MemoryStream(romData)) {
+                cartridge = new Cartridge(stream);
+            }
+            // 一応ROM Typeが一致することを確認
+            Assert.Equal(isLowRom, cartridge.IsLoRom);
+            Assert.False(cartridge.HasHeaderOffset);
+            
+            // 適当なデータを書いて読み出す
+            byte expectData = 0xa5;
+            cartridge.Write8(addr, expectData);
+            var data = cartridge.Read8(addr);
+            Assert.Equal(expectData, data);
+
+            // Cartridge内部変数でも期待位置に書かれているか確認する
+            byte[] expectTargetBuffer = 
+                cartridge.GetType()
+                    .GetMethod("GetTargetBuffer", BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Invoke(cartridge, new object[] {expectTarget}) as byte[]; // private methodなので強引に呼び出し
+            Assert.Equal(expectData, expectTargetBuffer[expectLocalAddr]);
+        }
+
     }
 }

@@ -12,6 +12,7 @@ namespace BlazeSnes.Core.External {
         public static readonly uint HIROM_OFFSET = 0xffb0;
         public static readonly uint EXTRA_HEADER_SIZE = 512;
         public static readonly int HEADER_SIZE = 0x30;
+        public static readonly int ROM_SIZE = 0x40_0000; // high romに合わせた最大
         public static readonly uint MODE20_SRAM1_SIZE = 448 * 1024;
         public static readonly uint MODE20_SRAM2_SIZE = 64 * 1024;
         public static readonly uint MODE21_SRAM_SIZE = 256 * 1024;
@@ -129,11 +130,11 @@ namespace BlazeSnes.Core.External {
 
                 // ROMの全データを展開
                 var offset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
-                this.romData = new byte[br.BaseStream.Length - offset];
+                this.romData = new byte[ROM_SIZE];
                 if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != 0) {
                     throw new FileLoadException("ROM Data Seek Error");
                 }
-                if (br.Read(this.romData, 0, this.romData.Length) != this.romData.Length) {
+                if (br.Read(this.romData, 0, this.romData.Length) != (br.BaseStream.Length - offset)) {
                     throw new FileLoadException("ROM Data Read Error");
                 }
 
