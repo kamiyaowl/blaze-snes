@@ -23,3 +23,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./BlazeSnes/bin/Release/netstandard2.1/publish/wwwroot/
+        force_orphan: true
