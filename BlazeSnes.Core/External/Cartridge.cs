@@ -36,7 +36,7 @@ namespace BlazeSnes.Core.External {
         /// ROMのデータ本体
         /// </summary>
         protected byte[] romData;
-        
+
         /// <summary>
         /// LoROM Mode 20 SRAM 448KB
         /// 70-7d 0000-0fff
@@ -216,62 +216,65 @@ namespace BlazeSnes.Core.External {
             var bank = (addr >> 16) & 0xff;
             var offset = (addr & 0xffff);
 
-            return (IsLoRom) ? ConvertToLoRomLocalAddr(addr, bank, offset) :  ConvertToHiRomLocalAddr(addr, bank, offset);
+            return (IsLoRom) ? ConvertToLoRomLocalAddr(addr, bank, offset) : ConvertToHiRomLocalAddr(addr, bank, offset);
         }
 
-        private static (TargetDevice, uint) ConvertToHiRomLocalAddr(uint addr, uint bank, uint offset) => bank switch {
-                // 00-1f(mirror 80-9f): 8000-ffff => 000000-1fffff
-                var b when (b <= 0x1f) => (TargetDevice.Rom, 0x8000 + (b * 0x10000) + (offset & 0x7fff)),
-                var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, 0x8000 + ((b - 0x80) * 0x10000) + (offset & 0x7fff)),
-                // 20-3f(mirror a0-bf): 6000-7fff => Cartridge SRAM 8KB
-                var b when (b <= 0x3f) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0x20) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
-                var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0xa0) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
-                // 20-3f(mirror a0-bf): 8000-ffff => 208000-3fffff
-                var b when (b <= 0x3f) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0x20) * 0x10000) + (offset - 0x8000)),
-                var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0xa0) * 0x10000) + (offset - 0x8000)),
-                // 40-7d(mirror c0-fd): 0000-ffff => 000000-3dffff
-                var b when (b <= 0x7d) => (TargetDevice.Rom, ((b - 0x40) * 0x10000) + offset),
-                var b when ((0xc0 <= b) && (b <= 0xfd)) => (TargetDevice.Rom, ((b - 0xc0) * 0x10000) + offset),
-                // fe-ff              : 0000-ffff => 3e0000-3fffff
-                var b when (b <= 0xff) => (TargetDevice.Rom, (0x3e0000 + (b - 0xfe) * 0x10000) + offset),
-                // 範囲外
-                _ => throw new ArgumentOutOfRangeException($"不正な範囲アクセス ${addr:x}"),
-            };
+        private static (TargetDevice, uint) ConvertToHiRomLocalAddr(uint addr, uint bank, uint offset) => bank switch
+        {
+            // 00-1f(mirror 80-9f): 8000-ffff => 000000-1fffff
+            var b when (b <= 0x1f) => (TargetDevice.Rom, 0x8000 + (b * 0x10000) + (offset & 0x7fff)),
+            var b when ((0x80 <= b) && (b <= 0x9f)) => (TargetDevice.Rom, 0x8000 + ((b - 0x80) * 0x10000) + (offset & 0x7fff)),
+            // 20-3f(mirror a0-bf): 6000-7fff => Cartridge SRAM 8KB
+            var b when (b <= 0x3f) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0x20) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
+            var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x6000 <= offset) && (offset <= 0x7fff)) => (TargetDevice.Mode21Sram, ((b - 0xa0) * 0x2000) + (offset - 0x6000)), // offsetが0x2000刻み
+                                                                                                                                                                           // 20-3f(mirror a0-bf): 8000-ffff => 208000-3fffff
+            var b when (b <= 0x3f) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0x20) * 0x10000) + (offset - 0x8000)),
+            var b when ((0xa0 <= b) && (b <= 0xbf)) && ((0x8000 <= offset) && (offset <= 0xffff)) => (TargetDevice.Rom, (0x208000 + (b - 0xa0) * 0x10000) + (offset - 0x8000)),
+            // 40-7d(mirror c0-fd): 0000-ffff => 000000-3dffff
+            var b when (b <= 0x7d) => (TargetDevice.Rom, ((b - 0x40) * 0x10000) + offset),
+            var b when ((0xc0 <= b) && (b <= 0xfd)) => (TargetDevice.Rom, ((b - 0xc0) * 0x10000) + offset),
+            // fe-ff              : 0000-ffff => 3e0000-3fffff
+            var b when (b <= 0xff) => (TargetDevice.Rom, (0x3e0000 + (b - 0xfe) * 0x10000) + offset),
+            // 範囲外
+            _ => throw new ArgumentOutOfRangeException($"不正な範囲アクセス ${addr:x}"),
+        };
 
-        private static (TargetDevice, uint) ConvertToLoRomLocalAddr(uint addr, uint bank, uint offset) => bank switch {
-                // 00-3f(mirror 80-bf): 8000-ffff => 000000-1fffff
-                var b when (b <= 0x3f) => (TargetDevice.Rom, (b * 0x8000) + (offset - 0x8000)),
-                var b when ((0x80 <= b) && (b <= 0xbf)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + (offset & 0x7fff)),
-                // 40-6f(mirror c0-ef): 0000-7fff => 200000-37ffff
-                // 40-6f(mirror c0-ef): 8000-ffff => 200000-37ffff
-                var b when (b <= 0x6f) => (TargetDevice.Rom, 0x200000 + ((b - 0x40) * 0x8000) + (offset & 0x7fff)),
-                var b when ((0xc0 <= b) && (b <= 0xef)) => (TargetDevice.Rom, (0x200000 + (b - 0xc0) * 0x8000) + (offset & 0x7fff)),
-                // 70-7d(mirror f0-fd) :0000-7fff => cartrdige sram(mode 20 448KB)
-                var b when ((b <= 0x7d) && (offset < 0x8000)) => (TargetDevice.Mode20Sram1, ((b - 0x70) * 0x8000) + offset),
-                var b when (((0xf0 <= b) && (b <= 0xfd)) && (offset < 0x8000)) => (TargetDevice.Mode20Sram1, ((b - 0xf0) * 0x8000) + offset),
-                // 70-7d(mirror f0-fd) :8000-ffff => 380000-3effff
-                var b when (b <= 0x7d) => (TargetDevice.Rom, (0x380000 + (b - 0x70) * 0x8000) + (offset & 0x7fff)),
-                var b when ((0xf0 <= b) && (b <= 0xfd)) => (TargetDevice.Rom, (0x380000 + (b - 0xf0) * 0x8000) + (offset & 0x7fff)),
-                // fe-ff: 0000-7fff => cartridge sram(mode 20 64KB)
-                var b when ((b <= 0xff) && (offset < 0x8000)) => (TargetDevice.Mode20Sram2, ((b - 0xfe) * 0x8000) + offset),
-                // fe-ff: 8000-ffff => 3f0000-3fffff
-                var b when (b <= 0xff) => (TargetDevice.Rom, (0x3f0000 + (b - 0xfe) * 0x8000) + (offset & 0x7fff)),
-                // 範囲外
-                _ => throw new ArgumentOutOfRangeException($"不正な範囲アクセス ${addr:x}"),
-            };
+        private static (TargetDevice, uint) ConvertToLoRomLocalAddr(uint addr, uint bank, uint offset) => bank switch
+        {
+            // 00-3f(mirror 80-bf): 8000-ffff => 000000-1fffff
+            var b when (b <= 0x3f) => (TargetDevice.Rom, (b * 0x8000) + (offset - 0x8000)),
+            var b when ((0x80 <= b) && (b <= 0xbf)) => (TargetDevice.Rom, ((b - 0x80) * 0x8000) + (offset & 0x7fff)),
+            // 40-6f(mirror c0-ef): 0000-7fff => 200000-37ffff
+            // 40-6f(mirror c0-ef): 8000-ffff => 200000-37ffff
+            var b when (b <= 0x6f) => (TargetDevice.Rom, 0x200000 + ((b - 0x40) * 0x8000) + (offset & 0x7fff)),
+            var b when ((0xc0 <= b) && (b <= 0xef)) => (TargetDevice.Rom, (0x200000 + (b - 0xc0) * 0x8000) + (offset & 0x7fff)),
+            // 70-7d(mirror f0-fd) :0000-7fff => cartrdige sram(mode 20 448KB)
+            var b when ((b <= 0x7d) && (offset < 0x8000)) => (TargetDevice.Mode20Sram1, ((b - 0x70) * 0x8000) + offset),
+            var b when (((0xf0 <= b) && (b <= 0xfd)) && (offset < 0x8000)) => (TargetDevice.Mode20Sram1, ((b - 0xf0) * 0x8000) + offset),
+            // 70-7d(mirror f0-fd) :8000-ffff => 380000-3effff
+            var b when (b <= 0x7d) => (TargetDevice.Rom, (0x380000 + (b - 0x70) * 0x8000) + (offset & 0x7fff)),
+            var b when ((0xf0 <= b) && (b <= 0xfd)) => (TargetDevice.Rom, (0x380000 + (b - 0xf0) * 0x8000) + (offset & 0x7fff)),
+            // fe-ff: 0000-7fff => cartridge sram(mode 20 64KB)
+            var b when ((b <= 0xff) && (offset < 0x8000)) => (TargetDevice.Mode20Sram2, ((b - 0xfe) * 0x8000) + offset),
+            // fe-ff: 8000-ffff => 3f0000-3fffff
+            var b when (b <= 0xff) => (TargetDevice.Rom, (0x3f0000 + (b - 0xfe) * 0x8000) + (offset & 0x7fff)),
+            // 範囲外
+            _ => throw new ArgumentOutOfRangeException($"不正な範囲アクセス ${addr:x}"),
+        };
 
         /// <summary>
         /// enumの値から実Bufferを取得します
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
-        protected byte[] GetTargetBuffer(TargetDevice target) => target switch {
-                TargetDevice.Rom => this.romData,
-                TargetDevice.Mode20Sram1 => this.mode20sram1,
-                TargetDevice.Mode20Sram2 => this.mode20sram2,
-                TargetDevice.Mode21Sram => this.mode21sram,
-                _ => throw new ArgumentException($"存在しないTargetが指定されました ${target}")
-            };
+        protected byte[] GetTargetBuffer(TargetDevice target) => target switch
+        {
+            TargetDevice.Rom => this.romData,
+            TargetDevice.Mode20Sram1 => this.mode20sram1,
+            TargetDevice.Mode20Sram2 => this.mode20sram2,
+            TargetDevice.Mode21Sram => this.mode21sram,
+            _ => throw new ArgumentException($"存在しないTargetが指定されました ${target}")
+        };
 
         /// <summary>
         /// 引数で指定されたアドレスの内容を配列に内容を読み出します

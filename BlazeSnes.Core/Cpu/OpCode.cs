@@ -227,15 +227,15 @@ namespace BlazeSnes.Core.Cpu {
             switch (this.Inst) {
                 // Load/Store
                 case Instruction.LDA: {
-                    // 取得した値をA regに読み込み
-                    var srcAddr = this.GetAddr(bus, cpu);
-                    var srcData = readFromBus(srcAddr);
-                    cpu.AConsideringMemoryReg = srcData;
-                    // CPU Flag, PCを更新
-                    cpu.P.UpdateZeroFlag(srcData);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        // 取得した値をA regに読み込み
+                        var srcAddr = this.GetAddr(bus, cpu);
+                        var srcData = readFromBus(srcAddr);
+                        cpu.AConsideringMemoryReg = srcData;
+                        // CPU Flag, PCを更新
+                        cpu.P.UpdateZeroFlag(srcData);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
             }
             // 処理にかかったCPU Clock Cycle数を返す
             return this.GetTotalCycles(cpu);

@@ -140,15 +140,16 @@ namespace BlazeSnes.Core.Cpu {
             // 割り込みの種類によっては必要な値をStackに退避する
             switch (irq) {
                 case Interrupt.CoProcessor: {
-                    // TODO: 一通り実装する
-                    break;
-                }
-                default: 
+                        // TODO: 一通り実装する
+                        break;
+                    }
+                default:
                     throw new ArgumentException($"存在しない割り込み種類が使用されました {irq}");
             }
             // lower addrを取得する、
             // ROM上の配置はLoROM, HiROMで変わるがメモリマップ上はBANK0末端のはず
-            ushort lowAddr = irq switch {
+            ushort lowAddr = irq switch
+            {
                 Interrupt.CoProcessor => 0x0fe4,
                 Interrupt.Abort => 0x0fe6,
                 Interrupt.NonMaskable => 0x0fe8,
