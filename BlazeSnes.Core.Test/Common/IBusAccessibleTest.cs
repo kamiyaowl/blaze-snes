@@ -36,6 +36,10 @@ namespace BlazeSnes.Core.Test.Common {
                 }
                 return true;
             }
+
+            public void Reset() {
+                Array.Fill<byte>(InternalBuf, 0x0);
+            }
         }
 
         /// <summary>
@@ -88,6 +92,10 @@ namespace BlazeSnes.Core.Test.Common {
             public bool Write(uint addr, in byte[] data) {
                 this.Data = data[0];
                 return true;
+            }
+
+            public void Reset() {
+                Data = 0x0;
             }
         }
 

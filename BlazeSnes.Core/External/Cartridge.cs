@@ -149,6 +149,18 @@ namespace BlazeSnes.Core.External {
         }
 
         /// <summary>
+        /// SRAMの内容をクリア, ROMの内容は修正不要
+        /// </summary>
+        public void Reset() {
+            if (IsLoRom) {
+                Array.Fill<byte>(mode20sram1, 0x0);
+                Array.Fill<byte>(mode20sram2, 0x0);
+            } else {
+                Array.Fill<byte>(mode21sram, 0x0);
+            }
+        }
+
+        /// <summary>
         /// ROM情報を読み取って展開します
         /// </summary>
         /// <param name="br">読み取り対象のストリーム</param>

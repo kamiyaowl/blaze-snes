@@ -16,5 +16,9 @@ namespace BlazeSnes.Core.Bus {
             // TODO: 実装する
             throw new NotImplementedException();
         }
+        public void Reset() {
+            // TODO: 実装する
+            throw new NotImplementedException();
+        }
     }
 }

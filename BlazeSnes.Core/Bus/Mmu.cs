@@ -70,6 +70,19 @@ namespace BlazeSnes.Core.Bus {
         }
 
         /// <summary>
+        /// バスにつながるすべてのデバイスをクリアします
+        /// </summary>
+        public void Reset() {
+            Wram.Reset();
+            PpuControlReg.Reset();
+            ApuControlReg.Reset();
+            ApuControlReg.Reset();
+            OnChipIoPort.Reset();
+            DmaControlReg.Reset();
+            Cartridge.Reset();
+        }
+
+        /// <summary>
         /// アクセス先のアドレスから対象のペリフェラルとバス種別を取得します
         /// </summary>
         /// <param name="addr"></param>

@@ -8,7 +8,7 @@ namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// 65816 のレジスタセット
     /// </summary>
-    public class CpuRegister {
+    public class CpuRegister : IResetable {
         /// <summary>
         /// Accumulator Register
         /// </summary>
@@ -98,6 +98,18 @@ namespace BlazeSnes.Core.Cpu {
         public ushort YConsideringIndexReg {
             get => Is16bitIndexAccess ? (ushort)Y : (ushort)(Y & 0xff);
             set => Y = Is16bitIndexAccess ? value : (ushort)(value & 0xff);
+        }
+
+        public void Reset() {
+            A = 0;
+            X = 0;
+            Y = 0;
+            SP = 0;
+            DB = 0;
+            DP = 0;
+            PB = 0;
+            P.Reset();
+            PC = 0;
         }
 
         /// <summary>

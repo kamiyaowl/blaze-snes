@@ -6,7 +6,7 @@ namespace BlazeSnes.Core.Common {
     /// <summary>
     /// Bus Access可能であることを示します
     /// </summary>
-    public interface IBusAccessible {
+    public interface IBusAccessible: IResetable {
         /// <summary>
         /// 指定されたアドレスの内容を読み出します
         /// </summary>

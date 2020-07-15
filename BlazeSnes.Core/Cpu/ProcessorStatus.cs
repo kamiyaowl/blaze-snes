@@ -25,11 +25,17 @@ namespace BlazeSnes.Core.Cpu {
     /// <summary>
     /// 65816 P Register
     /// </summary>
-    public class ProcessorStatus : Register<ProcessorStatusFlag> {
+    public class ProcessorStatus : Register<ProcessorStatusFlag>, IResetable {
 
         public ProcessorStatus() { }
         public ProcessorStatus(ProcessorStatusFlag flag) {
             this.Value = flag;
+        }
+
+        public void Reset() {
+            this.Value = 0x00;
+            // 起動時はEnumation有効A/Mフラグ有効で起動する
+            this.UpdateFlag(ProcessorStatusFlag.E | ProcessorStatusFlag.M | ProcessorStatusFlag.X, true);
         }
 
         /// <summary>
@@ -72,6 +78,8 @@ namespace BlazeSnes.Core.Cpu {
             var isSet = (srcData == 0);
             this.UpdateFlag(ProcessorStatusFlag.Z, isSet);
         }
+
+        // TODO: 他のフラグ操作も実装する
 
         public override string ToString() {
             var sb = new StringBuilder();

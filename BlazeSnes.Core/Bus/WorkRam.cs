@@ -68,6 +68,11 @@ namespace BlazeSnes.Core.Bus {
             }
         }
 
+        public void Reset() {
+            Array.Fill<byte>(WorkBuffer, 0x0);
+            WmAddr = 0x0;
+        }
+
         /// <summary>
         /// Bufのローカルアドレスに変換します
         /// </summary>
