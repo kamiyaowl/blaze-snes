@@ -90,7 +90,7 @@ namespace BlazeSnes.Core.Cpu {
             // BCC nearlabel	BLT	Branch if Carry Clear	90	Program Counter Relative		2	2[^5][^6]
             { 0x90, new OpCode (0x90, Instruction.BCC, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BCS nearlabel	BGE	Branch if Carry Set	B0	Program Counter Relative		2	2[^5][^6]
-            { 0x80, new OpCode (0x80, Instruction.BCS, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
+            { 0xB0, new OpCode (0xB0, Instruction.BCS, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BEQ nearlabel		Branch if Equal	F0	Program Counter Relative		2	2[^5][^6]
             { 0xf0, new OpCode (0xf0, Instruction.BEQ, Addressing.ProgramCounterRelative, new FetchByte (2), 2, CycleOption.Add1CycleIfBranchIsTaken | CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BIT dp		Test Bits	24	Direct Page	NV----Z-	2	3[^1][^2]
@@ -496,7 +496,7 @@ namespace BlazeSnes.Core.Cpu {
             // TCD		Transfer 16-bit Accumulator to Direct Page Register	5B	Implied	N-----Z-	1	2
             { 0x5b, new OpCode (0x5b, Instruction.TAY, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TCS		Transfer 16-bit Accumulator to Stack Pointer	1B	Implied		1	2
-            { 0x2b, new OpCode (0x2b, Instruction.TCS, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
+            { 0x1b, new OpCode (0x1b, Instruction.TCS, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TDC		Transfer Direct Page Register to 16-bit Accumulator	7B	Implied	N-----Z-	1	2
             { 0x7b, new OpCode (0x7b, Instruction.TDC, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // TRB dp		Test and Reset Memory Bits Against Accumulator	14	Direct Page	------Z-	2	5[^2][^4]

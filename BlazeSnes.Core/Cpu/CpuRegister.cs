@@ -104,7 +104,7 @@ namespace BlazeSnes.Core.Cpu {
             A = 0;
             X = 0;
             Y = 0;
-            SP = 0;
+            SP = 0x1fFF; // TODO 値の精査
             DB = 0;
             DP = 0;
             PB = 0;
