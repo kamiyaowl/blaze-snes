@@ -220,22 +220,81 @@ namespace BlazeSnes.Core.Cpu {
         /// <param name="cpu"></param>
         /// <returns>処理にかかったCPU Clock Cycle数</returns>
         public int Run(IBusAccessible bus, CpuRegister cpu) {
-            // Memory mode次第で読み出すデータ量が違うのでWrapする
-            Func<uint, ushort> readFromBus = (srcAddr) => cpu.Is16bitMemoryAccess ? bus.Read16(srcAddr) : bus.Read8(srcAddr);
+            // Operandのデータを読み出します。STA/STX/STYのような命令では使用できません
+            Func<ushort> read = () => {
+                var srcAddr = this.GetAddr(bus, cpu);
+                var srcData = cpu.Is16bitMemoryAccess ? bus.Read16(srcAddr) : bus.Read8(srcAddr);
+                return srcData;
+            };
+            // Operandで指定されたアドレスに引数のデータを書き込みます
+            Action<ushort> write = (dstData) => {
+                var dstAddr = this.GetAddr(bus, cpu);
+                if (cpu.Is16bitMemoryAccess) {
+                    bus.Write16(dstAddr, dstData);
+                } else {
+                    bus.Write8(dstAddr, (byte)(dstData & 0xff));
+                }
+            };
 
             // 命令を実行, PCは個別に進める必要があるので注意
             switch (this.Inst) {
-                // Load/Store
+                /********************* Load/Store *********************/
                 case Instruction.LDA: {
-                        // 取得した値をA regに読み込み
-                        var srcAddr = this.GetAddr(bus, cpu);
-                        var srcData = readFromBus(srcAddr);
-                        cpu.AConsideringMemoryReg = srcData;
-                        // CPU Flag, PCを更新
-                        cpu.P.UpdateZeroFlag(srcData);
-                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                        break;
-                    }
+                    // 取得した値をA regに読み込み
+                    var srcData = read();
+                    cpu.AConsideringMemoryReg = srcData;
+                    // CPU Flag, PCを更新
+                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                    cpu.P.UpdateZeroFlag(srcData);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.LDX: {
+                    // 取得した値をX regに読み込み
+                    var srcData = read();
+                    cpu.XConsideringIndexReg = srcData;
+                    // CPU Flag, PCを更新
+                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                    cpu.P.UpdateZeroFlag(srcData);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.LDY: {
+                    // 取得した値をY regに読み込み
+                    var srcData = read();
+                    cpu.YConsideringIndexReg = srcData;
+                    // CPU Flag, PCを更新
+                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                    cpu.P.UpdateZeroFlag(srcData);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.STA: {
+                    // Aの値を指定されたアドレスに記録
+                    var dstData = cpu.AConsideringMemoryReg;
+                    write(dstData);
+                    // フラグ操作はなし
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.STX: {
+                    // Xの値を指定されたアドレスに記録
+                    var dstData = cpu.XConsideringIndexReg;
+                    write(dstData);
+                    // フラグ操作はなし
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.STY: {
+                    // Yの値を指定されたアドレスに記録
+                    var dstData = cpu.YConsideringIndexReg;
+                    write(dstData);
+                    // フラグ操作はなし
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                default:
+                    throw new NotImplementedException($"Not Implemented. {this.Inst}");
             }
             // 処理にかかったCPU Clock Cycle数を返す
             return this.GetTotalCycles(cpu);

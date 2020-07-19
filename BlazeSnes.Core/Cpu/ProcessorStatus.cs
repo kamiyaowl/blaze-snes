@@ -64,8 +64,8 @@ namespace BlazeSnes.Core.Cpu {
         public void UpdateNegativeFlag(ushort srcData, bool is16bitMemoryAccess) {
             var isSet = is16bitMemoryAccess switch
             {
-                true => (srcData >> 15) != 0x0,
-                false => ((srcData & 0xff) >> 7) != 0x0,
+                true => (srcData & 0x80) != 0x0,
+                false => (srcData & 0x8000) != 0x0,
             };
             this.UpdateFlag(ProcessorStatusFlag.N, isSet);
         }

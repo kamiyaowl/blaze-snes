@@ -112,7 +112,7 @@ namespace BlazeSnes.Core.Cpu {
             // BRA nearlabel		Branch Always	80	Program Counter Relative		2	3[^6]
             { 0x80, new OpCode (0x80, Instruction.BRA, Addressing.ProgramCounterRelative, new FetchByte (2), 3, CycleOption.Add1CycleIfBranchIsTakenAndPageCrossesInEmuMode) },
             // BRK		Break	00	Stack/Interrupt	----DI--	2[^13]	7[^7]
-            { 0x00, new OpCode (0x00, Instruction.BRK, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
+            { 0x00, new OpCode (0x00, Instruction.BRK, Addressing.Implied, new FetchByte (1, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
             // BRL label		Branch Long Always	82	Program Counter Relative Long		3	4
             { 0x82, new OpCode (0x82, Instruction.BRL, Addressing.ProgramCounterRelativeLong, new FetchByte (3), 4, CycleOption.None) },
             // BVC nearlabel		Branch if Overflow Clear	50	Program Counter Relative		2	2[^5][^6]
@@ -158,7 +158,7 @@ namespace BlazeSnes.Core.Cpu {
             // CMP long,X		Compare Accumulator with Memory	DF	Absolute Long Indexed,X	N-----ZC	4	5[^1]
             { 0xdf, new OpCode (0xdf, Instruction.CMP, Addressing.AbsoluteLongIndexedX, new FetchByte (4), 5, CycleOption.Add1CycleIf16bitAcccess) },
             // COP const		Co-Processor Enable	02	Stack/Interrupt	----DI--	2[^13]	7[^7]
-            { 0x02, new OpCode (0x02, Instruction.COP, Addressing.Implied, new FetchByte (2, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
+            { 0x02, new OpCode (0x02, Instruction.COP, Addressing.Implied, new FetchByte (1, AddMode.Add1ByteForSignatureByte), 7, CycleOption.Add1CycleIfNativeMode) },
             // CPX #const		Compare Index Register X with Memory	E0	Immediate	N-----ZC	2[^14]	2[^8]
             { 0xe0, new OpCode (0xe0, Instruction.CPX, Addressing.Immediate, new FetchByte (2, AddMode.Add1ByteIfXRegZero), 2, CycleOption.Add1CycleIfXZero) },
             // CPX dp		Compare Index Register X with Memory	E4	Direct Page	N-----ZC	2	3[^2][^8]
