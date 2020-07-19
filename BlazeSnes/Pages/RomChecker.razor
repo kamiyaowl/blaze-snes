@@ -9,27 +9,64 @@
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
 
-<h1>ROM Checker</h1>
-
 <div class="container-fluid">
     <div class="row">
-        <div class="col-auto flex-md-fill">
+        <div class="col-12">
+            <h1>ROM Checker</h1>
+            <p>
+                Reads information from the ROM file and displays it.
+                <a href="https://github.com/kamiyaowl/blaze-snes/tree/master/assets">Sample Files</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-auto">
             <input type="file" @ref=inputElement />
         </div>
-        <div class="ol-auto ml-md-auto">
+        <div class="ol-auto flex-md-fill">
             <button @onclick=ReadFile class="btn btn-primary btn-sm">Read</button>
             <button @onclick=ClearFile class="btn btn-outline-primary btn-sm">Clear</button>
         </div>
     </div>
     <div class="row">
-        @if (!string.IsNullOrWhiteSpace(errorMessage)) {
-            <div class="alert alert-danger" role="alert">
-                @errorMessage
-            </div>
-        }
+        <div class="col-12">
+            @if (!string.IsNullOrWhiteSpace(errorMessage)) {
+                <div class="alert alert-danger" role="alert" style="width: 100%">
+                    @errorMessage
+                </div>
+            }
+        </div>
     </div>
 
     <div class="row">
+        <div class="col-12">
+            <h2>SMC Header</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (cartridge != null) {
+                    @foreach (var p in cartridge.GetType().GetProperties()) {
+                        <tr>
+                            <td>@p.Name</td>
+                            <td>@p.GetValue(cartridge)</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
         <h2>Disassemble</h2>
         <table class="table">
             <thead>
@@ -38,6 +75,7 @@
                     <th scope="col">Addr(Binary)</th>
                     <th scope="col">Instruction</th>
                     <th scope="col">Addressing</th>
+                    <th scope="col">Cycles</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,35 +90,19 @@
                                 @("(" + string.Join(",", args.Select(x => x.ToString("X02"))) + ")")
                             }
                         </td>
+                        <td>@opcode.Cycles</td>
                     </tr>
                 }
                 <tr>
-                    <td colspan="6">
-                        <button @onclick=Disassemble class="btn" style="width:100%">Disassemble more...</button>
-                    </td>
+                    @if (cartridge != null) {
+                        <td colspan="6">
+                            <button @onclick=Disassemble class="btn btn-info" style="width:100%">
+                                more...
+                                @($"{disasmOffset} ~ {disasmOffset+NUM_OF_DISASM_ENTRY}")
+                            </button>
+                        </td>
+                    }
                 </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row">
-        <h2>SMC Header</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Key</th>
-                    <th scope="col">Value</th>
-                </tr>
-            </thead>
-            <tbody>
-            @if (cartridge != null) {
-                @foreach (var p in cartridge.GetType().GetProperties()) {
-                    <tr>
-                        <td>@p.Name</td>
-                        <td>@p.GetValue(cartridge)</td>
-                    </tr>
-                }
-            }
             </tbody>
         </table>
     </div>
@@ -103,17 +125,24 @@
     // 展開に使っているCPU Reg
     CpuRegister cpuRegister = new CpuRegister();
 
-    public async Task ClearFile() {
-        await fileReaderService.CreateReference(inputElement).ClearValue();
-    }
-
-    public async Task ReadFile() {
-        // 内部情報をクリア
+    // 内部情報をクリアします
+    private void Clear() {
         this.cartridge = null;
         this.errorMessage = "";
         this.disasmList.Clear();
         this.disasmOffset = 0;
         this.cpuRegister.Reset();
+    }
+
+    public async Task ClearFile() {
+        await fileReaderService.CreateReference(inputElement).ClearValue();
+        // 内部情報も消しておく
+        this.Clear();
+    }
+
+    public async Task ReadFile() {
+        // 内部情報も消しておく
+        this.Clear();
 
         // 選択されたファイル一覧を取得
         var files = (await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync()).ToList();
@@ -141,6 +170,8 @@
         }
         // cartridgeの更新をUIに反映させたい
         this.StateHasChanged(); // TODO: Key,Valueをペアで出す機能、他で使うなら切り出しても良いかと
+        // Disassembleも1回ぐらい読んでおく
+        this.Disassemble();
     }
 
     public void Disassemble() {
@@ -153,14 +184,21 @@
         var startSysAddr = cartridge.ResetAddrInEmulation + this.disasmOffset;
         var startBinAddr = cartridge.ConvertToLocalAddr(cartridge.ResetAddrInEmulation).Item2 + this.disasmOffset;
         // 指定数展開する
-        var dst = Disassembler.Parse(cartridge.RomData.Skip((int)startBinAddr), this.cpuRegister).Take(NUM_OF_DISASM_ENTRY);
-        foreach (var (opcode, args, offset) in dst) {
-            var sysAddr = startSysAddr + (uint)offset;
-            var binAddr = startBinAddr + (uint)offset;
-            this.disasmList.Add((opcode, args, sysAddr, binAddr));
-            Console.WriteLine(this.disasmList.Last());
+        try {
+            var dst = Disassembler.Parse(cartridge.RomData.Skip((int)startBinAddr), this.cpuRegister).Take(NUM_OF_DISASM_ENTRY);
+            foreach (var (opcode, args, offset) in dst) {
+                var sysAddr = startSysAddr + (uint)offset;
+                var binAddr = startBinAddr + (uint)offset;
+                this.disasmList.Add((opcode, args, sysAddr, binAddr));
+            }
+        } catch (Exception ex) {
+            Console.WriteLine(ex);
+            this.errorMessage = ex.Message;
+        } finally {
+            // 進めた数を控えておく
+            this.disasmOffset += (uint)NUM_OF_DISASM_ENTRY;
+            // UI に反映
+            this.StateHasChanged();
         }
-        // UI に反映
-        this.StateHasChanged();
     }
 }
