@@ -67,7 +67,7 @@ namespace BlazeSnes.Core.Cpu {
             this.Option = option;
         }
 
-        public override string ToString() => $"{Code:02X}: {Inst} {AddressingMode} ({FetchBytes}bytes, {Cycles}cyc)";
+        public override string ToString() => $"{Code:X02}: {Inst} {AddressingMode} ({FetchBytes}, {Cycles}cyc)";
 
         /// <summary>
         /// 必要なCPU Clock Cycle数を求めます

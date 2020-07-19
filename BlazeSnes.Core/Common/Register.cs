@@ -20,6 +20,6 @@ namespace BlazeSnes.Core.Common {
             set => this.value = value;
         }
 
-        public override string ToString() => $"Reg(${value:04x})";
+        public override string ToString() => $"Reg(${value:x04})";
     }
 }
