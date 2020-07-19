@@ -95,38 +95,66 @@ namespace BlazeSnes.Core.Test.Tool {
 
                     // copyptn:
                     // 	lda	Pattern, x
+                    (Instruction.LDA, new byte[]{ 0x00, 0x82 }), // from binary 0x2248
                     // 	sta	$2118
+                    (Instruction.STA, new byte[]{ 0x18, 0x21 }),
                     // 	inx
+                    (Instruction.INX, new byte[]{ }),
                     // 	inx
+                    (Instruction.INX, new byte[]{ }),
                     // 	dey
+                    (Instruction.DEY, new byte[]{ }),
                     // 	bne	copyptn
+                    (Instruction.BNE, new byte[]{ 0xf5 }), // from binary 0x2251
 
                     // ; Copy NameTable
                     // 	lda	#$41a9
+                    (Instruction.LDA, new byte[]{ 0xa9, 0x41 }),
                     // 	sta	$2116
+                    (Instruction.STA, new byte[]{ 0x16, 0x21 }),
                     // 	ldy	#$000d
+                    (Instruction.LDY, new byte[]{ 0x0d, 0x00 }),
                     // 	ldx	#$0000
+                    (Instruction.LDX, new byte[]{ 0x00, 0x00 }),
                     // 	lda	#$0000
+                    (Instruction.LDA, new byte[]{ 0x00, 0x00 }),
+
                     // copyname:
                     // 	sep	#$20
+                    (Instruction.SEP, new byte[]{ 0x20 }),
+
                     // .a8
                     // 	lda	String, x
+                    (Instruction.LDA, new byte[]{ 0x00, 0xa2 }), // from binary 0x2263
                     // 	rep	#$20
+                    (Instruction.REP, new byte[]{ 0x20 }),
+
                     // .a16
                     // 	sta	$2118
+                    (Instruction.STA, new byte[]{ 0x18, 0x21 }),
                     // 	inx
+                    (Instruction.INX, new byte[]{ }),
                     // 	dey
+                    (Instruction.DEY, new byte[]{ }),
                     // 	bne	copyname
+                    (Instruction.BNE, new byte[]{ 0xf2 }), // from binary 0x226e
 
                     // 	lda	#$01
+                    (Instruction.LDA, new byte[]{ 0x01, 0x00 }),
                     // 	sta	$212c
+                    (Instruction.STA, new byte[]{ 0x2c, 0x21 }),
                     // 	stz	$212d
+                    (Instruction.STZ, new byte[]{ 0x2d, 0x21 }),
                     // 	lda	#$0f
+                    (Instruction.LDA, new byte[]{ 0x0f, 0x00 }),
                     // 	sta	$2100
+                    (Instruction.STA, new byte[]{ 0x00, 0x21 }),
+
                     // mainloop:
                     // 	jmp	mainloop
-
+                    (Instruction.JMP, new byte[]{ 0x7e, 0xa2 }), // from binary 0x227f
                     // 	rti
+                    (Instruction.RTI, new byte[]{ }),
                     // .endproc
                 },
             };
@@ -169,30 +197,6 @@ namespace BlazeSnes.Core.Test.Tool {
                 Assert.Equal(expectInst, actualInst);
                 Assert.Equal(expectArgs, actualArgs);
             }
-
-            // // sample1.asm参照
-            // // .proc Reset
-            // Assert.Equal(Instruction.SEI, dst[0].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.CLC, dst[1].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.XCE, dst[2].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.PHK, dst[3].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.PLB, dst[4].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.REP, dst[5].Item1.Inst); // Immediate #30
-            // Assert.Equal(0x30, dst[5].Item2[0]); // args
-            // // .a16
-            // // .i16
-            // Assert.Equal(Instruction.LDX, dst[6].Item1.Inst); // #1fff
-            // Assert.Equal(0xff, dst[6].Item2[0]); // args
-            // Assert.Equal(0x1f, dst[6].Item2[1]); // args
-            // Assert.Equal(Instruction.TXS, dst[7].Item1.Inst); // Implied
-            // Assert.Equal(Instruction.JSR, dst[8].Item1.Inst); // $InitRegs
-            // Assert.Equal(0x82, dst[8].Item2[0]); // args
-            // Assert.Equal(0xa2, dst[8].Item2[1]); // args
-            // Assert.Equal(Instruction.SEP, dst[9].Item1.Inst); // #20
-            // Assert.Equal(0x20, dst[9].Item2[0]); // args
-            // // .a8
-
-            // TODO: 期待ケースをもう少し伸ばす
         }
     }
 }
