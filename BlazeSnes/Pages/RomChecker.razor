@@ -1,44 +1,107 @@
 ﻿@page "/romchecker"
 @using System.IO
+@using System.Collections
+@using System.Collections.Generic
+@using System.Linq
+@using BlazeSnes.Core.Cpu
 @using BlazeSnes.Core.External
+@using BlazeSnes.Core.Tool
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
 
 <h1>ROM Checker</h1>
 
-<input type="file" @ref=inputElement />
-<button @onclick=ReadFile class="btn btn-primary btn-sm">Read</button>
-<button @onclick=ClearFile class="btn btn-outline-primary btn-sm">Clear</button>
-
-@if (!string.IsNullOrWhiteSpace(errorMessage)) {
-    <div class="alert alert-danger" role="alert">
-        @errorMessage
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-auto flex-md-fill">
+            <input type="file" @ref=inputElement />
+        </div>
+        <div class="ol-auto ml-md-auto">
+            <button @onclick=ReadFile class="btn btn-primary btn-sm">Read</button>
+            <button @onclick=ClearFile class="btn btn-outline-primary btn-sm">Clear</button>
+        </div>
     </div>
-}
+    <div class="row">
+        @if (!string.IsNullOrWhiteSpace(errorMessage)) {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+            </div>
+        }
+    </div>
 
-@if (cartridge != null) {
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Key</th>
-                <th scope="col">Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var p in cartridge.GetType().GetProperties()) {
+    <div class="row">
+        <h2>Disassemble</h2>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@p.Name</td>
-                    <td>@p.GetValue(cartridge)</td>
+                    <th scope="col">Addr(System)</th>
+                    <th scope="col">Addr(Binary)</th>
+                    <th scope="col">Instruction</th>
+                    <th scope="col">Addressing</th>
                 </tr>
+            </thead>
+            <tbody>
+                @foreach (var (opcode, args, sysAddr, binAddr) in disasmList) {
+                    <tr>
+                        <td>@sysAddr.ToString("X08")</td>
+                        <td>@binAddr.ToString("X08")</td>
+                        <td>@($"{opcode.Inst}({opcode.Code:X02})")</td>
+                        <td>
+                            @opcode.AddressingMode
+                            @if (args.Length > 0) {
+                                @("(" + string.Join(",", args.Select(x => x.ToString("X02"))) + ")")
+                            }
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="6">
+                        <button @onclick=Disassemble class="btn" style="width:100%">Disassemble more...</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <h2>SMC Header</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Key</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (cartridge != null) {
+                @foreach (var p in cartridge.GetType().GetProperties()) {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td>@p.GetValue(cartridge)</td>
+                    </tr>
+                }
             }
-        </tbody>
-    </table>
-}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @code {
+    // 一度にDisasmする量
+    readonly int NUM_OF_DISASM_ENTRY = 20;
+    // Input要素
     ElementReference inputElement;
-    Cartridge cartridge;
+    // エラーメッセージ
     string errorMessage;
+
+    // 読み込んだカセット
+    Cartridge cartridge;
+    // 展開したDisassembler(Opcode, args, sysAddr, binAddr)
+    List<(OpCode, byte[], uint, uint)> disasmList = new List<(OpCode, byte[], uint, uint)>();
+    // 展開済byte数
+    uint disasmOffset = 0;
+    // 展開に使っているCPU Reg
+    CpuRegister cpuRegister = new CpuRegister();
 
     public async Task ClearFile() {
         await fileReaderService.CreateReference(inputElement).ClearValue();
@@ -48,6 +111,10 @@
         // 内部情報をクリア
         this.cartridge = null;
         this.errorMessage = "";
+        this.disasmList.Clear();
+        this.disasmOffset = 0;
+        this.cpuRegister.Reset();
+
         // 選択されたファイル一覧を取得
         var files = (await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync()).ToList();
         if (files.Count == 0) {
@@ -74,5 +141,26 @@
         }
         // cartridgeの更新をUIに反映させたい
         this.StateHasChanged(); // TODO: Key,Valueをペアで出す機能、他で使うなら切り出しても良いかと
+    }
+
+    public void Disassemble() {
+        // fileがなければ無理
+        if (this.cartridge == null) {
+            this.errorMessage = "no file.";
+            return;
+        }
+        // ResetVectorのLocalAddrに展開済サイズを足す
+        var startSysAddr = cartridge.ResetAddrInEmulation + this.disasmOffset;
+        var startBinAddr = cartridge.ConvertToLocalAddr(cartridge.ResetAddrInEmulation).Item2 + this.disasmOffset;
+        // 指定数展開する
+        var dst = Disassembler.Parse(cartridge.RomData.Skip((int)startBinAddr), this.cpuRegister).Take(NUM_OF_DISASM_ENTRY);
+        foreach (var (opcode, args, offset) in dst) {
+            var sysAddr = startSysAddr + (uint)offset;
+            var binAddr = startBinAddr + (uint)offset;
+            this.disasmList.Add((opcode, args, sysAddr, binAddr));
+            Console.WriteLine(this.disasmList.Last());
+        }
+        // UI に反映
+        this.StateHasChanged();
     }
 }

@@ -16,31 +16,31 @@ namespace BlazeSnes.Core.Tool {
         /// 引数に指定されたバイナリをすべて展開します
         /// </summary>
         /// <param name="src">データソース</param>
-        /// <param name="cpuReg">CPUの事前状態、未指定の場合はReset状態の値が使われる</param>
+        /// <param name="cpuReg">CPUの事前状態、未指定の場合はReset状態の値が使われる。引数に指定した場合、継続して呼び出せるように状態は変更される。変更されたくない場合はDeepCloneした値を渡す</param>
         /// <param name="cpuReg">CPU Regの値を解析中も固定したい場合はtrue</param>
-        /// <returns>(OpCode, Operand)の組み合わせ</returns>
-        public static IEnumerable<(OpCode, byte[])> Parse(IEnumerable<byte> src, CpuRegister cpuReg = null, bool isFixedReg = false) {
+        /// <returns>(OpCode, Operand, offset)の組み合わせ</returns>
+        public static IEnumerable<(OpCode, byte[], int)> Parse(IEnumerable<byte> src, CpuRegister cpuReg = null, bool isFixedReg = false) {
             // 指定されてなければ初期値を使う
             if (cpuReg == null) {
                 cpuReg = new CpuRegister();
                 cpuReg.Reset();
             }
             // 順番に読み出す
-            int decodeCount = 0;
             IEnumerator<byte> e = src.GetEnumerator();
-            while (e.MoveNext()) {
+            for (int offset = 0; e.MoveNext(); offset++) {
                 // get opcode
                 var rawOpCode = e.Current;
                 if (!OpCodeDefs.OpCodes.TryGetValue(rawOpCode, out OpCode opcode)) {
-                    throw new FormatException($"Opcode:{rawOpCode:02X}が見つかりませんでした. {nameof(decodeCount)}={decodeCount}");
+                    throw new FormatException($"Opcode:{rawOpCode:02X}が見つかりませんでした. {nameof(offset)}={offset}");
                 }
                 // get operand
                 var operandLength = opcode.GetTotalArrangeBytes(cpuReg) - 1;
                 var operandList = new List<byte>();
                 for (int i = 0; i < operandLength; i++) {
                     if (!e.MoveNext()) {
-                        throw new FormatException($"Opcode:{opcode}のOperandを取得中にデータソースが枯渇しました,  {nameof(decodeCount)}={decodeCount}");
+                        throw new FormatException($"Opcode:{opcode}のOperandを取得中にデータソースが枯渇しました,  {nameof(offset)}={offset}");
                     }
+
                     operandList.Add(e.Current);
                 }
                 // 命令内容を見てX,M,E flagを更新し、次回以降の動的にフェッチサイズを変える
@@ -74,9 +74,11 @@ namespace BlazeSnes.Core.Tool {
                             break;
                     }
                 }
+                // 今回の結果
+                yield return (opcode, operandList.ToArray(), offset);
 
-                yield return (opcode, operandList.ToArray());
-                decodeCount++;
+                // Operand分もfetchしているのでアドレス進める
+                offset += operandLength;
             }
         }
     }
