@@ -35,8 +35,8 @@ namespace BlazeSnes.Core.Test.Tool {
             Assert.Equal(0x220e, (int)localAddr);
             Assert.Equal(Cartridge.TargetDevice.Rom, targetDevice);
             // とりあえずデータが入っていそうな領域だけ展開してみる
-            var src = cartridge.RomData.Skip((int)localAddr).Take(11);
-            var dst = Disassembler.Parse(src, false, false).ToArray();
+            var src = cartridge.RomData.Skip((int)localAddr).Take(10);
+            var dst = Disassembler.Parse(src).ToArray();
 
             // sample1.asm参照
             // .proc Reset
@@ -50,7 +50,8 @@ namespace BlazeSnes.Core.Test.Tool {
             // .a16
             // .i16
             Assert.Equal(Instruction.LDX, dst[6].Item1.Inst); // Immediate #1fff
-            Assert.Equal(0x1fff, dst[6].Item2[0]); // args
+            Assert.Equal(0xff, dst[6].Item2[0]); // args
+            Assert.Equal(0x1f, dst[6].Item2[1]); // args
             // TODO: 期待ケースをもう少し伸ばす
         }
     }
