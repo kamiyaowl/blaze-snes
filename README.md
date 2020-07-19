@@ -7,8 +7,7 @@
 [![Common](https://github.com/kamiyaowl/blaze-snes/workflows/Common/badge.svg?branch=master)](https://github.com/kamiyaowl/blaze-snes/actions?query=workflow%3ACommon)
 [![MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/kamiyaowl/blaze-snes/blob/master/LICENSE)
 
-Super Nintendo Entertainment System Emulator written in C#.
-*Blazor WebAssembly* technology allows the snes emulator, implemented in C#, to run in a web browser !
+*Blazor WebAssembly* technology allows the "Super Nintendo Entertainment System Emulator", implemented in C#, to run in a web browser !
 
 *Playground*
 [http://kamiyaowl.github.io/blaze-snes/](http://kamiyaowl.github.io/blaze-snes/)
