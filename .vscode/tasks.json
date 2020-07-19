@@ -46,6 +46,27 @@
             "type": "shell",
             "args": [
                 "test",
+            ],
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test blame",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "test",
+                "--blame",
+            ],
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test detail",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "test",
                 "--logger:\"console;verbosity=detailed\"",
             ],
             "group": "test",

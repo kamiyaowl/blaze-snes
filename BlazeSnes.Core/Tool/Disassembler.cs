@@ -1,8 +1,7 @@
 using System;
-using System.IO;
-
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using BlazeSnes.Core.Cpu;
@@ -29,7 +28,7 @@ namespace BlazeSnes.Core.Tool {
             // 順番に読み出す
             int decodeCount = 0;
             IEnumerator<byte> e = src.GetEnumerator();
-            while(e.MoveNext()) {
+            while (e.MoveNext()) {
                 // get opcode
                 var rawOpCode = e.Current;
                 if (!OpCodeDefs.OpCodes.TryGetValue(rawOpCode, out OpCode opcode)) {
@@ -45,20 +44,29 @@ namespace BlazeSnes.Core.Tool {
                     operandList.Add(e.Current);
                 }
                 // 命令内容を見てX,M,E flagを更新し、次回以降の動的にフェッチサイズを変える
+                // SEP/REPはOperandが1だったフラグをSET/RESETするので直接Valueに上書きしてない...
                 if (!isFixedReg) {
                     switch (opcode.Inst) {
                         case Instruction.SEP: { // SEP #u8
-                            var flags = (ProcessorStatusFlag)operandList[0];
-                            cpuReg.P.UpdateFlag(ProcessorStatusFlag.M, flags.HasFlag(ProcessorStatusFlag.M));
-                            cpuReg.P.UpdateFlag(ProcessorStatusFlag.X, flags.HasFlag(ProcessorStatusFlag.X));
-                            break;
-                        }
+                                var flags = (ProcessorStatusFlag)operandList[0];
+                                if (flags.HasFlag(ProcessorStatusFlag.M)) {
+                                    cpuReg.P.UpdateFlag(ProcessorStatusFlag.M, true);
+                                }
+                                if (flags.HasFlag(ProcessorStatusFlag.X)) {
+                                    cpuReg.P.UpdateFlag(ProcessorStatusFlag.X, true);
+                                }
+                                break;
+                            }
                         case Instruction.REP: { // REP #u8
-                            var flags = (ProcessorStatusFlag)operandList[0];
-                            cpuReg.P.UpdateFlag(ProcessorStatusFlag.M, !flags.HasFlag(ProcessorStatusFlag.M));
-                            cpuReg.P.UpdateFlag(ProcessorStatusFlag.X, !flags.HasFlag(ProcessorStatusFlag.X));
-                            break;
-                        }
+                                var flags = (ProcessorStatusFlag)operandList[0];
+                                if (flags.HasFlag(ProcessorStatusFlag.M)) {
+                                    cpuReg.P.UpdateFlag(ProcessorStatusFlag.M, false);
+                                }
+                                if (flags.HasFlag(ProcessorStatusFlag.X)) {
+                                    cpuReg.P.UpdateFlag(ProcessorStatusFlag.X, false);
+                                }
+                                break;
+                            }
                         case Instruction.XCE: // Exchange Carry and Emulation Flags, --MX---CE
                             cpuReg.P.UpdateFlag(ProcessorStatusFlag.M | ProcessorStatusFlag.X | ProcessorStatusFlag.E, false);
                             break;
@@ -66,7 +74,7 @@ namespace BlazeSnes.Core.Tool {
                             break;
                     }
                 }
-                
+
                 yield return (opcode, operandList.ToArray());
                 decodeCount++;
             }
