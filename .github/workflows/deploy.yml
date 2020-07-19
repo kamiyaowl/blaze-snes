@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: checkout
+      uses: actions/checkout@v2     
+      with:
+        submodules: true
     - name: Build and Create Coverage
       run: docker-compose run deploy
       continue-on-error: true
