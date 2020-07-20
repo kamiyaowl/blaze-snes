@@ -267,11 +267,36 @@ namespace BlazeSnes.Core.Cpu {
                 case Instruction.REP: // NVMXDIZC
                     throw new NotImplementedException("TODO: Implement Clear");
                 /********************* Set          *********************/
-                case Instruction.SEC: // C
-                case Instruction.SED: // D
-                case Instruction.SEI: // I
-                case Instruction.SEP: // NVMXDIZC
-                    throw new NotImplementedException("TODO: Implement Set");
+                case Instruction.SEC: { // C
+                    Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                    cpu.P.UpdateFlag(ProcessorStatusFlag.C, true);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.SED: {// D
+                    Debug.Assert(this.AddressingMode == Addressing.Implied);
+                    
+                    cpu.P.UpdateFlag(ProcessorStatusFlag.D, true);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.SEI: { // I
+                    Debug.Assert(this.AddressingMode == Addressing.Implied);
+                    
+                    cpu.P.UpdateFlag(ProcessorStatusFlag.I, true);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
+                case Instruction.SEP: {// NVMXDIZC
+                    // Immediate 1byteで、フラグが立っている部分を反映
+                    Debug.Assert(this.AddressingMode == Addressing.Immediate);
+                    var srcData = read();
+                    
+                    cpu.P.UpdateFlag((ProcessorStatusFlag)(srcData & 0xff), true);
+                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                    break;
+                }
                 /********************* Compare      *********************/
                 case Instruction.CMP: // NZC
                 case Instruction.CPX: // NZC
@@ -401,6 +426,7 @@ namespace BlazeSnes.Core.Cpu {
                 case Instruction.STZ:
                     throw new NotImplementedException("TODO: Implement Store");
             }
+
             // 処理にかかったCPU Clock Cycle数を返す
             return this.GetTotalCycles(cpu);
         }
