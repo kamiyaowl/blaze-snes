@@ -524,7 +524,7 @@ namespace BlazeSnes.Core.Cpu {
             // WAI		Wait for Interrupt	CB	Implied		1	3[^10]
             { 0xcb, new OpCode (0xcb, Instruction.WAI, Addressing.Implied, new FetchByte (1), 3, CycleOption.Add3CycleToShutdownByInterrupt) },
             // WDM		Reserved for Future Expansion	42			2	0[^11]
-            // { 0x42, new OpCode (0x42, Instruction.WDM, Addressing.Implied, new FetchByte (2), 0, CycleOption.None) },
+            { 0x42, new OpCode (0x42, Instruction.WDM, Addressing.Implied, new FetchByte (2), 0, CycleOption.None) },
             // XBA		Exchange B and A 8-bit Accumulators	EB	Implied	N-----Z-	1	3
             { 0xeb, new OpCode (0xeb, Instruction.XBA, Addressing.Implied, new FetchByte (1), 3, CycleOption.None) },
             // XCE		Exchange Carry and Emulation Flags	FB	Implied	--MX---CE	1	2

@@ -238,8 +238,112 @@ namespace BlazeSnes.Core.Cpu {
 
             // 命令を実行, PCは個別に進める必要があるので注意
             switch (this.Inst) {
-                /********************* Load/Store *********************/
-                case Instruction.LDA: {
+                /********************* Binary Op    *********************/
+                case Instruction.ADC: // NVZC
+                case Instruction.AND: // NZ
+                case Instruction.EOR: // NZ
+                case Instruction.SBC: // NVZC
+                    throw new NotImplementedException("TODO: Implement Binary Op");
+                /********************* Shift/Rotate *********************/
+                case Instruction.ASL: // NZC
+                case Instruction.LSR: // NZC
+                case Instruction.ORA: // NZ
+                case Instruction.ROL: // NZC
+                case Instruction.ROR: // NZC
+                    throw new NotImplementedException("TODO: Implement Shift/Rotate");
+                /********************* Inc/Dec      *********************/
+                case Instruction.DEC: // NZ
+                case Instruction.DEX: // NZ
+                case Instruction.DEY: // NZ
+                case Instruction.INC: // NZ
+                case Instruction.INX: // NZ
+                case Instruction.INY: // NZ
+                    throw new NotImplementedException("TODO: Implement Inc/Dec");
+                /********************* Clear        *********************/
+                case Instruction.CLC: // C
+                case Instruction.CLD: // D
+                case Instruction.CLI: // I
+                case Instruction.CLV: // V
+                case Instruction.REP: // NVMXDIZC
+                    throw new NotImplementedException("TODO: Implement Clear");
+                /********************* Set          *********************/
+                case Instruction.SEC: // C
+                case Instruction.SED: // D
+                case Instruction.SEI: // I
+                case Instruction.SEP: // NVMXDIZC
+                    throw new NotImplementedException("TODO: Implement Set");
+                /********************* Compare      *********************/
+                case Instruction.CMP: // NZC
+                case Instruction.CPX: // NZC
+                case Instruction.CPY: // NZC
+                    throw new NotImplementedException("TODO: Implement Compare");
+                /********************* Branch  *********************/
+                case Instruction.BCC:
+                case Instruction.BCS:
+                case Instruction.BEQ:
+                case Instruction.BMI:
+                case Instruction.BNE:
+                case Instruction.BPL:
+                case Instruction.BRL:
+                case Instruction.BVC:
+                case Instruction.BVS:
+                    throw new NotImplementedException("TODO: Implement Branch");
+                /********************* Jump/Return  *********************/
+                case Instruction.JMP:
+                case Instruction.JSR:
+                case Instruction.RTI:
+                case Instruction.RTL:
+                case Instruction.RTS:
+                    throw new NotImplementedException("TODO: Implement Jump/Return");
+                /********************* Push         *********************/
+                case Instruction.PEA:
+                case Instruction.PEI:
+                case Instruction.PER:
+                case Instruction.PHA:
+                case Instruction.PHB:
+                case Instruction.PHK:
+                case Instruction.PHP:
+                case Instruction.PHX:
+                case Instruction.PHY:
+                    throw new NotImplementedException("TODO: Implement Push");
+                /********************* Pop         *********************/
+                case Instruction.PLA: // NZ
+                case Instruction.PLB: // NZ
+                case Instruction.PLD: // NZ
+                case Instruction.PLP: // NVMXDIZC
+                case Instruction.PLX: // NZ
+                case Instruction.PLY: // NZ
+                    throw new NotImplementedException("TODO: Implement Pop");
+                /********************* Other        *********************/
+                case Instruction.BIT: // NVZ
+                case Instruction.BRK: // DI
+                case Instruction.MVN:
+                case Instruction.MVP:
+                case Instruction.NOP:
+                case Instruction.STP:
+                case Instruction.TRB: // Z
+                case Instruction.TSB: // Z
+                case Instruction.WAI:
+                case Instruction.WDM:
+                case Instruction.XBA: // NZ
+                case Instruction.XCE: // MXCE
+                    throw new NotImplementedException("TODO: Implement Other");
+                /********************* Transfer     *********************/
+                case Instruction.TAX: // NZ
+                case Instruction.TAY: // NZ
+                case Instruction.TCD: // NZ
+                case Instruction.TCS: // NZ
+                case Instruction.TDC: // NZ
+                case Instruction.TSC: // NZ
+                case Instruction.TSX: // NZ
+                case Instruction.TXA: // NZ
+                case Instruction.TXS:
+                case Instruction.TXY: // NZ
+                case Instruction.TYA: // NZ
+                case Instruction.TYX: // NZ
+                    throw new NotImplementedException("TODO: Implement Transfer");
+                /********************* Load         *********************/
+                case Instruction.LDA: { // NZ
                     // 取得した値をA regに読み込み
                     var srcData = read();
                     cpu.AConsideringMemoryReg = srcData;
@@ -249,7 +353,7 @@ namespace BlazeSnes.Core.Cpu {
                     cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                     break;
                 }
-                case Instruction.LDX: {
+                case Instruction.LDX: { // NZ
                     // 取得した値をX regに読み込み
                     var srcData = read();
                     cpu.XConsideringIndexReg = srcData;
@@ -259,7 +363,7 @@ namespace BlazeSnes.Core.Cpu {
                     cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                     break;
                 }
-                case Instruction.LDY: {
+                case Instruction.LDY: { // NZ
                     // 取得した値をY regに読み込み
                     var srcData = read();
                     cpu.YConsideringIndexReg = srcData;
@@ -269,6 +373,7 @@ namespace BlazeSnes.Core.Cpu {
                     cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                     break;
                 }
+                /********************* Store         *********************/
                 case Instruction.STA: {
                     // Aの値を指定されたアドレスに記録
                     var dstData = cpu.AConsideringMemoryReg;
@@ -293,8 +398,8 @@ namespace BlazeSnes.Core.Cpu {
                     cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                     break;
                 }
-                default:
-                    throw new NotImplementedException($"Not Implemented. {this.Inst}");
+                case Instruction.STZ:
+                    throw new NotImplementedException("TODO: Implement Store");
             }
             // 処理にかかったCPU Clock Cycle数を返す
             return this.GetTotalCycles(cpu);
