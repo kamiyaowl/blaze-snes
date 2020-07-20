@@ -438,7 +438,7 @@ namespace BlazeSnes.Core.Cpu {
             // SEI		Set Interrupt Disable Flag	78	Implied	-----I--	1	2
             { 0x78, new OpCode (0x78, Instruction.SEI, Addressing.Implied, new FetchByte (1), 2, CycleOption.None) },
             // SEP #const		Reset Processor Status Bits	E2	Immediate	NVMXDIZC	2	3
-            { 0xe2, new OpCode (0xe2, Instruction.SEP, Addressing.Implied, new FetchByte (2), 3, CycleOption.None) },
+            { 0xe2, new OpCode (0xe2, Instruction.SEP, Addressing.Immediate, new FetchByte (2), 3, CycleOption.None) },
             // STA (_dp,_X)		Store Accumulator to Memory	81	DP Indexed Indirect,X		2	6[^1][^2]
             { 0x81, new OpCode (0x81, Instruction.STA, Addressing.DirectPageIndexedIndirectX, new FetchByte (2), 6, CycleOption.Add1CycleIf16bitAcccess | CycleOption.Add1CycleIfDPRegNonZero) },
             // STA sr,S		Store Accumulator to Memory	83	Stack Relative		2	4[^1]
