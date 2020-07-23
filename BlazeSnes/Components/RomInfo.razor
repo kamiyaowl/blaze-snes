@@ -1,0 +1,23 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Cartridge != null) {
+        @foreach (var p in Cartridge.GetType().GetProperties()) {
+            <tr>
+                <td>@p.Name</td>
+                <td>@p.GetValue(Cartridge)</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public Cartridge Cartridge { get; set; }
+}
