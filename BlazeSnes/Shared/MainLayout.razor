@@ -1,18 +1,15 @@
-﻿@inherits LayoutComponentBase
+﻿@layout RootLayout
+@inherits LayoutComponentBase
 
-<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <a href="https://github.com/kamiyaowl/blaze-snes" target="_blank" class="ml-md-auto">
-            <span class="oi oi-github" aria-hidden="true"></span>
-            GitHub
-        </a>
-    </div>
-
-    <div class="content px-4">
+<Layout>
+    <LayoutContent Padding="Padding.Is4.OnX">
         @Body
-    </div>
-</div>
+    </LayoutContent>
+    <LayoutFooter>
+        <Row>
+            <Paragraph Margin="Margin.IsAuto">
+                Copyright © 2020 <Link To="https://github.com/kamiyaowl/blaze-snes">kamiyaowl/blaze-snes</Link>. All Rights Reserved
+            </Paragraph>
+        </Row>
+    </LayoutFooter>
+</Layout>

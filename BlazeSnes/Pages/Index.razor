@@ -1,7 +1,98 @@
 ﻿@page "/"
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
 
-<h1>BlazeSnes</h1>
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    @(cartridge?.GameTitle ?? "No file selected.")
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <CardText>
+                    TODO: Application Canvas Here
+                </CardText>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.FromBottom">
+            <CardHeader>
+                <CardTitle>ROM Select</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <input type="file" @ref="romFileInputElement"/>
+                <Button Color="Color.Primary" Clicked="ReadFile">
+                    Read
+                </Button>
+                <Button Clicked="ClearFile">
+                    Clear
+                </Button>
+                
+                <CardText>
+                    No files will be uploaded.
+                    <Link To="https://github.com/kamiyaowl/blaze-snes/tree/master/assets">
+                        Sample Files
+                    </Link>
+                </CardText>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
 
-Super Nintendo Entertainment System Emulator written in C#
+@code {
+    // ROM File Input要素
+    ElementReference romFileInputElement;
+    // エラーメッセージ
+    string errorMessage;
+    // 読み込んだカセット
+    Cartridge cartridge;
 
-<p>TODO: Application here</p>
+    // 内部情報をクリアします
+    private void Clear() {
+        this.cartridge = null;
+        this.errorMessage = "";
+    }
+
+    public async Task ClearFile() {
+        await fileReaderService.CreateReference(romFileInputElement).ClearValue();
+        // 内部情報も消しておく
+        this.Clear();
+    }
+
+    public async Task ReadFile() {
+        // 内部情報も消しておく
+        this.Clear();
+
+        // 選択されたファイル一覧を取得
+        var files = (await fileReaderService.CreateReference(romFileInputElement).EnumerateFilesAsync()).ToList();
+        if (files.Count == 0) {
+            this.errorMessage = "no files.";
+            return;
+        }
+        // 先頭のファイルを使う
+        var file = files[0];
+        var fileInfo = await file.ReadFileInfoAsync();
+        // ファイル開いてがんばる
+        using(var fs = await file.OpenReadAsync()) {
+            // AsyncDisposableStreamそのままだとSeekできないのでMemoryStreamに載せ替え
+            var buf = new byte[fileInfo.Size];
+            await fs.ReadAsync(buf, 0, buf.Length);
+            using(var ms = new System.IO.MemoryStream(buf)) {
+                try {
+                    this.cartridge = new Cartridge(ms);
+                } catch (Exception ex) {
+                    this.errorMessage = $"Error: {fileInfo.Name}({fileInfo.Size}byte)\n{ex.Message}";
+                    this.StateHasChanged();
+                    return;
+                }
+            }
+        }
+        // cartridgeの更新をUIに反映させたい
+        this.StateHasChanged();
+    }
+}
