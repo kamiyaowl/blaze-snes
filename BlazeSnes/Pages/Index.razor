@@ -1,7 +1,382 @@
 ﻿@page "/"
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
 
-<h1>BlazeSnes</h1>
+<Jumbotron Margin="Margin.Is4.FromBottom" Background="Background.Primary">
+    <JumbotronTitle Size="JumbotronTitleSize.Is4">BlazeSnes</JumbotronTitle>
+    <JumbotronSubtitle>
+        Super Nintendo Entertainment System Emulator written in C#.
+    </JumbotronSubtitle>
+</Jumbotron>
 
-Super Nintendo Entertainment System Emulator written in C#
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    @(cartridge?.GameTitle ?? "No file selected.")
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <CardText>TODO: Canvas here</CardText>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
 
-<p>TODO: Application here</p>
+@if (isVisibleCpuDebug) {
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Register Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Variable Watcher
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        CPU Debugger
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+}
+
+@if (isVisiblePpuDebug) {
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Asset Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        BG Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Sprite Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Mode 7 Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                    <CardText>
+                        Affine transformations debugger.
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+}
+
+@if (isVisiblePpuDebug) {
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        SPC7000 Register
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        SPC7000 Debugger
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        Wave Viewer
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        TODO:
+                    </CardText>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+}
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.FromBottom">
+            <CardHeader>
+                <CardTitle>ROM Select</CardTitle>
+            </CardHeader>
+            <CardBody>
+                <input type="file" @ref="romFileInputElement"/>
+                <Button Color="Color.Primary" Clicked="ReadFile">
+                    Read
+                </Button>
+                <Button Clicked="ClearFile">
+                    Clear
+                </Button>
+                
+                <CardText>
+                    No files will be uploaded.
+                    <Link To="https://github.com/kamiyaowl/blaze-snes/tree/master/assets">
+                        Sample Files
+                    </Link>
+                </CardText>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+@if (isVisibleRomDebug) {
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        ROM Info
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <RomInfo Cartridge="cartridge"></RomInfo>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+    <Row>
+        <Column>
+            <Card Margin="Margin.Is4.FromBottom">
+                <CardHeader>
+                    <CardTitle>
+                        ROM Disassemble
+                        <Badge Color="Color.Secondary">Debug</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <RomDisassembler Cartridge="cartridge"></RomDisassembler>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+}
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardHeader>
+                <CardTitle>
+                    Debug Switch
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <Button Color="Color.Primary" Clicked="@(() => ToggleVisibleDebugFlags(true))">Enable All</Button>
+                <Button Clicked="@(() => ToggleVisibleDebugFlags(false))">Disable All</Button>
+                <Check TValue="bool" @bind-Checked="isVisibleCpuDebug">CPU</Check>
+                <Check TValue="bool" @bind-Checked="isVisiblePpuDebug">PPU</Check>
+                <Check TValue="bool" @bind-Checked="isVisibleApuDebug">APU</Check>
+                <Check TValue="bool" @bind-Checked="isVisibleRomDebug">ROM</Check>
+                <CardText>
+                    More information can be displayed, but performance may be slower.
+                </CardText>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
+
+<Row>
+    <Paragraph Margin="Margin.IsAuto">
+        Copyright © 2020 <Link To="https://github.com/kamiyaowl/blaze-snes">kamiyaowl/blaze-snes</Link>. All Rights Reserved
+    </Paragraph>
+</Row>
+
+<Snackbar @ref="snackbar">
+  <SnackbarBody>
+    @snackbarMessage
+  </SnackbarBody>
+</Snackbar>
+
+@code {
+    ElementReference romFileInputElement;
+    
+    // snackbarでのメッセージ表示
+    Snackbar snackbar;
+    string snackbarMessage;
+
+    // デバッガ表示フラグ
+    // TODO: 最終的にはDefault Disableにする
+    bool isVisibleCpuDebug = true;
+    bool isVisiblePpuDebug = false;
+    bool isVisibleApuDebug = false;
+    bool isVisibleRomDebug = true;
+
+    // 読み込んだカセット
+    Cartridge cartridge;
+
+    /// SnackBarを表示します
+    private void ShowSnackBar(SnackbarColor color, string text) {
+        this.snackbarMessage = text;
+        this.snackbar.Color = color;
+        this.snackbar.Show();
+    }
+
+    /// デバッグ用UIの表示を一括で切り替えます
+    private void ToggleVisibleDebugFlags(bool isVisible) {
+        this.isVisibleCpuDebug = isVisible;
+        this.isVisiblePpuDebug = isVisible;
+        this.isVisibleApuDebug = isVisible;
+        this.isVisibleRomDebug = isVisible;
+    }
+
+    // 内部情報をクリアします
+    private void Clear() {
+        this.cartridge = null;
+        // TODO: エミュレータ本体のリセット等
+    }
+
+    public async Task ClearFile() {
+        await fileReaderService
+                .CreateReference(romFileInputElement)
+                .ClearValue();
+        // 内部情報も消しておく
+        this.Clear();
+    }
+
+    public async Task ReadFile() {
+        // 内部情報も消しておく
+        this.Clear();
+
+        // 選択されたファイル一覧を取得
+        var files = 
+            (
+                await fileReaderService
+                    .CreateReference(romFileInputElement)
+                    .EnumerateFilesAsync()
+            ).ToArray();
+
+        if (files.Length == 0) {
+            ShowSnackBar(SnackbarColor.Danger, "no files");
+            return;
+        }
+        // 先頭のファイルを使う
+        var file = files[0];
+        var fileInfo = await file.ReadFileInfoAsync();
+        // ファイル開いてがんばる
+        using(var fs = await file.OpenReadAsync()) {
+            // AsyncDisposableStreamそのままだとSeekできないのでMemoryStreamに載せ替え
+            var buf = new byte[fileInfo.Size];
+            await fs.ReadAsync(buf, 0, buf.Length);
+            using(var ms = new System.IO.MemoryStream(buf)) {
+                try {
+                    this.cartridge = new Cartridge(ms);
+                } catch (Exception ex) {
+                    ShowSnackBar(SnackbarColor.Danger, $"{ex.Message}: {fileInfo.Name}({fileInfo.Size}byte)");
+                    return;
+                }
+            }
+        }
+        // cartridgeの更新をUIに反映させたい
+        this.StateHasChanged();
+        ShowSnackBar(SnackbarColor.Success, $"Success: Read {this.cartridge.GameTitle}");
+    }
+}

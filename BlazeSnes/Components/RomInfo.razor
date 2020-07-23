@@ -1,0 +1,26 @@
+@if (Cartridge != null) {
+    <Table Narrow="true" Striped="true" Hoverable="true" Bordered="true">
+        <TableHeader ThemeContrast="ThemeContrast.Light">
+            <TableRow>
+                <TableHeaderCell>Key</TableHeaderCell>
+                <TableHeaderCell>Value</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var p in Cartridge.GetType().GetProperties()) {
+                <TableRow>
+                    <TableRowCell>@p.Name</TableRowCell>
+                    <TableRowCell>@p.GetValue(Cartridge)</TableRowCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+} else {
+    <Paragraph>no files.</Paragraph>
+}
+
+@code {
+    /// 対象のカートリッジ
+    [Parameter]
+    public Cartridge Cartridge { get; set; }
+}
