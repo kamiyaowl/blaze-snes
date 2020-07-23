@@ -42,18 +42,11 @@
             return this.cartridge;
         }
         set {
-            this.cartridge = value;
-            if (value == null) {
-                // 内容をクリアする
+            // クリアされた場合、前回から変更されていた場合は初期化する
+            if (this.cartridge != value || value == null) {
                 Clear();
-            } else {
-                // データソースを作成
-                var c = new CpuRegister();
-                c.Reset();
-                this.disasmSrc = this.cartridge.Disassemble(c);
-                // 一回分やっておく
-                Disassemble();
             }
+            this.cartridge = value;
         }
     }
     /// 一回に読み出す命令数
@@ -63,7 +56,7 @@
     // 読み込んだカセット
     Cartridge cartridge = null;
     // 展開データソース
-    IEnumerable<(OpCode, byte[], uint, uint)> disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
+    IEnumerable<(OpCode, byte[], uint, uint)> disasmSrc = null;
 
     // 展開したDisassembler(Opcode, args, sysAddr, binAddr)
     List<(OpCode, byte[], uint, uint)> disasmList = new List<(OpCode, byte[], uint, uint)>();
@@ -75,10 +68,17 @@
         this.cartridge = null;
         this.disasmList.Clear();
         this.disasmOffset = 0;
-        this.disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
+        this.disasmSrc = null;
     }
 
     public void Disassemble() {
+        // データソースを作成
+        if (this.disasmSrc == null) {
+            var c = new CpuRegister();
+            c.Reset();
+            this.disasmSrc = this.cartridge.Disassemble(c);
+        }
+
         // 指定数展開する
         try {
             foreach(var src in this.disasmSrc.Skip(this.disasmOffset).Take(FetchOpcodeCount)) {
