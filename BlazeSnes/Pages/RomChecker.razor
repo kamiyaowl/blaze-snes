@@ -121,9 +121,9 @@
     // 展開したDisassembler(Opcode, args, sysAddr, binAddr)
     List<(OpCode, byte[], uint, uint)> disasmList = new List<(OpCode, byte[], uint, uint)>();
     // 展開済byte数
-    uint disasmOffset = 0;
-    // 展開に使っているCPU Reg
-    CpuRegister cpuRegister = new CpuRegister();
+    int disasmOffset = 0;
+    // 展開データソース
+    IEnumerable<(OpCode, byte[], uint, uint)> disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
 
     // 内部情報をクリアします
     private void Clear() {
@@ -131,7 +131,7 @@
         this.errorMessage = "";
         this.disasmList.Clear();
         this.disasmOffset = 0;
-        this.cpuRegister.Reset();
+        this.disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
     }
 
     public async Task ClearFile() {
@@ -168,6 +168,10 @@
                 }
             }
         }
+        // Disassembleのデータソースも作る
+        var c = new CpuRegister();
+        c.Reset();
+        this.disasmSrc = this.cartridge.Disassemble(c);
         // cartridgeの更新をUIに反映させたい
         this.StateHasChanged(); // TODO: Key,Valueをペアで出す機能、他で使うなら切り出しても良いかと
         // Disassembleも1回ぐらい読んでおく
@@ -175,28 +179,17 @@
     }
 
     public void Disassemble() {
-        // fileがなければ無理
-        if (this.cartridge == null) {
-            this.errorMessage = "no file.";
-            return;
-        }
-        // ResetVectorのLocalAddrに展開済サイズを足す
-        var startSysAddr = cartridge.ResetAddrInEmulation + this.disasmOffset;
-        var startBinAddr = cartridge.ConvertToLocalAddr(cartridge.ResetAddrInEmulation).Item2 + this.disasmOffset;
         // 指定数展開する
         try {
-            var dst = Disassembler.Parse(cartridge.RomData.Skip((int)startBinAddr), this.cpuRegister).Take(NUM_OF_DISASM_ENTRY);
-            foreach (var (opcode, args, offset) in dst) {
-                var sysAddr = startSysAddr + (uint)offset;
-                var binAddr = startBinAddr + (uint)offset;
-                this.disasmList.Add((opcode, args, sysAddr, binAddr));
+            foreach(var src in this.disasmSrc.Skip(this.disasmOffset).Take(NUM_OF_DISASM_ENTRY)) {
+                this.disasmList.Add(src);
             }
         } catch (Exception ex) {
             Console.WriteLine(ex);
             this.errorMessage = ex.Message;
         } finally {
             // 進めた数を控えておく
-            this.disasmOffset += (uint)NUM_OF_DISASM_ENTRY;
+            this.disasmOffset += NUM_OF_DISASM_ENTRY;
             // UI に反映
             this.StateHasChanged();
         }

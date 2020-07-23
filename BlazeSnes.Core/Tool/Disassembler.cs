@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 
 using BlazeSnes.Core.Cpu;
+using BlazeSnes.Core.External;
 
 namespace BlazeSnes.Core.Tool {
     /// <summary>
@@ -79,6 +80,29 @@ namespace BlazeSnes.Core.Tool {
 
                 // Operand分もfetchしているのでアドレス進める
                 offset += operandLength;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Disassemblerの機能を直接クラスにインプリするのは微妙なので、拡張メソッドで用意する
+    /// </summary>
+    public static class DisassemblerExtension {
+        /// <summary>
+        /// ROMの内容をDisassembleします
+        /// systemAddrにResetAddrを使用します。引数のCpuRegisterは内容が変更されるのでCopyされたものを指定します
+        /// </summary>
+        /// <param name="c"></param>
+        public static IEnumerable<(OpCode, byte[], uint, uint)> Disassemble(this Cartridge cartridge, CpuRegister cpu)  => cartridge.Disassemble(cpu, cartridge.ResetAddrInEmulation);
+        public static IEnumerable<(OpCode, byte[], uint, uint)> Disassemble(this Cartridge cartridge, CpuRegister cpu, uint startSysAddr) {
+            // ResetVectorのLocalAddrに展開済サイズを足す
+            var startBinAddr = cartridge.ConvertToLocalAddr(startSysAddr).Item2;
+            var dst = Disassembler.Parse(cartridge.RomData.Skip((int)startBinAddr), cpu);
+            // ひたすら頭から展開する
+            foreach (var (opcode, args, offset) in dst) {
+                var sysAddr = startSysAddr + (uint)offset;
+                var binAddr = startBinAddr + (uint)offset;
+                yield return (opcode, args, sysAddr, binAddr);
             }
         }
     }
