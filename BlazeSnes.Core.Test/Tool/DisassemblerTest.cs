@@ -159,6 +159,7 @@ namespace BlazeSnes.Core.Test.Tool {
                 },
             };
         }
+
         /// <summary>
         /// Reset Vector以後のAssemblyを検証します
         /// Branch先の解析などは含まれません
@@ -168,7 +169,7 @@ namespace BlazeSnes.Core.Test.Tool {
             string path,
             string title,
             ushort resetAddrInEmulation,
-            int binAddr,
+            int binResetAddr,
             IEnumerable<(Instruction, byte[], int)> expectOpcodes) {
             // binaryの内容を展開
             Cartridge cartridge;
@@ -180,7 +181,7 @@ namespace BlazeSnes.Core.Test.Tool {
 
             // binaryのマップ先が期待通りになっているか確認
             var (targetDevice, localAddr) = cartridge.ConvertToLocalAddr(cartridge.ResetAddrInEmulation);
-            Assert.Equal(binAddr, (int)localAddr);
+            Assert.Equal(binResetAddr, (int)localAddr);
             Assert.Equal(Cartridge.TargetDevice.Rom, targetDevice);
 
             // resetVector相当の位置からを展開対象にする
@@ -199,5 +200,52 @@ namespace BlazeSnes.Core.Test.Tool {
                 Assert.Equal(expectOffset, actualOffset);
             }
         }
+        /// <summary>
+        /// Cartridge.Disassembleが期待通りに先頭からDisassembleを行うか確認します
+        /// Branch先の解析などは含まれません
+        /// </summary>
+        [Theory, MemberData(nameof(VerifyDisasmAfterResetParams))]
+        public void VerifyCartridgeDisassemble(
+            string path,
+            string title,
+            ushort resetAddrInEmulation,
+            int binResetAddr,
+            IEnumerable<(Instruction, byte[], int)> expectOpcodes) {
+            // binaryの内容を展開
+            Cartridge cartridge;
+            using (var fs = new FileStream(path, FileMode.Open)) {
+                cartridge = new Cartridge(fs);
+                Assert.Equal(title, cartridge.GameTitle);
+                Assert.Equal(resetAddrInEmulation, cartridge.ResetAddrInEmulation); // ResetVectorが期待通りか確認
+            }
+
+            // binaryのマップ先が期待通りになっているか確認
+            var (targetDevice, localAddr) = cartridge.ConvertToLocalAddr(cartridge.ResetAddrInEmulation);
+            Assert.Equal(binResetAddr, (int)localAddr);
+            Assert.Equal(Cartridge.TargetDevice.Rom, targetDevice);
+
+            // Reset Vector後の挙動を順番に確認する
+            var cpu = new CpuRegister();
+            cpu.Reset();
+            var target = cartridge.Disassemble(cpu).Zip(expectOpcodes, (actual, expect) => new { Actual = actual, Expect = expect});
+            foreach(var dst in target) {
+                var expectInst = dst.Expect.Item1;
+                var expectArgs = dst.Expect.Item2;
+                var expectSysAddr = (uint)(dst.Expect.Item3 + cartridge.ResetAddrInEmulation); // Reset Vectorの指している位置からのオフセット
+                var expectBinAddr = (uint)(dst.Expect.Item3 + binResetAddr); // Reset Vectorの指している位置からのオフセット
+
+                var actualInst = dst.Actual.Item1.Inst;
+                var actualArgs = dst.Actual.Item2;
+                var actualSysAddr = dst.Actual.Item3;
+                var actualBinAddr = dst.Actual.Item4;
+
+                Assert.Equal(expectInst, actualInst);
+                Assert.Equal(expectArgs, actualArgs);
+                Assert.Equal(expectSysAddr, actualSysAddr);
+                Assert.Equal(expectBinAddr, actualBinAddr);
+
+            }
+        }
+ 
     }
 }
