@@ -10,7 +10,6 @@ using BlazeSnes.Core.External;
 namespace BlazeSnes.Core.Tool {
     /// <summary>
     /// 65812のDisassembler
-    /// TODO: 不十分であれば、パス解析する機能を実装する(low priority)
     /// </summary>
     public static class Disassembler {
         /// <summary>
