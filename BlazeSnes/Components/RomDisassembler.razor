@@ -1,0 +1,96 @@
+<Table Narrow="true" Striped="true" Hoverable="true" Bordered="true">
+    <TableHeader ThemeContrast="ThemeContrast.Light">
+        <TableRow>
+            <TableHeaderCell>Addr(System)</TableHeaderCell>
+            <TableHeaderCell>Addr(Binary)</TableHeaderCell>
+            <TableHeaderCell>Instruction</TableHeaderCell>
+            <TableHeaderCell>Addressing</TableHeaderCell>
+            <TableHeaderCell>Cycles</TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @foreach (var (opcode, args, sysAddr, binAddr) in disasmList) {
+            <TableRow>
+                <TableRowCell>@sysAddr.ToString("X08")</TableRowCell>
+                <TableRowCell>@binAddr.ToString("X08")</TableRowCell>
+                <TableRowCell>@($"{opcode.Inst}({opcode.Code:X02})")</TableRowCell>
+                <TableRowCell>
+                    @opcode.AddressingMode
+                    @if (args.Length > 0) {
+                        @("(" + string.Join(",", args.Select(x => x.ToString("X02"))) + ")")
+                    }
+                </TableRowCell>
+                <TableRowCell>@opcode.Cycles</TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+@if (cartridge != null) {
+    <Button Color="Color.Primary"  Block="true" Clicked="Disassemble">
+        more...
+        @($"{disasmOffset} ~ {disasmOffset+FetchOpcodeCount}")
+    </Button>
+}
+
+
+@code {
+    /// 対象のカートリッジ
+    [Parameter]
+    public Cartridge Cartridge { 
+        get {
+            return this.cartridge;
+        }
+        set {
+            this.cartridge = value;
+            if (value == null) {
+                // 内容をクリアする
+                Clear();
+            } else {
+                // データソースを作成
+                var c = new CpuRegister();
+                c.Reset();
+                this.disasmSrc = this.cartridge.Disassemble(c);
+                // 一回分やっておく
+                Disassemble();
+            }
+        }
+    }
+    /// 一回に読み出す命令数
+    [Parameter]
+    public int FetchOpcodeCount { get; set; } = 10;
+
+    // 読み込んだカセット
+    Cartridge cartridge = null;
+    // 展開データソース
+    IEnumerable<(OpCode, byte[], uint, uint)> disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
+
+    // 展開したDisassembler(Opcode, args, sysAddr, binAddr)
+    List<(OpCode, byte[], uint, uint)> disasmList = new List<(OpCode, byte[], uint, uint)>();
+    // 展開済byte数
+    int disasmOffset = 0;
+
+    // 内部情報をクリアします
+    private void Clear() {
+        this.cartridge = null;
+        this.disasmList.Clear();
+        this.disasmOffset = 0;
+        this.disasmSrc = Enumerable.Empty<(OpCode, byte[], uint, uint)>();
+    }
+
+    public void Disassemble() {
+        // 指定数展開する
+        try {
+            foreach(var src in this.disasmSrc.Skip(this.disasmOffset).Take(FetchOpcodeCount)) {
+                this.disasmList.Add(src);
+            }
+        } catch (Exception ex) {
+            Console.WriteLine(ex);
+        } finally {
+            // 進めた数を控えておく
+            this.disasmOffset += FetchOpcodeCount;
+            // UI に反映
+            this.StateHasChanged();
+        }
+    }
+}
