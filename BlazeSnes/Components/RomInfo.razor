@@ -1,21 +1,23 @@
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Key</th>
-            <th scope="col">Value</th>
-        </tr>
-    </thead>
-    <tbody>
-    @if (Cartridge != null) {
-        @foreach (var p in Cartridge.GetType().GetProperties()) {
-            <tr>
-                <td>@p.Name</td>
-                <td>@p.GetValue(Cartridge)</td>
-            </tr>
-        }
-    }
-    </tbody>
-</table>
+@if (Cartridge != null) {
+    <Table Narrow="true" Striped="true" Hoverable="true" Bordered="true">
+        <TableHeader ThemeContrast="ThemeContrast.Light">
+            <TableRow>
+                <TableHeaderCell>Key</TableHeaderCell>
+                <TableHeaderCell>Value</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var p in Cartridge.GetType().GetProperties()) {
+                <TableRow>
+                    <TableRowCell>@p.Name</TableRowCell>
+                    <TableRowCell>@p.GetValue(Cartridge)</TableRowCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+} else {
+    <Paragraph>no files.</Paragraph>
+}
 
 @code {
     [Parameter]
