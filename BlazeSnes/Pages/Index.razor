@@ -18,6 +18,9 @@
                 </CardTitle>
             </CardHeader>
             <CardBody>
+                <Tooltip Text='@($"Display Size: {canvasWidth}x{canvasHeight}")'>
+                    <Slider Color="Primary" TValue="float" Min="1.0f" Max="5.0f" Step="0.1f" ValueChanged="@((e) => ChangeCanvasSize(e))"/>
+                </Tooltip>
                 <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="canvasReference"></BECanvas>
             </CardBody>
         </Card>
@@ -291,6 +294,8 @@
 
 @code {
     // canvas関連
+    readonly int BASE_WIDTH = 256;
+    readonly int BASE_HEIGHT = 224;
     int canvasWidth = 256;
     int canvasHeight = 224;
     Canvas2DContext context;
@@ -312,7 +317,12 @@
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         this.context = await this.canvasReference.CreateCanvas2DAsync();
         await this.context.SetFillStyleAsync("black");
-        await this.context.FillRectAsync(0, 0, 512, 448);
+        await this.context.FillRectAsync(0, 0, canvasWidth, canvasHeight);
+    }
+
+    private void ChangeCanvasSize(float ratio) {
+        this.canvasWidth  = (int)(ratio * BASE_WIDTH);
+        this.canvasHeight = (int)(ratio * BASE_HEIGHT);
     }
 
     /// SnackBarを表示します
@@ -346,14 +356,11 @@
         this.Clear();
 
         // 選択されたファイル一覧を取得
-        var files = e.Files;
-
-        if (files.Length == 0) {
+        var file = e.Files.FirstOrDefault();
+        if (file == null) {
             ShowSnackBar(SnackbarColor.Danger, "no files");
             return;
         }
-        // 先頭のファイルを使う
-        var file = files[0];
         // AsyncDisposableStreamそのままだとSeekできないのでMemoryStreamに載せ替え
         using(var ms = new System.IO.MemoryStream()) {
             try {
