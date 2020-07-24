@@ -268,35 +268,35 @@ namespace BlazeSnes.Core.Cpu {
                     throw new NotImplementedException("TODO: Implement Clear");
                 /********************* Set          *********************/
                 case Instruction.SEC: { // C
-                    Debug.Assert(this.AddressingMode == Addressing.Implied);
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
 
-                    cpu.P.UpdateFlag(ProcessorStatusFlag.C, true);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.C, true);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.SED: {// D
-                    Debug.Assert(this.AddressingMode == Addressing.Implied);
-                    
-                    cpu.P.UpdateFlag(ProcessorStatusFlag.D, true);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.D, true);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.SEI: { // I
-                    Debug.Assert(this.AddressingMode == Addressing.Implied);
-                    
-                    cpu.P.UpdateFlag(ProcessorStatusFlag.I, true);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.I, true);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.SEP: {// NVMXDIZC
-                    // Immediate 1byteで、フラグが立っている部分を反映
-                    Debug.Assert(this.AddressingMode == Addressing.Immediate);
-                    var srcData = read();
-                    
-                    cpu.P.UpdateFlag((ProcessorStatusFlag)(srcData & 0xff), true);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                                       // Immediate 1byteで、フラグが立っている部分を反映
+                        Debug.Assert(this.AddressingMode == Addressing.Immediate);
+                        var srcData = read();
+
+                        cpu.P.UpdateFlag((ProcessorStatusFlag)(srcData & 0xff), true);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 /********************* Compare      *********************/
                 case Instruction.CMP: // NZC
                 case Instruction.CPX: // NZC
@@ -369,60 +369,60 @@ namespace BlazeSnes.Core.Cpu {
                     throw new NotImplementedException("TODO: Implement Transfer");
                 /********************* Load         *********************/
                 case Instruction.LDA: { // NZ
-                    // 取得した値をA regに読み込み
-                    var srcData = read();
-                    cpu.AConsideringMemoryReg = srcData;
-                    // CPU Flag, PCを更新
-                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
-                    cpu.P.UpdateZeroFlag(srcData);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                                        // 取得した値をA regに読み込み
+                        var srcData = read();
+                        cpu.AConsideringMemoryReg = srcData;
+                        // CPU Flag, PCを更新
+                        cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                        cpu.P.UpdateZeroFlag(srcData);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.LDX: { // NZ
-                    // 取得した値をX regに読み込み
-                    var srcData = read();
-                    cpu.XConsideringIndexReg = srcData;
-                    // CPU Flag, PCを更新
-                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
-                    cpu.P.UpdateZeroFlag(srcData);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                                        // 取得した値をX regに読み込み
+                        var srcData = read();
+                        cpu.XConsideringIndexReg = srcData;
+                        // CPU Flag, PCを更新
+                        cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                        cpu.P.UpdateZeroFlag(srcData);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.LDY: { // NZ
-                    // 取得した値をY regに読み込み
-                    var srcData = read();
-                    cpu.YConsideringIndexReg = srcData;
-                    // CPU Flag, PCを更新
-                    cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
-                    cpu.P.UpdateZeroFlag(srcData);
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                                        // 取得した値をY regに読み込み
+                        var srcData = read();
+                        cpu.YConsideringIndexReg = srcData;
+                        // CPU Flag, PCを更新
+                        cpu.P.UpdateNegativeFlag(srcData, cpu.Is16bitMemoryAccess);
+                        cpu.P.UpdateZeroFlag(srcData);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 /********************* Store         *********************/
                 case Instruction.STA: {
-                    // Aの値を指定されたアドレスに記録
-                    var dstData = cpu.AConsideringMemoryReg;
-                    write(dstData);
-                    // フラグ操作はなし
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        // Aの値を指定されたアドレスに記録
+                        var dstData = cpu.AConsideringMemoryReg;
+                        write(dstData);
+                        // フラグ操作はなし
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.STX: {
-                    // Xの値を指定されたアドレスに記録
-                    var dstData = cpu.XConsideringIndexReg;
-                    write(dstData);
-                    // フラグ操作はなし
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        // Xの値を指定されたアドレスに記録
+                        var dstData = cpu.XConsideringIndexReg;
+                        write(dstData);
+                        // フラグ操作はなし
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.STY: {
-                    // Yの値を指定されたアドレスに記録
-                    var dstData = cpu.YConsideringIndexReg;
-                    write(dstData);
-                    // フラグ操作はなし
-                    cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
-                    break;
-                }
+                        // Yの値を指定されたアドレスに記録
+                        var dstData = cpu.YConsideringIndexReg;
+                        write(dstData);
+                        // フラグ操作はなし
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 case Instruction.STZ:
                     throw new NotImplementedException("TODO: Implement Store");
             }

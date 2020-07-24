@@ -299,7 +299,7 @@
     // 固定値関連
     readonly int BASE_WIDTH = 256;
     readonly int BASE_HEIGHT = 224;
-    readonly double FPS = 200; // TODO: 60fps
+    readonly double FPS = 60;
     readonly int BYTE_PER_PIXEL = 4;
     // canvas関連
     int canvasWidth = 256;
@@ -315,10 +315,13 @@
 
     // Emulation関係
     int counter = 0;
+    byte[] frameBuffer;
     System.Timers.Timer emulateTimer;
     Cartridge cartridge;
 
     protected override async Task OnInitializedAsync() {
+        this.frameBuffer = new byte[BASE_WIDTH * BASE_HEIGHT * BYTE_PER_PIXEL]; // RGBA32
+
         this.emulateTimer = new System.Timers.Timer(1.0 / FPS * 1000);
         this.emulateTimer.Elapsed += OnEmulate;
         this.emulateTimer.Start();
@@ -332,7 +335,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async void OnEmulate(object sender, EventArgs e) {
+    private void OnEmulate(object sender, EventArgs e) {
         var startMs = Environment.TickCount;
         // TODO: Emulate here
         var diffMs = Environment.TickCount - startMs;
@@ -341,18 +344,17 @@
         // TODO: 適当な頻度でcanvas更新を間引く
 
         // TEST: とりあえず適当なFrameBufferのデータを作る
-        var fb = new byte[BASE_WIDTH * BASE_HEIGHT * BYTE_PER_PIXEL]; // RGBA32
         for (int j = 0; j < BASE_HEIGHT; j++) {
             for (int i = 0; i < BASE_WIDTH; i++) {
                 var ptr = (j * BASE_WIDTH * BYTE_PER_PIXEL) + (i * BYTE_PER_PIXEL);
-                fb[ptr + 0] = (byte)((counter + i) & 0xff);
-                fb[ptr + 1] = (byte)((counter + j) & 0xff);
-                fb[ptr + 2] = (byte)((counter + i + j) & 0xff);
-                fb[ptr + 3] = 0xff;
+                frameBuffer[ptr + 0] = (byte)((counter + i) & 0xff);
+                frameBuffer[ptr + 1] = (byte)((counter + j) & 0xff);
+                frameBuffer[ptr + 2] = (byte)((counter + i + j) & 0xff);
+                frameBuffer[ptr + 3] = 0xff;
             }
         }
         // GCに移動されないよう固定してJSに渡す。終わったら捨てる
-        var gch = System.Runtime.InteropServices.GCHandle.Alloc(fb, System.Runtime.InteropServices.GCHandleType.Pinned);
+        var gch = System.Runtime.InteropServices.GCHandle.Alloc(frameBuffer, System.Runtime.InteropServices.GCHandleType.Pinned);
         var pinnedAddr = gch.AddrOfPinnedObject();
         var jsRuntime = JSRuntime as Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime;
         jsRuntime.InvokeUnmarshalled<IntPtr,string>("drawEmulatorCanvas", pinnedAddr);

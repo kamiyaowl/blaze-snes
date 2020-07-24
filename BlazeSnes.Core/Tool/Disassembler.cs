@@ -92,7 +92,7 @@ namespace BlazeSnes.Core.Tool {
         /// systemAddrにResetAddrを使用します。引数のCpuRegisterは内容が変更されるのでCopyされたものを指定します
         /// </summary>
         /// <param name="c"></param>
-        public static IEnumerable<(OpCode, byte[], uint, uint)> Disassemble(this Cartridge cartridge, CpuRegister cpu)  => cartridge.Disassemble(cpu, cartridge.ResetAddrInEmulation);
+        public static IEnumerable<(OpCode, byte[], uint, uint)> Disassemble(this Cartridge cartridge, CpuRegister cpu) => cartridge.Disassemble(cpu, cartridge.ResetAddrInEmulation);
         public static IEnumerable<(OpCode, byte[], uint, uint)> Disassemble(this Cartridge cartridge, CpuRegister cpu, uint startSysAddr) {
             // ResetVectorのLocalAddrに展開済サイズを足す
             var startBinAddr = cartridge.ConvertToLocalAddr(startSysAddr).Item2;

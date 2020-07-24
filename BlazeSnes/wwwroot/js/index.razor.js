@@ -16,5 +16,4 @@ window.drawEmulatorCanvas = function(dataPtr) {
     context.putImageData(imageData, 0, 0);
     // draw
     context.drawImage(canvas, 0, 0, baseWidth, baseHeight, 0, 0, canvas.width, canvas.height);
-    console.log(canvas.width, canvas.height);
 };

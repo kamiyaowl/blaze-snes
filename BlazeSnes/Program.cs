@@ -16,10 +16,9 @@ namespace BlazeSnes {
         public static async Task Main(string[] args) {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services
-                .AddBlazorise( options =>
-                {
+                .AddBlazorise(options => {
                     options.ChangeTextOnKeyPress = true;
-                } )
+                })
                 .AddFrolicProviders()
                 .AddFontAwesomeIcons()
                 .AddBlazorContextMenu()
