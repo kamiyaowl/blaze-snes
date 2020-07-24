@@ -227,8 +227,8 @@ namespace BlazeSnes.Core.Test.Tool {
             // Reset Vector後の挙動を順番に確認する
             var cpu = new CpuRegister();
             cpu.Reset();
-            var target = cartridge.Disassemble(cpu).Zip(expectOpcodes, (actual, expect) => new { Actual = actual, Expect = expect});
-            foreach(var dst in target) {
+            var target = cartridge.Disassemble(cpu).Zip(expectOpcodes, (actual, expect) => new { Actual = actual, Expect = expect });
+            foreach (var dst in target) {
                 var expectInst = dst.Expect.Item1;
                 var expectArgs = dst.Expect.Item2;
                 var expectSysAddr = (uint)(dst.Expect.Item3 + cartridge.ResetAddrInEmulation); // Reset Vectorの指している位置からのオフセット
@@ -246,6 +246,6 @@ namespace BlazeSnes.Core.Test.Tool {
 
             }
         }
- 
+
     }
 }

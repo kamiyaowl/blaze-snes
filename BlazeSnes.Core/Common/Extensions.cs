@@ -20,7 +20,7 @@ namespace BlazeSnes.Core.Common {
                 b.Serialize(ms, src);
                 // deserialize
                 ms.Seek(0, SeekOrigin.Begin);
-                 return (T)b.Deserialize(ms);
+                return (T)b.Deserialize(ms);
             }
         }
     }
