@@ -1,6 +1,6 @@
 ﻿@page "/"
-@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
-@inject IJSRuntime CurrentJSRuntime
+@inject Blazored.LocalStorage.ISyncLocalStorageService LocalStorage
+@inject IJSRuntime JsRuntime
 
 <Jumbotron Margin="Margin.Is4.FromBottom" Background="Background.Primary">
     <JumbotronTitle Size="JumbotronTitleSize.Is4">BlazeSnes</JumbotronTitle>
@@ -21,7 +21,8 @@
                 <Tooltip Text='@($"Display Size: {canvasWidth}x{canvasHeight}")'>
                     <Slider Color="Primary" TValue="float" Min="1.0f" Max="5.0f" Step="0.1f" ValueChanged="@((e) => ChangeCanvasSize(e))"/>
                 </Tooltip>
-                <BECanvas Width="@canvasWidth" Height="@canvasHeight" @ref="canvasReference"></BECanvas>
+                <canvas id="emulatorCanvas" width="@canvasWidth" height="@canvasHeight" tabindex="1" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp"
+                        @onmousemove="OnCanvasMouseMove" @onmousedown="OnCanvasMouseDown" @onmouseup="OnCanvasMouseUp" />
             </CardBody>
         </Card>
     </Column>
@@ -293,37 +294,83 @@
 </Snackbar>
 
 @code {
-    // canvas関連
+    // TODO: .razor.csファイルに分離(これに限らず全て)
+
+    // 固定値関連
     readonly int BASE_WIDTH = 256;
     readonly int BASE_HEIGHT = 224;
+    readonly double FPS = 1; // TODO: 60fps
+    readonly int BYTE_PER_PIXEL = 4;
+    // canvas関連
     int canvasWidth = 256;
     int canvasHeight = 224;
-    Canvas2DContext context;
-    BECanvasComponent canvasReference;
     // snackbarでのメッセージ表示
     Snackbar snackbar;
     string snackbarMessage;
-
     // デバッガ表示フラグ
-    // TODO: 最終的にはDefault Disableにする
-    bool isVisibleCpuDebug = true;
+    bool isVisibleCpuDebug = true; // TODO: 最終的にはDefault Disableにする
     bool isVisiblePpuDebug = false;
     bool isVisibleApuDebug = false;
     bool isVisibleRomDebug = true;
 
-    // 読み込んだカセット
+    // Emulation関係
+    System.Timers.Timer emulateTimer;
     Cartridge cartridge;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        // 初期霞なら不要
-        if (!firstRender) return;
-        // 初期化
-        this.context = await this.canvasReference.CreateCanvas2DAsync();
+    protected override async Task OnInitializedAsync() {
+        this.emulateTimer = new System.Timers.Timer(FPS);
+        this.emulateTimer.Elapsed += OnEmulate;
+        this.emulateTimer.Start();
 
-        await this.context.SetFillStyleAsync("black");
-        await this.context.FillRectAsync(0, 0, canvasWidth, canvasHeight);
+        await base.OnInitializedAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnEmulate(object sender, EventArgs e) {
+        var startMs = Environment.TickCount;
+        // TODO: Emulate here
+        var diffMs = Environment.TickCount - startMs;
+
+        // TODO: sound update
+        // TODO: 適当な頻度でcanvas更新を間引く
+
+        // TEST: とりあえず適当なFrameBufferのデータを作る
+        var fb = new byte[BASE_WIDTH * BASE_HEIGHT * BYTE_PER_PIXEL]; // RGBA32
+        for (int j = 0; j < BASE_HEIGHT; j++) {
+            for (int i = 0; i < BASE_WIDTH; i++) {
+                var ptr = (j * BASE_WIDTH * BYTE_PER_PIXEL) + (i * BYTE_PER_PIXEL);
+                fb[ptr + 0] = (byte)((startMs + i) & 0xff);
+                fb[ptr + 1] = (byte)((startMs + j) & 0xff);
+                fb[ptr + 2] = (byte)((startMs + i + j) & 0xff);
+                fb[ptr + 3] = 0xff;
+            }
+        }
+        // GCに移動されないよう固定してJSに渡す。終わったら捨てる
+        var gch = System.Runtime.InteropServices.GCHandle.Alloc(fb, System.Runtime.InteropServices.GCHandleType.Pinned);
+        var pinnedAddr = gch.AddrOfPinnedObject();
+        var jsRuntime = JsRuntime as Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime;
+        jsRuntime.InvokeUnmarshalled<IntPtr,string>("drawEmulatorCanvas", pinnedAddr);
+        gch.Free();
+
+    }
+    private void OnCanvasMouseMove(MouseEventArgs e) {
+    }
+
+    private void OnCanvasMouseDown(MouseEventArgs e) {
+    }
+
+    private void OnCanvasMouseUp(MouseEventArgs e) {
+    }
+
+    private void OnCanvasKeyDown(KeyboardEventArgs e) {
+    }
+
+    private void OnCanvasKeyUp(KeyboardEventArgs e) {
+    }
+  
     private void ChangeCanvasSize(float ratio) {
         this.canvasWidth  = (int)(ratio * BASE_WIDTH);
         this.canvasHeight = (int)(ratio * BASE_HEIGHT);
