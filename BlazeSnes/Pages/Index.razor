@@ -315,7 +315,11 @@
     Cartridge cartridge;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
+        // 初期霞なら不要
+        if (!firstRender) return;
+        // 初期化
         this.context = await this.canvasReference.CreateCanvas2DAsync();
+
         await this.context.SetFillStyleAsync("black");
         await this.context.FillRectAsync(0, 0, canvasWidth, canvasHeight);
     }
