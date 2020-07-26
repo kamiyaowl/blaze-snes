@@ -25,10 +25,6 @@
                 </Tooltip>
                 <canvas id="emulatorCanvas" width="@canvasWidth" height="@canvasHeight" tabindex="1" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp"
                         @onmousemove="OnCanvasMouseMove" @onmousedown="OnCanvasMouseDown" @onmouseup="OnCanvasMouseUp" />
-                <CardText>
-                    @actualFps
-                </CardText>
-
             </CardBody>
         </Card>
     </Column>
@@ -346,7 +342,7 @@
         }
         // start emulation
         this.emulationCancel = new CancellationTokenSource();
-        OnEmulate(this.emulationCancel.Token);
+        await OnEmulate(this.emulationCancel.Token);
 
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -368,7 +364,7 @@
             sw.Stop();
             var elapsedMs = sw.ElapsedMilliseconds > 0 ? sw.ElapsedMilliseconds : 1;
             this.actualFps = 1000.0f / (float)elapsedMs;
-            Console.WriteLine($"counter:{counter} elapsed:{elapsedMs} actualFps:{actualFps}");
+            @* Console.WriteLine($"counter:{counter} elapsed:{elapsedMs} actualFps:{actualFps}"); *@
 
             // FPS Control
             var idealMs = 1000.0f / this.FPS;
