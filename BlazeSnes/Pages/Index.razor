@@ -1,6 +1,8 @@
 ﻿@page "/"
 @inject Blazored.LocalStorage.ISyncLocalStorageService LocalStorage
 @inject IJSRuntime JSRuntime
+@using System.Threading
+@using System.Diagnostics
 
 <Jumbotron Margin="Margin.Is4.FromBottom" Background="Background.Primary">
     <JumbotronTitle Size="JumbotronTitleSize.Is4">BlazeSnes</JumbotronTitle>
@@ -315,33 +317,18 @@
 
     // Emulation関係
     int counter = 0;
+    float actualFps = 0.0f;
     byte[] frameBuffer;
-    System.Timers.Timer emulateTimer;
+    CancellationTokenSource emulationCancel;
     Cartridge cartridge;
 
     protected override async Task OnInitializedAsync() {
         this.frameBuffer = new byte[BASE_WIDTH * BASE_HEIGHT * BYTE_PER_PIXEL]; // RGBA32
-
-        this.emulateTimer = new System.Timers.Timer(1.0 / FPS * 1000);
-        this.emulateTimer.Elapsed += OnEmulate;
-        this.emulateTimer.Start();
-
         await base.OnInitializedAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         await JSRuntime.InvokeAsync<object>("initEmulatorCanvas", null);
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void OnEmulate(object sender, EventArgs e) {
-        var startMs = Environment.TickCount;
-        // TODO: Emulate here
-        var diffMs = Environment.TickCount - startMs;
-
-        // TODO: sound update
-        // TODO: 適当な頻度でcanvas更新を間引く
 
         // TEST: とりあえず適当なFrameBufferのデータを作る
         for (int j = 0; j < BASE_HEIGHT; j++) {
@@ -353,15 +340,41 @@
                 frameBuffer[ptr + 3] = 0xff;
             }
         }
-        // GCに移動されないよう固定してJSに渡す。終わったら捨てる
-        var gch = System.Runtime.InteropServices.GCHandle.Alloc(frameBuffer, System.Runtime.InteropServices.GCHandleType.Pinned);
-        var pinnedAddr = gch.AddrOfPinnedObject();
-        var jsRuntime = JSRuntime as Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime;
-        jsRuntime.InvokeUnmarshalled<IntPtr,string>("drawEmulatorCanvas", pinnedAddr);
-        gch.Free();
+        // start emulation
+        this.emulationCancel = new CancellationTokenSource();
+        await OnEmulate(this.emulationCancel.Token);
 
-        counter++;
+        await base.OnAfterRenderAsync(firstRender);
     }
+
+    private async Task OnEmulate(CancellationToken cancelToken) {
+        for(this.counter = 0; !cancelToken.IsCancellationRequested; this.counter++) {
+            var sw = Stopwatch.StartNew();
+            // TODO: Emulate here
+            // TODO: sound update
+
+            // GCに移動されないよう固定してJSに渡す。終わったら捨てる
+            var gch = System.Runtime.InteropServices.GCHandle.Alloc(frameBuffer, System.Runtime.InteropServices.GCHandleType.Pinned);
+            var pinnedAddr = gch.AddrOfPinnedObject();
+            var jsRuntime = JSRuntime as Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime;
+            jsRuntime.InvokeUnmarshalled<IntPtr,string>("drawEmulatorCanvas", pinnedAddr);
+            gch.Free();
+
+            // Emulation info
+            sw.Stop();
+            var elapsedMs = sw.ElapsedMilliseconds > 0 ? sw.ElapsedMilliseconds : 1;
+            this.actualFps = 1000.0f / (float)elapsedMs;
+            @* Console.WriteLine($"counter:{counter} elapsed:{elapsedMs} actualFps:{actualFps}"); *@
+
+            // FPS Control
+            var idealMs = 1000.0f / this.FPS;
+            if (idealMs > elapsedMs) {
+                var diffMs = idealMs - elapsedMs;
+                await Task.Delay((int)diffMs);
+            }
+        }
+    }
+
     private void OnCanvasMouseMove(MouseEventArgs e) {
     }
 

@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.ContextMenu" Version="1.6.0" />
-    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.0.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
     <PackageReference Include="Blazorise" Version="0.9.1.2" />
     <PackageReference Include="Blazorise.Charts" Version="0.9.1.2" />
