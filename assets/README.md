@@ -9,3 +9,4 @@
 |---|------------|
 |helloworld|http://hp.vector.co.jp/authors/VA042397/snes/sample.html|
 |snes-test-roms|https://gitlab.com/higan/snes-test-roms|
+|SNES|https://github.com/PeterLemon/SNES.git|

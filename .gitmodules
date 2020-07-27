@@ -1,3 +1,6 @@
 [submodule "assets/roms/snes-test-roms"]
 	path = assets/roms/snes-test-roms
 	url = https://gitlab.com/higan/snes-test-roms.git
+[submodule "assets/roms/SNES"]
+	path = assets/roms/SNES
+	url = https://github.com/PeterLemon/SNES.git
