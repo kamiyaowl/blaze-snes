@@ -13,7 +13,74 @@ using Xunit.Sdk;
 
 namespace BlazeSnes.Core.Test.External {
     public class CartridgeTest {
+
         static readonly string SAMPLE_PATH = @"../../../../assets/roms/helloworld/sample1.smc";
+
+        /// <summary>
+        /// GameTitle, CheckSumで期待値が取得できるか確認する
+        /// </summary>
+        [Fact]
+        public void ReadSampleRom() {
+            using (var fs = new FileStream(SAMPLE_PATH, FileMode.Open)) {
+                var c = new Cartridge(fs, isRestricted: true);
+                Assert.Equal("SAMPLE1              ", c.GameTitle);
+                Assert.Equal(0x737f, c.CheckSumComplement);
+                Assert.Equal(0x8c80, c.CheckSum);
+                Assert.Equal(0xa20e, c.ResetAddrInEmulation); // HelloのSampleはEmulationのResetしか定義していない
+                Assert.Equal(0x0000, c.BreakAddrInEmulation); // HelloのSampleはEmulationのResetしか定義していない
+            }
+        }
+        /// <summary>
+        /// テストするROMのパス一覧
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<object[]> GetRomPathes() {
+            yield return new object[] { @"../../../../assets/roms/helloworld/sample1.smc", "SAMPLE1              ", true, 0x8c80 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/ADC/CPUADC.sfc", "65816 CPU TEST ADC   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/ASL/CPUASL.sfc", "65816 CPU TEST ASL   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/BIT/CPUBIT.sfc", "65816 CPU TEST BIT   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/BRA/CPUBRA.sfc", "65816 CPU TEST BRA   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/CMP/CPUCMP.sfc", "65816 CPU TEST CMP   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/DEC/CPUDEC.sfc", "65816 CPU TEST DEC   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/EOR/CPUEOR.sfc", "65816 CPU TEST EOR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/INC/CPUINC.sfc", "65816 CPU TEST INC   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/JMP/CPUJMP.sfc", "65816 CPU TEST JMP   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/LDR/CPULDR.sfc", "65816 CPU TEST LDR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/LSR/CPULSR.sfc", "65816 CPU TEST LSR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/MOV/CPUMOV.sfc", "65816 CPU TEST MOV   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/MSC/CPUMSC.sfc", "65816 CPU TEST MSC   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/ORA/CPUORA.sfc", "65816 CPU TEST ORA   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/PHL/CPUPHL.sfc", "65816 CPU TEST PHL   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/PSR/CPUPSR.sfc", "65816 CPU TEST PSR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/RET/CPURET.sfc", "65816 CPU TEST RET   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/ROL/CPUROL.sfc", "65816 CPU TEST ROL   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/ROR/CPUROR.sfc", "65816 CPU TEST ROR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/SBC/CPUSBC.sfc", "65816 CPU TEST SBC   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/STR/CPUSTR.sfc", "65816 CPU TEST STR   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/TRN/CPUTRN.sfc", "65816 CPU TEST TRN   ", true, 0x5343 };
+            yield return new object[] { @"../../../../assets/roms/SNES/CPUTest/CPU/AND/CPUAND.sfc", "65816 CPU TEST AND   ", true, 0x5343 };
+        }
+
+        /// <summary>
+        /// ROMの検査に成功して、binaryを展開できていることを確認します
+        /// </summary>
+        /// <param name="path"></param>
+        [Theory, MemberData(nameof(GetRomPathes))]
+        public void ReadRom(string path, string gameTitle, bool isLoRom, ushort checkSum) {
+            Cartridge cartridge;
+            // read
+            using (var fs = new FileStream(path, FileMode.Open)) {
+                cartridge = new Cartridge(fs, isRestricted: false);
+            }
+            // verify
+            Assert.Equal(gameTitle, cartridge.GameTitle);
+            Assert.Equal(isLoRom, cartridge.IsLoRom);
+            Assert.Equal(checkSum, cartridge.CheckSum);
+
+            // ROM size比較もしておく
+            var romBinary = File.ReadAllBytes(path);
+            Assert.Equal(romBinary, cartridge.RomData.Take(romBinary.Length)); // Lo/Hi関わらず最大サイズでMapしてあるので比較範囲は狭めておく
+        }
 
         /// <summary>
         /// 最低限のROM Dataを作ります。CheckSumにしか値がセットされていません。
@@ -28,45 +95,6 @@ namespace BlazeSnes.Core.Test.External {
             src[headerOffset + checkSumBaseAddr] = 0xff;
             src[headerOffset + checkSumBaseAddr + 1] = 0xff;
             return src;
-        }
-
-        /// <summary>
-        /// テストするROMのパス一覧
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<object[]> GetRomPathes() {
-            yield return new object[] { SAMPLE_PATH };
-        }
-
-        /// <summary>
-        /// GameTitle, CheckSumで期待値が取得できるか確認する
-        /// </summary>
-        [Fact]
-        public void ReadSampleRom() {
-            using (var fs = new FileStream(SAMPLE_PATH, FileMode.Open)) {
-                var c = new Cartridge(fs);
-                Assert.Equal("SAMPLE1              ", c.GameTitle);
-                Assert.Equal(0x737f, c.CheckSumComplement);
-                Assert.Equal(0x8c80, c.CheckSum);
-                Assert.Equal(0xa20e, c.ResetAddrInEmulation); // HelloのSampleはEmulationのResetしか定義していない
-                Assert.Equal(0x0000, c.BreakAddrInEmulation); // HelloのSampleはEmulationのResetしか定義していない
-            }
-        }
-
-        /// <summary>
-        /// ROMの検査に成功して、binaryを展開できていることを確認します
-        /// </summary>
-        /// <param name="path"></param>
-        [Theory, MemberData(nameof(GetRomPathes))]
-        public void ReadRom(string path) {
-            Cartridge cartridge;
-            // read
-            using (var fs = new FileStream(path, FileMode.Open)) {
-                cartridge = new Cartridge(fs);
-            }
-            // verify
-            var romBinary = File.ReadAllBytes(path);
-            Assert.Equal(romBinary, cartridge.RomData.Take(romBinary.Length)); // Lo/Hi関わらず最大サイズでMapしてあるので比較範囲は狭めておく
         }
 
         /// <summary>

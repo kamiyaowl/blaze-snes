@@ -75,6 +75,12 @@ namespace BlazeSnes.Core.External {
         public ushort CheckSum => (ushort)((romRegistrationData[0x2e]) | (romRegistrationData[0x2f] << 8));
 
         /// <summary>
+        /// CheckSum, CheckSumComplementの対応が正しければtrueを返します
+        /// </summary>
+        /// <returns></returns>    
+        public bool IsCheckSumValid => this.CheckSum == (ushort)(~this.CheckSumComplement);
+
+        /// <summary>
         /// $00:xFE0 ~ $00:xFFF までの情報を格納します
         /// romDataにも同様のデータはあるが、Offsetが面倒なので固定で読み出しておく
         /// </summary>
@@ -106,45 +112,65 @@ namespace BlazeSnes.Core.External {
         /// readerに指定されたファイルを読み込み、Cartridgeの情報として展開します
         /// </summary>
         /// <param name="fs">対象ファイルのストリーム</param>
-        public Cartridge(Stream fs) {
+        public Cartridge(Stream fs, bool isRestricted = true) {
             using (var br = new BinaryReader(fs)) {
                 // 後で使う情報
-                var isSuccess = parseRomRegistrationHeader(br, out var isLoRom, out var hasHeaderOffset);
+                var isSuccess = tryParseRomRegistrationHeader(br, isRestricted, out var isLoRom, out var hasHeaderOffset);
                 // 全パターンでだめだったらしい
                 if (!isSuccess) {
                     throw new FileLoadException("Format Error");
                 }
-                this.IsLoRom = isLoRom;
-                this.HasHeaderOffset = hasHeaderOffset;
-                // 正常に読み込めたなら、残りのデータをローカルに展開
-                var baseOffset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
-                // 割り込みベクタ
-                this.interruptVectorData = new byte[0x20];
-                var vectorTableBaseAddr = baseOffset + 0x30 + (IsLoRom ? LOROM_OFFSET : HIROM_OFFSET);
-                if (br.BaseStream.Seek(vectorTableBaseAddr, SeekOrigin.Begin) != vectorTableBaseAddr) {
-                    throw new FileLoadException("Interrupt Vectors Seek Error");
-                }
-                if (br.Read(this.interruptVectorData, 0, this.interruptVectorData.Length) != this.interruptVectorData.Length) {
-                    throw new FileLoadException("Interrupt Vectors Read Error");
-                }
+                loadRomData(br, isLoRom, hasHeaderOffset);
+            }
+        }
 
-                // ROMの全データを展開
-                var offset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
-                this.romData = new byte[ROM_SIZE];
-                if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != 0) {
-                    throw new FileLoadException("ROM Data Seek Error");
+        /// <summary>
+        /// readerに指定されたファイルを読み込み、Cartridgeの情報として展開します
+        /// </summary>
+        /// <param name="fs">対象ファイルのストリーム</param>
+        public Cartridge(Stream fs, bool isLoRom, bool hasHeaderOffset, bool isRestricted) {
+            using (var br = new BinaryReader(fs)) {
+                // 後で使う情報
+                var isSuccess = parseRomRegistrationHeader(br, isRestricted, isLoRom, hasHeaderOffset);
+                // 全パターンでだめだったらしい
+                if (!isSuccess) {
+                    throw new FileLoadException("Format Error");
                 }
-                if (br.Read(this.romData, 0, this.romData.Length) != (br.BaseStream.Length - offset)) {
-                    throw new FileLoadException("ROM Data Read Error");
-                }
+                loadRomData(br, isLoRom, hasHeaderOffset);
+            }
+        }
 
-                // Cartridge SRAMを初期化
-                if (IsLoRom) {
-                    mode20sram1 = new byte[MODE20_SRAM1_SIZE];
-                    mode20sram2 = new byte[MODE20_SRAM2_SIZE];
-                } else {
-                    mode21sram = new byte[MODE21_SRAM_SIZE];
-                }
+        protected void loadRomData(BinaryReader br, bool isLoRom, bool hasHeaderOffset) {
+            this.IsLoRom = isLoRom;
+            this.HasHeaderOffset = hasHeaderOffset;
+            // 正常に読み込めたなら、残りのデータをローカルに展開
+            var baseOffset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
+            // 割り込みベクタ
+            this.interruptVectorData = new byte[0x20];
+            var vectorTableBaseAddr = baseOffset + 0x30 + (IsLoRom ? LOROM_OFFSET : HIROM_OFFSET);
+            if (br.BaseStream.Seek(vectorTableBaseAddr, SeekOrigin.Begin) != vectorTableBaseAddr) {
+                throw new FileLoadException("Interrupt Vectors Seek Error");
+            }
+            if (br.Read(this.interruptVectorData, 0, this.interruptVectorData.Length) != this.interruptVectorData.Length) {
+                throw new FileLoadException("Interrupt Vectors Read Error");
+            }
+
+            // ROMの全データを展開
+            var offset = (HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
+            this.romData = new byte[ROM_SIZE];
+            if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != 0) {
+                throw new FileLoadException("ROM Data Seek Error");
+            }
+            if (br.Read(this.romData, 0, this.romData.Length) != (br.BaseStream.Length - offset)) {
+                throw new FileLoadException("ROM Data Read Error");
+            }
+
+            // Cartridge SRAMを初期化
+            if (IsLoRom) {
+                mode20sram1 = new byte[MODE20_SRAM1_SIZE];
+                mode20sram2 = new byte[MODE20_SRAM2_SIZE];
+            } else {
+                mode21sram = new byte[MODE21_SRAM_SIZE];
             }
         }
 
@@ -161,53 +187,69 @@ namespace BlazeSnes.Core.External {
         }
 
         /// <summary>
-        /// ROM情報を読み取って展開します
+        /// ROM情報を読み取って展開します, LoROM/HiROMの判定は自動的に行います
         /// </summary>
         /// <param name="br">読み取り対象のストリーム</param>
+        /// <param name="isRestricted">ChecSumを厳格にCheckするならtrue</param>
         /// <param name="isLoRom">LoROMならtrue</param>
         /// <param name="hasHeaderOffset">先頭にヘッダが付与されていればtrue</param>
         /// <returns>読み取り成功ならtrue</returns>
-        protected bool parseRomRegistrationHeader(BinaryReader br, out bool isLoRom, out bool hasHeaderOffset) {
-            // SNES ROM Headerの検査
-            this.romRegistrationData = new byte[HEADER_SIZE];
-
+        protected bool tryParseRomRegistrationHeader(BinaryReader br, bool isRestricted, out bool isLoRom, out bool hasHeaderOffset) {
             // RomType {LoROM, HiROM] x SMC Header{Exist, None} で4パターン試す必要がある
+            // isRestricted=falseのパターンを想定するとROM Sizeがでかい順に試す
             var tryOffsetConfigs = new[] {
-                    new { IsLoRom = false, HasHeaderOffset = false, },
-                    new { IsLoRom = true, HasHeaderOffset = false, },
                     new { IsLoRom = false, HasHeaderOffset = true, },
+                    new { IsLoRom = false, HasHeaderOffset = false, },
                     new { IsLoRom = true, HasHeaderOffset = true, },
+                    new { IsLoRom = true, HasHeaderOffset = false, },
                 };
 
             foreach (var offsetConfig in tryOffsetConfigs) {
                 // 設定値通りにオフセットを導出
-                var offset = (offsetConfig.IsLoRom ? LOROM_OFFSET : HIROM_OFFSET) +
-                    (offsetConfig.HasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
-
-                // 読みたい位置までシークする
-                if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != offset) {
-                    // 規定位置までSeekできてなければファイルサイズが小さいので違う
-                    continue;
+                if (parseRomRegistrationHeader(br, isRestricted, offsetConfig.IsLoRom, offsetConfig.HasHeaderOffset)) {
+                    isLoRom = offsetConfig.IsLoRom;
+                    hasHeaderOffset = offsetConfig.HasHeaderOffset;
+                    return true;
                 }
-                // 読み出す
-                if (br.Read(this.romRegistrationData, 0, this.romRegistrationData.Length) != HEADER_SIZE) {
-                    // 規定量Readできてない
-                    continue;
-                }
-                // CheckSum見とく
-                if (this.CheckSum != (ushort)(~this.CheckSumComplement)) {
-                    continue;
-                }
-                // やったね
-                isLoRom = offsetConfig.IsLoRom;
-                hasHeaderOffset = offsetConfig.HasHeaderOffset;
-                return true;
             }
 
             // 全部ダメだった
             isLoRom = false;
             hasHeaderOffset = false;
             return false;
+        }
+
+        /// <summary>
+        /// ROM情報を読み取って展開します
+        /// </summary>
+        /// <param name="br">読み取り対象のストリーム</param>
+        /// <param name="isRestricted">ChecSumを厳格にCheckするならtrue</param>
+        /// <param name="isLoRom">LoROMならtrue</param>
+        /// <param name="hasHeaderOffset">先頭にヘッダが付与されていればtrue</param>
+        /// <returns>読み取り成功ならtrue</returns>
+        protected bool parseRomRegistrationHeader(BinaryReader br, bool isRestricted, bool isLoRom, bool hasHeaderOffset) {
+            // SNES ROM Headerの検査
+            this.romRegistrationData = new byte[HEADER_SIZE];
+            // 設定値通りにオフセットを導出
+            var offset = (isLoRom ? LOROM_OFFSET : HIROM_OFFSET) + (hasHeaderOffset ? EXTRA_HEADER_SIZE : 0);
+
+            // 読みたい位置までシークする
+            if (br.BaseStream.Seek(offset, SeekOrigin.Begin) != offset) {
+                // 規定位置までSeekできてなければファイルサイズが小さいので違う
+                return false;
+            }
+            // 読み出す
+            if (br.Read(this.romRegistrationData, 0, this.romRegistrationData.Length) != HEADER_SIZE) {
+                // 規定量Readできてない
+                return false;
+            }
+            // CheckSum見とく, 厳格モードでなければ飛ばしてもよい（ちゃんとセットしていない3rd party ROMがある)
+            if (isRestricted && (!this.IsCheckSumValid)) {
+                return false;
+            }
+
+            // やったね
+            return true;
         }
 
         public override string ToString() => GameTitle;

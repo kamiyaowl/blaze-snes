@@ -215,6 +215,12 @@
                 <CardTitle>ROM Select</CardTitle>
             </CardHeader>
             <CardBody>
+                <Button Clicked="ReloadFile" Disabled="@(this.targetFile == null)">Reload</Button>
+                <Check TValue="bool" @bind-Checked="isAutomaticDetect">Detect ROM Type</Check>
+                <Check TValue="bool" @bind-Checked="isRestricted">Verify CheckSum</Check>
+                <Check TValue="bool" Disabled="isAutomaticDetect" @bind-Checked="isLoRom">LoROM</Check>
+                <Check TValue="bool" Disabled="isAutomaticDetect" @bind-Checked="hasHeaderOffset">SFC Header(512byte)</Check>
+
                 <FileEdit type="file" Changed="ReadFile"/>
                 <CardText>
                     No files will be uploaded.
@@ -297,6 +303,7 @@
 
 @code {
     // TODO: .razor.csファイルに分離(これに限らず全て)
+    // 分離できそうなコンポーネントはぐちゃぐちゃする前に分ける
 
     // 固定値関連
     readonly int BASE_WIDTH = 256;
@@ -314,13 +321,19 @@
     bool isVisiblePpuDebug = false;
     bool isVisibleApuDebug = false;
     bool isVisibleRomDebug = true;
+    // Cartridge読み込み関係
+    Cartridge cartridge;
+    IFileEntry targetFile;
+    bool isAutomaticDetect = true;
+    bool isRestricted = true;
+    bool isLoRom = true;
+    bool hasHeaderOffset = false;
 
     // Emulation関係
     int counter = 0;
     float actualFps = 0.0f;
     byte[] frameBuffer;
     CancellationTokenSource emulationCancel;
-    Cartridge cartridge;
 
     protected override async Task OnInitializedAsync() {
         this.frameBuffer = new byte[BASE_WIDTH * BASE_HEIGHT * BYTE_PER_PIXEL]; // RGBA32
@@ -422,15 +435,23 @@
     }
 
     public async Task ReadFile(FileChangedEventArgs e) {
-        // 内部情報も消しておく
-        this.Clear();
-
-        // 選択されたファイル一覧を取得
         var file = e.Files.FirstOrDefault();
+        this.targetFile = file; // ReloadFileで再読み込みを試す用
+        await ReadFile(file);
+    }
+
+    public async Task ReloadFile() {
+        await ReadFile(this.targetFile);
+    }
+    
+    public async Task ReadFile(IFileEntry file) {
+        // ファイルが存在しなければやめる
         if (file == null) {
             ShowSnackBar(SnackbarColor.Danger, "no files");
             return;
         }
+        // 内部情報も消しておく
+        this.Clear();
         // AsyncDisposableStreamそのままだとSeekできないのでMemoryStreamに載せ替え
         using(var ms = new System.IO.MemoryStream()) {
             try {
@@ -438,7 +459,10 @@
                 await file.WriteToStreamAsync(ms);
                 // memorystream->cartridge parse
                 ms.Seek(0, System.IO.SeekOrigin.Begin);
-                this.cartridge = new Cartridge(ms);
+                this.cartridge = this.isAutomaticDetect ? 
+                    new Cartridge(ms, isRestricted) :
+                    new Cartridge(ms, isLoRom, hasHeaderOffset, isRestricted);
+
             } catch (Exception ex) {
                 ShowSnackBar(SnackbarColor.Danger, $"{ex.Message}: {file.Name}({file.Size})");
                 return;
@@ -448,4 +472,5 @@
         this.StateHasChanged();
         ShowSnackBar(SnackbarColor.Success, $"Success: Read {this.cartridge.GameTitle}");
     }
+
 }
