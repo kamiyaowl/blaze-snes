@@ -260,12 +260,44 @@ namespace BlazeSnes.Core.Cpu {
                 case Instruction.INY: // NZ
                     throw new NotImplementedException("TODO: Implement Inc/Dec");
                 /********************* Clear        *********************/
-                case Instruction.CLC: // C
-                case Instruction.CLD: // D
-                case Instruction.CLI: // I
-                case Instruction.CLV: // V
-                case Instruction.REP: // NVMXDIZC
-                    throw new NotImplementedException("TODO: Implement Clear");
+                case Instruction.CLC: { // C
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.C, false);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.CLD: {// D
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.D, false);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.CLI: {// I
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.I, false);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.CLV: {// V
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+
+                        cpu.P.UpdateFlag(ProcessorStatusFlag.V, false);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.REP: {// NVMXDIZC
+                                       // Immediate 1byteで、フラグが立っている部分を反映
+                        Debug.Assert(this.AddressingMode == Addressing.Immediate);
+                        var srcAddr = this.GetAddr(bus, cpu);
+                        var srcData = bus.Read8(srcAddr);
+
+                        cpu.P.UpdateFlag((ProcessorStatusFlag)srcData, true);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 /********************* Set          *********************/
                 case Instruction.SEC: { // C
                         Debug.Assert(this.AddressingMode == Addressing.Implied);
@@ -291,9 +323,10 @@ namespace BlazeSnes.Core.Cpu {
                 case Instruction.SEP: {// NVMXDIZC
                                        // Immediate 1byteで、フラグが立っている部分を反映
                         Debug.Assert(this.AddressingMode == Addressing.Immediate);
-                        var srcData = read();
+                        var srcAddr = this.GetAddr(bus, cpu);
+                        var srcData = bus.Read8(srcAddr);
 
-                        cpu.P.UpdateFlag((ProcessorStatusFlag)(srcData & 0xff), true);
+                        cpu.P.UpdateFlag((ProcessorStatusFlag)srcData, false);
                         cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                         break;
                     }
