@@ -222,17 +222,35 @@ namespace BlazeSnes.Core.Cpu {
         public int Run(IBusAccessible bus, CpuRegister cpu) {
             // Operandのデータを読み出します。STA/STX/STYのような命令では使用できません
             Func<ushort> read = () => {
-                var srcAddr = this.GetAddr(bus, cpu);
-                var srcData = cpu.Is16bitMemoryAccess ? bus.Read16(srcAddr) : bus.Read8(srcAddr);
-                return srcData;
+                switch (this.AddressingMode) {
+                    case Addressing.Accumulator:
+                        return cpu.AConsideringMemoryReg;
+                    default: {
+                        var srcAddr = this.GetAddr(bus, cpu);
+                        var srcData = cpu.Is16bitMemoryAccess ? bus.Read16(srcAddr) : bus.Read8(srcAddr);
+                        return srcData;
+                    }
+                    case Addressing.Implied:
+                        throw new InvalidOperationException($"Implied don't have Operand. code:{this}");
+                }
             };
             // Operandで指定されたアドレスに引数のデータを書き込みます
             Action<ushort> write = (dstData) => {
-                var dstAddr = this.GetAddr(bus, cpu);
-                if (cpu.Is16bitMemoryAccess) {
-                    bus.Write16(dstAddr, dstData);
-                } else {
-                    bus.Write8(dstAddr, (byte)(dstData & 0xff));
+                switch (this.AddressingMode) {
+                    case Addressing.Accumulator:
+                        cpu.AConsideringMemoryReg = dstData;
+                        break;
+                    default: {
+                        var dstAddr = this.GetAddr(bus, cpu);
+                        if (cpu.Is16bitMemoryAccess) {
+                            bus.Write16(dstAddr, dstData);
+                        } else {
+                            bus.Write8(dstAddr, (byte)(dstData & 0xff));
+                        }
+                        break;
+                    }
+                    case Addressing.Implied:
+                        throw new InvalidOperationException($"Implied don't have Operand. code:{this}");
                 }
             };
 
@@ -252,13 +270,74 @@ namespace BlazeSnes.Core.Cpu {
                 case Instruction.ROR: // NZC
                     throw new NotImplementedException("TODO: Implement Shift/Rotate");
                 /********************* Inc/Dec      *********************/
-                case Instruction.DEC: // NZ
-                case Instruction.DEX: // NZ
-                case Instruction.DEY: // NZ
-                case Instruction.INC: // NZ
-                case Instruction.INX: // NZ
-                case Instruction.INY: // NZ
-                    throw new NotImplementedException("TODO: Implement Inc/Dec");
+                case Instruction.DEC: {// NZ
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.Accumulator) ||
+                            (this.AddressingMode == Addressing.DirectPage) ||
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX)
+                        );
+                        var dst = (ushort)(read() - 1);
+                        write(dst);
+
+                        cpu.P.UpdateNegativeFlag(dst, cpu.Is16bitMemoryAccess);
+                        cpu.P.UpdateZeroFlag(dst);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.DEX: {// NZ
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+                        cpu.XConsideringIndexReg = (ushort)(cpu.XConsideringIndexReg - 1);
+
+                        cpu.P.UpdateNegativeFlag(cpu.XConsideringIndexReg, cpu.Is16bitIndexAccess);
+                        cpu.P.UpdateZeroFlag(cpu.XConsideringIndexReg);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.DEY: {// NZ
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+                        cpu.YConsideringIndexReg = (ushort)(cpu.YConsideringIndexReg - 1);
+
+                        cpu.P.UpdateNegativeFlag(cpu.YConsideringIndexReg, cpu.Is16bitIndexAccess);
+                        cpu.P.UpdateZeroFlag(cpu.YConsideringIndexReg);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.INC: {// NZ
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.Accumulator) ||
+                            (this.AddressingMode == Addressing.DirectPage) ||
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX)
+                        );
+                        var dst = (ushort)(read() + 1);
+                        write(dst);
+
+                        cpu.P.UpdateNegativeFlag(dst, cpu.Is16bitMemoryAccess);
+                        cpu.P.UpdateZeroFlag(dst);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.INX: {// NZ
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+                        cpu.XConsideringIndexReg = (ushort)(cpu.XConsideringIndexReg + 1);
+
+                        cpu.P.UpdateNegativeFlag(cpu.XConsideringIndexReg, cpu.Is16bitIndexAccess);
+                        cpu.P.UpdateZeroFlag(cpu.XConsideringIndexReg);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
+                case Instruction.INY: {// NZ
+                        Debug.Assert(this.AddressingMode == Addressing.Implied);
+                        cpu.YConsideringIndexReg = (ushort)(cpu.YConsideringIndexReg + 1);
+                        
+                        cpu.P.UpdateNegativeFlag(cpu.YConsideringIndexReg, cpu.Is16bitIndexAccess);
+                        cpu.P.UpdateZeroFlag(cpu.YConsideringIndexReg);
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
                 /********************* Clear        *********************/
                 case Instruction.CLC: { // C
                         Debug.Assert(this.AddressingMode == Addressing.Implied);
@@ -402,7 +481,24 @@ namespace BlazeSnes.Core.Cpu {
                     throw new NotImplementedException("TODO: Implement Transfer");
                 /********************* Load         *********************/
                 case Instruction.LDA: { // NZ
-                                        // 取得した値をA regに読み込み
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.DirectPageIndexedIndirectX) || 
+                            (this.AddressingMode == Addressing.StackRelative) || 
+                            (this.AddressingMode == Addressing.DirectPage) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirectLong) ||
+                            (this.AddressingMode == Addressing.Immediate) ||
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.AbsoluteLong) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirectIndexedY) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirect) ||
+                            (this.AddressingMode == Addressing.StackRelativeIndirectIndexedY) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirectLongIndexedY) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedY) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX) ||
+                            (this.AddressingMode == Addressing.AbsoluteLongIndexedX)
+                        );
+                        // 取得した値をA regに読み込み
                         var srcData = read();
                         cpu.AConsideringMemoryReg = srcData;
                         // CPU Flag, PCを更新
@@ -412,7 +508,14 @@ namespace BlazeSnes.Core.Cpu {
                         break;
                     }
                 case Instruction.LDX: { // NZ
-                                        // 取得した値をX regに読み込み
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.Immediate) || 
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedY) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedY)
+                        );
+                        // 取得した値をX regに読み込み
                         var srcData = read();
                         cpu.XConsideringIndexReg = srcData;
                         // CPU Flag, PCを更新
@@ -422,7 +525,14 @@ namespace BlazeSnes.Core.Cpu {
                         break;
                     }
                 case Instruction.LDY: { // NZ
-                                        // 取得した値をY regに読み込み
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.Immediate) || 
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX)
+                        );
+                        // 取得した値をY regに読み込み
                         var srcData = read();
                         cpu.YConsideringIndexReg = srcData;
                         // CPU Flag, PCを更新
@@ -433,6 +543,22 @@ namespace BlazeSnes.Core.Cpu {
                     }
                 /********************* Store         *********************/
                 case Instruction.STA: {
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.DirectPageIndexedIndirectX) || 
+                            (this.AddressingMode == Addressing.StackRelative) || 
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.DirectPageIndirectLong) ||
+                            (this.AddressingMode == Addressing.Absolute) ||
+                            (this.AddressingMode == Addressing.AbsoluteLong) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirectIndexedY) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirect) ||
+                            (this.AddressingMode == Addressing.StackRelativeIndirectIndexedY) ||
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) ||
+                            (this.AddressingMode == Addressing.DirectPageIndirectLongIndexedY) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedY) ||
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX) ||
+                            (this.AddressingMode == Addressing.AbsoluteLongIndexedX) 
+                        );
                         // Aの値を指定されたアドレスに記録
                         var dstData = cpu.AConsideringMemoryReg;
                         write(dstData);
@@ -441,6 +567,11 @@ namespace BlazeSnes.Core.Cpu {
                         break;
                     }
                 case Instruction.STX: {
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.Absolute) || 
+                            (this.AddressingMode == Addressing.DirectPageIndexedY)
+                        );
                         // Xの値を指定されたアドレスに記録
                         var dstData = cpu.XConsideringIndexReg;
                         write(dstData);
@@ -449,6 +580,12 @@ namespace BlazeSnes.Core.Cpu {
                         break;
                     }
                 case Instruction.STY: {
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.DirectPageIndexedY) || 
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.Absolute) || 
+                            (this.AddressingMode == Addressing.DirectPageIndexedX)
+                        );
                         // Yの値を指定されたアドレスに記録
                         var dstData = cpu.YConsideringIndexReg;
                         write(dstData);
@@ -456,8 +593,19 @@ namespace BlazeSnes.Core.Cpu {
                         cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
                         break;
                     }
-                case Instruction.STZ:
-                    throw new NotImplementedException("TODO: Implement Store");
+                case Instruction.STZ: {
+                        Debug.Assert(
+                            (this.AddressingMode == Addressing.DirectPage) || 
+                            (this.AddressingMode == Addressing.DirectPageIndexedX) || 
+                            (this.AddressingMode == Addressing.Absolute) || 
+                            (this.AddressingMode == Addressing.AbsoluteIndexedX)
+                        );
+                        // 0を指定されたアドレスに書く
+                        write(0x0);
+                        // フラグ操作はなし
+                        cpu.PC += (ushort)this.GetTotalArrangeBytes(cpu);
+                        break;
+                    }
             }
 
             // 処理にかかったCPU Clock Cycle数を返す
